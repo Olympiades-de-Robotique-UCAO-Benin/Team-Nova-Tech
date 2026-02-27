@@ -4,6 +4,7 @@
 
 ![ORC 2026](https://img.shields.io/badge/ORC_2026-Compétition_Officielle-f97316?style=for-the-badge)
 ![Équipe #6](https://img.shields.io/badge/Équipe-%236-f97316?style=for-the-badge)
+![EGEI](https://img.shields.io/badge/EGEI-f97316?style=for-the-badge)
 ![UCAO-UUC](https://img.shields.io/badge/UCAO--UUC-Bénin-0057A8?style=for-the-badge)
 
 > **« L'union fait la force, la diversité fait l'innovation. »**
