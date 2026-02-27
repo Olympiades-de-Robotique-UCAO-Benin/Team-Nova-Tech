@@ -19,7 +19,6 @@
 | Informations | Détails |
 |---|---|
 | Compétition | Olympiade de Robotique UCAO 2026 |
-| Numéro d'équipe | Équipe #6 |
 | Institution | UCAO-UUC Bénin |
 | Catégorie | Suivi de ligne |
 | Statut | Actif |
