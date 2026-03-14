@@ -1,534 +1,805 @@
 <!DOCTYPE html>
 <html lang="fr">
-
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Team Nova Tech — ORC 2026</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <style>
-        :root {
-            --team-color: #f97316;
-            --team-color-light: #ffedd5;
-            --dark: #0f172a;
-            --text: #334155;
-            --muted: #64748b;
-            --border: #e2e8f0;
-            --bg: #f8fafc;
-            --white: #ffffff;
-        }
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Nova Tech — Documentation d'équipe pour la compétition robot suiveur de lignes 2026." />
+  <title>Team Nova Tech — ORC 2026</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <style>
+    /* ═══════════════════════════════════════════════
+       DESIGN TOKENS
+    ═══════════════════════════════════════════════ */
+    :root {
+      --bg: #050505;
+      --bg-alt: #0a0a0a;
+      --surface: #111111;
+      --surface-bright: #181818;
+      --surface-hover: #1e1e1e;
+      --text: #f5f5f5;
+      --text-secondary: #a1a1aa;
+      --text-muted: #71717a;
+      --accent: #22d3ee;
+      --accent-dim: rgba(34,211,238,0.12);
+      --accent2: #a78bfa;
+      --accent2-dim: rgba(167,139,250,0.12);
+      --accent3: #34d399;
+      --accent3-dim: rgba(52,211,153,0.12);
+      --danger: #f87171;
+      --border: rgba(255,255,255,0.08);
+      --border-strong: rgba(255,255,255,0.14);
+      --glass: rgba(255,255,255,0.03);
+      --font: 'Inter', system-ui, -apple-system, sans-serif;
+      --ease: cubic-bezier(0.4, 0, 0.2, 1);
+      --max-w: 1200px;
+      --nav-h: 64px;
+    }
 
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+    /* ═══════════════════════════════════════════════
+       RESET
+    ═══════════════════════════════════════════════ */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; scroll-padding-top: calc(var(--nav-h) + 2rem); }
+    body {
+      font-family: var(--font);
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+    a { color: inherit; text-decoration: none; }
+    ul, ol { list-style: none; }
+    img { display: block; max-width: 100%; }
+    button { font-family: inherit; cursor: pointer; border: none; background: transparent; color: inherit; }
 
-        body {
-            font-family: 'Inter', sans-serif;
-            background: var(--bg);
-            color: var(--text);
-            line-height: 1.6;
-        }
+    /* ═══════════════════════════════════════════════
+       UTILITIES
+    ═══════════════════════════════════════════════ */
+    .container { max-width: var(--max-w); margin: 0 auto; padding: 0 1.5rem; }
+    .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0,0,0,0); }
+    .fade-in { opacity: 0; transform: translateY(28px); transition: opacity .7s var(--ease), transform .7s var(--ease); }
+    .fade-in.visible { opacity: 1; transform: translateY(0); }
 
-        .topbar {
-            background: var(--white);
-            border-bottom: 1px solid var(--border);
-            padding: 14px 24px;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            position: sticky;
-            top: 0;
-            z-index: 100;
-        }
+    /* ═══════════════════════════════════════════════
+       SCROLL PROGRESS
+    ═══════════════════════════════════════════════ */
+    .scroll-progress { position: fixed; top: 0; left: 0; height: 3px; background: linear-gradient(90deg, var(--accent), var(--accent2)); z-index: 9999; width: 0%; transition: width 60ms linear; }
 
-        .topbar a {
-            text-decoration: none;
-            color: var(--muted);
-            font-size: 0.85rem;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
+    /* ═══════════════════════════════════════════════
+       NAVBAR
+    ═══════════════════════════════════════════════ */
+    .navbar {
+      position: fixed; top: 0; left: 0; width: 100%; height: var(--nav-h);
+      z-index: 1000; backdrop-filter: blur(16px) saturate(1.3);
+      background: rgba(5,5,5,0.75); border-bottom: 1px solid var(--border);
+      transition: background .3s var(--ease);
+    }
+    .navbar .container { display: flex; align-items: center; justify-content: space-between; height: 100%; }
+    .logo { display: flex; align-items: center; gap: .55rem; font-weight: 800; font-size: 1.15rem; letter-spacing: -.02em; }
+    .logo-mark { width: 28px; height: 28px; border-radius: 6px; background: linear-gradient(135deg, var(--accent), var(--accent2)); display: flex; align-items: center; justify-content: center; font-size: .7rem; font-weight: 900; color: #000; }
+    .nav-links { display: flex; align-items: center; gap: .25rem; }
+    .nav-links a { font-size: .875rem; font-weight: 500; color: var(--text-secondary); padding: .45rem .75rem; border-radius: 8px; transition: all .2s var(--ease); }
+    .nav-links a:hover, .nav-links a.active { color: var(--text); background: rgba(255,255,255,.06); }
+    .nav-tools { display: flex; align-items: center; gap: .35rem; margin-left: .5rem; padding-left: .75rem; border-left: 1px solid var(--border); }
+    .nav-tool-btn { width: 34px; height: 34px; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: var(--text-secondary); transition: all .2s var(--ease); border: 1px solid transparent; }
+    .nav-tool-btn:hover { color: var(--text); background: rgba(255,255,255,.06); border-color: var(--border); }
+    .nav-tool-btn svg { width: 18px; height: 18px; }
+    .nav-tool-btn .icon-sun { display: none; }
+    [data-theme="light"] .nav-tool-btn .icon-sun { display: block; }
+    [data-theme="light"] .nav-tool-btn .icon-moon { display: none; }
+    .lang-label { font-size: .72rem; font-weight: 700; letter-spacing: .02em; }
 
-        .topbar a:hover {
-            color: var(--team-color);
-        }
+    /* Light theme */
+    [data-theme="light"] { --bg: #fafafa; --bg-alt: #f0f0f0; --surface: #ffffff; --surface-bright: #f5f5f5; --surface-hover: #eeeeee; --text: #18181b; --text-secondary: #52525b; --text-muted: #a1a1aa; --border: rgba(0,0,0,.1); --border-strong: rgba(0,0,0,.18); --glass: rgba(0,0,0,.03); }
+    [data-theme="light"] .navbar { background: rgba(250,250,250,.8); }
+    [data-theme="light"] .mobile-menu { background: rgba(250,250,250,.97); }
+    [data-theme="light"] .logo-mark { color: #fff; }
+    [data-theme="light"] .gradient-text { background: linear-gradient(135deg, #18181b 20%, var(--accent) 50%, var(--accent2) 100%); -webkit-background-clip: text; background-clip: text; }
+    [data-theme="light"] .hamburger span { background: var(--text); }
+    [data-theme="light"] .scroll-progress { background: linear-gradient(90deg, var(--accent), var(--accent2)); }
 
-        .topbar-sep {
-            color: var(--border);
-            font-size: 1.2rem;
-        }
+    /* Mobile menu */
+    .hamburger { display: none; flex-direction: column; gap: 5px; padding: .5rem; }
+    .hamburger span { display: block; width: 20px; height: 2px; background: var(--text); border-radius: 2px; transition: .3s var(--ease); }
+    .hamburger.open span:nth-child(1) { transform: rotate(45deg) translate(5px,5px); }
+    .hamburger.open span:nth-child(2) { opacity: 0; }
+    .hamburger.open span:nth-child(3) { transform: rotate(-45deg) translate(5px,-5px); }
 
-        .topbar-current {
-            font-weight: 600;
-            color: var(--dark);
-            font-size: 0.85rem;
-        }
+    .mobile-menu { display: none; position: fixed; top: var(--nav-h); left: 0; width: 100%; background: rgba(5,5,5,.97); backdrop-filter: blur(20px); border-bottom: 1px solid var(--border); padding: 1rem 1.5rem 1.5rem; z-index: 999; }
+    .mobile-menu.open { display: block; }
+    .mobile-menu a { display: block; padding: .7rem 0; color: var(--text-secondary); font-weight: 500; border-bottom: 1px solid var(--border); }
+    .mobile-menu a:last-child { border: none; }
 
-        .topbar-right {
-            margin-left: auto;
-        }
+    /* ═══════════════════════════════════════════════
+       HERO
+    ═══════════════════════════════════════════════ */
+    .hero { padding: calc(var(--nav-h) + 5rem) 0 4rem; text-align: center; position: relative; overflow: hidden; }
+    .hero-glow { position: absolute; width: 700px; height: 500px; background: radial-gradient(circle, var(--accent) 0%, transparent 70%); opacity: .12; filter: blur(100px); top: -80px; left: 50%; transform: translateX(-50%); pointer-events: none; z-index: 0; }
+    .hero-glow-2 { position: absolute; width: 400px; height: 400px; background: radial-gradient(circle, var(--accent2) 0%, transparent 70%); opacity: .08; filter: blur(90px); top: 200px; right: -100px; pointer-events: none; z-index: 0; }
+    .hero .container { position: relative; z-index: 1; }
 
-        .hero {
-            background: linear-gradient(135deg, #ea580c 0%, #c2410c 100%);
-            padding: 60px 24px 50px;
-            text-align: center;
-            color: var(--white);
-            position: relative;
-            overflow: hidden;
-        }
+    .badge-pill { display: inline-flex; align-items: center; gap: .5rem; background: var(--glass); border: 1px solid var(--border-strong); padding: .42rem 1rem; border-radius: 999px; font-size: .78rem; font-weight: 600; color: var(--accent); margin-bottom: 2rem; }
+    .badge-pill .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent3); animation: pulse-dot 2s infinite; }
+    @keyframes pulse-dot { 0%,100% { opacity: 1; } 50% { opacity: .3; } }
 
-        .hero::before {
-            content: '';
-            position: absolute;
-            inset: 0;
-            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="80" cy="20" r="40" fill="white" fill-opacity="0.04"/><circle cx="10" cy="80" r="30" fill="white" fill-opacity="0.04"/></svg>');
-        }
+    .hero h1 { font-size: clamp(2.8rem, 7vw, 5.5rem); font-weight: 900; line-height: .95; letter-spacing: -.045em; margin-bottom: 1.5rem; }
+    .hero h1 .line { display: block; }
+    .gradient-text { background: linear-gradient(135deg, #fff 20%, var(--accent) 50%, var(--accent2) 100%); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+    .hero-sub { color: var(--text-secondary); font-size: clamp(1rem, 1.8vw, 1.3rem); max-width: 620px; margin: 0 auto 2.5rem; }
+    .hero-btns { display: flex; gap: .75rem; justify-content: center; flex-wrap: wrap; }
+    .btn { display: inline-flex; align-items: center; gap: .45rem; padding: .75rem 1.8rem; border-radius: 10px; font-weight: 650; font-size: .92rem; transition: all .25s var(--ease); border: 1px solid transparent; }
+    .btn-white { background: #fff; color: #000; }
+    .btn-white:hover { background: #e4e4e7; transform: translateY(-2px); box-shadow: 0 8px 30px rgba(255,255,255,.1); }
+    .btn-ghost { border-color: var(--border-strong); color: var(--text); background: var(--glass); }
+    .btn-ghost:hover { background: var(--surface-bright); border-color: rgba(255,255,255,.2); }
+    .btn svg { width: 16px; height: 16px; }
 
-        .hero-avatar {
-            width: 90px;
-            height: 90px;
-            background: rgba(255, 255, 255, 0.15);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 0 auto 20px;
-            border: 3px solid rgba(255, 255, 255, 0.3);
-        }
+    /* ═══════════════════════════════════════════════
+       METRICS BAR
+    ═══════════════════════════════════════════════ */
+    .metrics { padding: 2rem 0 4rem; }
+    .metrics-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px; background: var(--border); border-radius: 16px; overflow: hidden; border: 1px solid var(--border); }
+    .metric { background: var(--surface); padding: 2rem 1.5rem; text-align: center; transition: background .3s var(--ease); }
+    .metric:hover { background: var(--surface-bright); }
+    .metric-value { font-size: 2.2rem; font-weight: 800; letter-spacing: -.03em; color: var(--accent); }
+    .metric-label { font-size: .82rem; color: var(--text-muted); margin-top: .25rem; font-weight: 500; }
+    .metric-value .unit { font-size: 1rem; color: var(--text-secondary); font-weight: 600; }
 
-        .hero-avatar svg {
-            width: 44px;
-            height: 44px;
-            stroke: white;
-        }
+    /* ═══════════════════════════════════════════════
+       SECTION HEADERS
+    ═══════════════════════════════════════════════ */
+    .section-header { margin-bottom: 3.5rem; }
+    .section-label { font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .12em; color: var(--accent); margin-bottom: .75rem; }
+    .section-title { font-size: clamp(1.8rem, 3.5vw, 2.8rem); font-weight: 800; letter-spacing: -.03em; line-height: 1.1; margin-bottom: .75rem; }
+    .section-desc { color: var(--text-secondary); font-size: 1.05rem; max-width: 600px; }
 
-        .hero-badge {
-            display: inline-flex;
-            align-items: center;
-            background: rgba(255, 255, 255, 0.2);
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            padding: 4px 12px;
-            border-radius: 20px;
-            font-size: 0.75rem;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            margin-bottom: 12px;
-        }
+    /* ═══════════════════════════════════════════════
+       FEATURES SECTION
+    ═══════════════════════════════════════════════ */
+    #features { padding: 6rem 0; }
+    .features-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.25rem; }
+    .feature-card { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 2rem; transition: all .35s var(--ease); position: relative; overflow: hidden; }
+    .feature-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px; background: linear-gradient(90deg, transparent, var(--accent), transparent); opacity: 0; transition: opacity .35s var(--ease); }
+    .feature-card:hover { border-color: rgba(34,211,238,.25); transform: translateY(-4px); box-shadow: 0 20px 60px rgba(0,0,0,.4); }
+    .feature-card:hover::before { opacity: 1; }
+    .feature-icon { width: 44px; height: 44px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; margin-bottom: 1.25rem; }
+    .icon-cyan { background: var(--accent-dim); }
+    .icon-purple { background: var(--accent2-dim); }
+    .icon-green { background: var(--accent3-dim); }
+    .feature-card h3 { font-size: 1.15rem; font-weight: 700; margin-bottom: .5rem; }
+    .feature-card p { color: var(--text-secondary); font-size: .9rem; line-height: 1.7; }
+    .feature-tag { display: inline-block; font-size: .7rem; font-weight: 600; padding: .2rem .55rem; border-radius: 6px; margin-top: .8rem; }
+    .tag-cyan { background: var(--accent-dim); color: var(--accent); }
+    .tag-purple { background: var(--accent2-dim); color: var(--accent2); }
+    .tag-green { background: var(--accent3-dim); color: var(--accent3); }
 
-        .hero h1 {
-            font-size: 2.2rem;
-            font-weight: 800;
-            margin-bottom: 10px;
-        }
+    /* ═══════════════════════════════════════════════
+       BENTO GRID — Robot Architecture
+    ═══════════════════════════════════════════════ */
+    #robot { padding: 6rem 0; }
+    .bento { display: grid; grid-template-columns: repeat(12, 1fr); grid-auto-rows: minmax(180px, auto); gap: 1.25rem; }
+    .bento-card { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 2rem; display: flex; flex-direction: column; justify-content: space-between; transition: all .35s var(--ease); overflow: hidden; position: relative; }
+    .bento-card:hover { border-color: rgba(255,255,255,.15); }
+    .bento-card h3 { font-size: 1.15rem; font-weight: 700; margin-bottom: .5rem; }
+    .bento-card p { color: var(--text-secondary); font-size: .88rem; line-height: 1.65; }
+    .bento-card .number { font-size: 3rem; font-weight: 900; opacity: .06; position: absolute; bottom: -.3rem; right: .8rem; }
 
-        .hero-motto {
-            font-size: 1rem;
-            opacity: 0.85;
-            font-style: italic;
-            max-width: 500px;
-            margin: 0 auto 24px;
-        }
+    .b1 { grid-column: span 7; grid-row: span 2; }
+    .b2 { grid-column: span 5; }
+    .b3 { grid-column: span 5; }
+    .b4 { grid-column: span 4; }
+    .b5 { grid-column: span 4; }
+    .b6 { grid-column: span 4; }
 
-        .hero-actions {
-            display: flex;
-            gap: 12px;
-            justify-content: center;
-            flex-wrap: wrap;
-        }
+    .spec-list { margin-top: 1rem; display: grid; gap: .4rem; }
+    .spec-item { display: flex; align-items: center; gap: .6rem; font-size: .88rem; padding: .45rem .6rem; border-radius: 8px; background: rgba(255,255,255,.03); border: 1px solid var(--border); }
+    .spec-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
 
-        .btn-hero {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            padding: 10px 20px;
-            border-radius: 8px;
-            font-size: 0.9rem;
-            font-weight: 600;
-            text-decoration: none;
-            transition: all 0.2s;
-        }
+    /* Code block styling */
+    .code-block { background: var(--bg); border: 1px solid var(--border); border-radius: 10px; padding: 1rem 1.2rem; margin-top: 1rem; font-family: 'JetBrains Mono', 'Fira Code', monospace; font-size: .78rem; line-height: 1.8; color: var(--text-secondary); overflow-x: auto; white-space: pre; }
+    .code-block .kw { color: var(--accent2); }
+    .code-block .fn { color: var(--accent); }
+    .code-block .cm { color: var(--text-muted); }
+    .code-block .st { color: var(--accent3); }
+    .code-block .nb { color: #f59e0b; }
 
-        .btn-hero-primary {
-            background: var(--white);
-            color: #ea580c;
-        }
+    /* ═══════════════════════════════════════════════
+       TIMELINE
+    ═══════════════════════════════════════════════ */
+    #planning { padding: 6rem 0; background: var(--bg-alt); }
+    .timeline { position: relative; max-width: 800px; margin: 0 auto; }
+    .timeline::before { content: ''; position: absolute; left: 28px; top: 0; bottom: 0; width: 2px; background: linear-gradient(to bottom, var(--accent), var(--accent2), var(--accent3)); opacity: .25; }
+    .tl-item { position: relative; padding-left: 72px; padding-bottom: 3rem; }
+    .tl-item:last-child { padding-bottom: 0; }
+    .tl-dot { position: absolute; left: 20px; top: 4px; width: 18px; height: 18px; border-radius: 50%; border: 3px solid var(--surface); z-index: 2; }
+    .tl-dot.cyan { background: var(--accent); box-shadow: 0 0 20px rgba(34,211,238,.35); }
+    .tl-dot.purple { background: var(--accent2); box-shadow: 0 0 20px rgba(167,139,250,.35); }
+    .tl-dot.green { background: var(--accent3); box-shadow: 0 0 20px rgba(52,211,153,.35); }
+    .tl-dot.amber { background: #f59e0b; box-shadow: 0 0 20px rgba(245,158,11,.35); }
+    .tl-content { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 1.5rem; }
+    .tl-content:hover { border-color: rgba(255,255,255,.12); }
+    .tl-date { font-size: .75rem; font-weight: 600; color: var(--accent); margin-bottom: .4rem; text-transform: uppercase; letter-spacing: .06em; }
+    .tl-content h3 { font-size: 1.05rem; font-weight: 700; margin-bottom: .4rem; }
+    .tl-content p { color: var(--text-secondary); font-size: .88rem; }
+    .tl-tasks { margin-top: .6rem; display: flex; flex-wrap: wrap; gap: .35rem; }
+    .tl-tag { font-size: .7rem; padding: .18rem .5rem; border-radius: 6px; background: var(--glass); border: 1px solid var(--border); color: var(--text-muted); font-weight: 500; }
 
-        .btn-hero-primary:hover {
-            background: #f0f0f0;
-        }
+    /* ═══════════════════════════════════════════════
+       TEAM
+    ═══════════════════════════════════════════════ */
+    #equipe { padding: 6rem 0; }
+    .team-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.25rem; }
+    .team-card { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 2rem; text-align: center; transition: all .3s var(--ease); }
+    .team-card:hover { border-color: rgba(255,255,255,.15); transform: translateY(-3px); }
+    .avatar { width: 64px; height: 64px; border-radius: 50%; margin: 0 auto 1rem; display: flex; align-items: center; justify-content: center; font-size: 1.6rem; font-weight: 800; }
+    .team-card h3 { font-size: 1rem; font-weight: 700; margin-bottom: .15rem; }
+    .team-role { font-size: .82rem; color: var(--accent); font-weight: 600; margin-bottom: .6rem; }
+    .team-card p { font-size: .85rem; color: var(--text-secondary); }
+    .team-skills { display: flex; flex-wrap: wrap; gap: .3rem; justify-content: center; margin-top: .75rem; }
+    .team-skill { font-size: .68rem; padding: .15rem .5rem; border-radius: 6px; background: var(--glass); border: 1px solid var(--border); color: var(--text-muted); }
 
-        .btn-hero-outline {
-            background: transparent;
-            color: var(--white);
-            border: 1.5px solid rgba(255, 255, 255, 0.5);
-        }
+    /* ═══════════════════════════════════════════════
+       RULES
+    ═══════════════════════════════════════════════ */
+    #reglement { padding: 6rem 0; background: var(--bg-alt); }
+    .rules-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; }
+    .rule-card { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 1.75rem; transition: all .3s var(--ease); }
+    .rule-card:hover { border-color: rgba(255,255,255,.12); }
+    .rule-num { font-size: .72rem; font-weight: 700; text-transform: uppercase; letter-spacing: .1em; margin-bottom: .5rem; }
+    .rule-card h3 { font-size: 1.05rem; font-weight: 700; margin-bottom: .4rem; }
+    .rule-card p { color: var(--text-secondary); font-size: .88rem; }
+    .rule-card ul { margin-top: .5rem; display: grid; gap: .3rem; }
+    .rule-card li { color: var(--text-secondary); font-size: .85rem; padding-left: 1rem; position: relative; }
+    .rule-card li::before { content: '\203A'; position: absolute; left: 0; color: var(--accent); font-weight: 700; }
 
-        .btn-hero-outline:hover {
-            background: rgba(255, 255, 255, 0.1);
-        }
+    /* ═══════════════════════════════════════════════
+       FAQ
+    ═══════════════════════════════════════════════ */
+    #faq { padding: 6rem 0; }
+    .faq-list { max-width: 780px; margin: 0 auto; display: grid; gap: .75rem; }
+    .faq-item { border: 1px solid var(--border); border-radius: 14px; overflow: hidden; transition: border-color .3s var(--ease); }
+    .faq-item:hover { border-color: rgba(255,255,255,.14); }
+    .faq-q { width: 100%; text-align: left; padding: 1.2rem 1.5rem; font-size: .95rem; font-weight: 600; display: flex; justify-content: space-between; align-items: center; transition: background .2s var(--ease); }
+    .faq-q:hover { background: rgba(255,255,255,.02); }
+    .faq-q .arrow { transition: transform .3s var(--ease); font-size: .8rem; color: var(--text-muted); }
+    .faq-item.open .arrow { transform: rotate(180deg); }
+    .faq-a { max-height: 0; overflow: hidden; transition: max-height .4s var(--ease), padding .3s var(--ease); }
+    .faq-item.open .faq-a { max-height: 400px; }
+    .faq-a-inner { padding: 0 1.5rem 1.3rem; color: var(--text-secondary); font-size: .9rem; line-height: 1.7; }
+    .faq-a-inner code { background: var(--glass); border: 1px solid var(--border); padding: .1rem .4rem; border-radius: 4px; font-size: .82rem; color: var(--accent); }
 
-        .btn-hero svg {
-            width: 16px;
-            height: 16px;
-        }
+    /* ═══════════════════════════════════════════════
+       CTA
+    ═══════════════════════════════════════════════ */
+    .cta-section { padding: 6rem 0; text-align: center; }
+    .cta-box { background: var(--surface); border: 1px solid var(--border); border-radius: 24px; padding: 4rem 2rem; position: relative; overflow: hidden; }
+    .cta-box::before { content: ''; position: absolute; top: 0; left: 50%; transform: translateX(-50%); width: 400px; height: 200px; background: radial-gradient(circle, var(--accent2) 0%, transparent 70%); opacity: .08; filter: blur(60px); }
+    .cta-box h2 { font-size: clamp(1.6rem, 3vw, 2.4rem); font-weight: 800; letter-spacing: -.02em; margin-bottom: .75rem; position: relative; }
+    .cta-box p { color: var(--text-secondary); margin-bottom: 2rem; position: relative; }
+    .cta-box .hero-btns { position: relative; }
 
-        .container {
-            max-width: 900px;
-            margin: 0 auto;
-            padding: 40px 24px;
-        }
+    /* ═══════════════════════════════════════════════
+       FOOTER
+    ═══════════════════════════════════════════════ */
+    footer { border-top: 1px solid var(--border); padding: 3rem 0; }
+    .footer-inner { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; }
+    .footer-copy { font-size: .82rem; color: var(--text-muted); }
+    .footer-links { display: flex; gap: 1.5rem; }
+    .footer-links a { font-size: .82rem; color: var(--text-secondary); transition: color .2s; }
+    .footer-links a:hover { color: var(--text); }
 
-        .section {
-            margin-bottom: 40px;
-        }
+    /* ═══════════════════════════════════════════════
+       BACK TO TOP
+    ═══════════════════════════════════════════════ */
+    .back-top { position: fixed; bottom: 1.5rem; right: 1.5rem; width: 42px; height: 42px; border-radius: 12px; background: var(--surface); border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; font-size: .9rem; z-index: 900; opacity: 0; transform: translateY(10px); pointer-events: none; transition: all .3s var(--ease); }
+    .back-top.visible { opacity: 1; transform: translateY(0); pointer-events: auto; }
+    .back-top:hover { background: var(--surface-bright); border-color: var(--border-strong); }
 
-        .section-title {
-            font-size: 1.1rem;
-            font-weight: 700;
-            color: var(--dark);
-            margin-bottom: 16px;
-            padding-bottom: 10px;
-            border-bottom: 2px solid var(--team-color-light);
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .section-title svg {
-            width: 20px;
-            height: 20px;
-            color: var(--team-color);
-        }
-
-        .members-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-            gap: 16px;
-        }
-
-        .member-placeholder {
-            background: var(--bg);
-            border: 2px dashed var(--border);
-            border-radius: 12px;
-            padding: 24px;
-            text-align: center;
-            color: var(--muted);
-            font-size: 0.85rem;
-        }
-
-        .robot-card {
-            background: var(--white);
-            border: 1px solid var(--border);
-            border-radius: 14px;
-            padding: 28px;
-        }
-
-        .robot-placeholder {
-            height: 200px;
-            background: var(--team-color-light);
-            border-radius: 10px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            gap: 12px;
-            color: #ea580c;
-            margin-bottom: 20px;
-        }
-
-        .robot-placeholder svg {
-            width: 48px;
-            height: 48px;
-            opacity: 0.5;
-        }
-
-        .robot-placeholder p {
-            font-size: 0.85rem;
-            opacity: 0.7;
-        }
-
-        .robot-specs {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-            gap: 12px;
-        }
-
-        .spec-item {
-            background: var(--bg);
-            border-radius: 8px;
-            padding: 12px 16px;
-        }
-
-        .spec-label {
-            font-size: 0.75rem;
-            color: var(--muted);
-            font-weight: 500;
-            margin-bottom: 4px;
-        }
-
-        .spec-value {
-            font-size: 0.9rem;
-            font-weight: 600;
-            color: var(--dark);
-        }
-
-        .log-placeholder {
-            background: var(--bg);
-            border: 2px dashed var(--border);
-            border-radius: 10px;
-            padding: 32px;
-            text-align: center;
-            color: var(--muted);
-            font-size: 0.85rem;
-        }
-
-        .resources-list {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-
-        .resource-item {
-            background: var(--white);
-            border: 1px solid var(--border);
-            border-radius: 10px;
-            padding: 14px 18px;
-            display: flex;
-            align-items: center;
-            gap: 14px;
-            text-decoration: none;
-            color: var(--text);
-            transition: all 0.2s;
-        }
-
-        .resource-item:hover {
-            border-color: var(--team-color);
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
-        }
-
-        .resource-icon {
-            width: 40px;
-            height: 40px;
-            background: var(--team-color-light);
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-shrink: 0;
-        }
-
-        .resource-icon svg {
-            width: 20px;
-            height: 20px;
-            color: var(--team-color);
-        }
-
-        .resource-title {
-            font-weight: 600;
-            font-size: 0.9rem;
-            color: var(--dark);
-        }
-
-        .resource-desc {
-            font-size: 0.78rem;
-            color: var(--muted);
-            margin-top: 2px;
-        }
-
-        .resource-arrow {
-            margin-left: auto;
-            color: var(--muted);
-        }
-
-        .resource-arrow svg {
-            width: 16px;
-            height: 16px;
-        }
-
-        .page-footer {
-            background: var(--dark);
-            color: rgba(255, 255, 255, 0.6);
-            text-align: center;
-            padding: 24px;
-            font-size: 0.82rem;
-            margin-top: 60px;
-        }
-
-        .page-footer a {
-            color: #f59e0b;
-            text-decoration: none;
-        }
-    </style>
+    /* ═══════════════════════════════════════════════
+       RESPONSIVE
+    ═══════════════════════════════════════════════ */
+    @media (max-width: 1024px) {
+      .features-grid, .team-grid { grid-template-columns: repeat(2, 1fr); }
+      .bento { grid-template-columns: 1fr 1fr; }
+      .b1, .b2, .b3 { grid-column: span 1; grid-row: span 1; }
+      .b4, .b5, .b6 { grid-column: span 1; }
+    }
+    @media (max-width: 768px) {
+      .nav-links { display: none; }
+      .hamburger { display: flex; }
+      .features-grid, .team-grid, .rules-grid { grid-template-columns: 1fr; }
+      .bento { grid-template-columns: 1fr; }
+      .b1 { grid-row: span 1; }
+      .metrics-grid { grid-template-columns: repeat(2, 1fr); }
+      section { padding: 4rem 0; }
+      .hero { padding-top: calc(var(--nav-h) + 3rem); }
+    }
+    @media (max-width: 480px) {
+      .metrics-grid { grid-template-columns: 1fr; }
+      .hero h1 { font-size: 2.4rem; }
+    }
+  </style>
 </head>
-
 <body>
-    <nav class="topbar">
-        <a href="../../index.html"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"
-                viewBox="0 0 24 24">
-                <path d="M19 12H5M12 5l-7 7 7 7" />
-            </svg>Retour à l'accueil</a>
-        <span class="topbar-sep">/</span>
-        <span class="topbar-current">Team Nova Tech</span>
-        <div class="topbar-right"><a href="https://github.com/Olympiades-de-Robotique-UCAO-Benin/Team-Nova-Tech"
-                target="_blank"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                    <path
-                        d="M12 0C5.37 0 0 5.37 0 12c0 5.3 3.44 9.8 8.2 11.39.6.11.82-.26.82-.58v-2.03c-3.34.73-4.04-1.61-4.04-1.61-.54-1.38-1.33-1.75-1.33-1.75-1.09-.74.08-.73.08-.73 1.2.08 1.84 1.24 1.84 1.24 1.07 1.83 2.8 1.3 3.49.99.11-.78.42-1.3.76-1.6-2.67-.3-5.47-1.33-5.47-5.93 0-1.31.47-2.38 1.24-3.22-.13-.3-.54-1.52.12-3.17 0 0 1.01-.32 3.3 1.23a11.5 11.5 0 0 1 3-.4c1.02 0 2.04.13 3 .4 2.28-1.55 3.29-1.23 3.29-1.23.66 1.65.25 2.87.12 3.17.77.84 1.24 1.91 1.24 3.22 0 4.61-2.81 5.63-5.48 5.92.43.37.81 1.1.81 2.22v3.29c0 .32.22.7.83.58A12 12 0 0 0 24 12c0-6.63-5.37-12-12-12z" />
-                </svg>GitHub</a></div>
-    </nav>
-    <section class="hero">
-        <div class="hero-avatar">
-            <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <polygon
-                    points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
-            </svg>
-        </div>
-        <div class="hero-badge">Équipe #6 — ORC 2026</div>
-        <h1>Team Nova Tech</h1>
-        <p class="hero-motto">« L'union fait la force, la diversité fait l'innovation. »</p>
-        <div class="hero-actions">
-            <a class="btn-hero btn-hero-primary"
-                href="https://github.com/Olympiades-de-Robotique-UCAO-Benin/Team-Nova-Tech" target="_blank">
-                <svg viewBox="0 0 24 24" fill="currentColor">
-                    <path
-                        d="M12 0C5.37 0 0 5.37 0 12c0 5.3 3.44 9.8 8.2 11.39.6.11.82-.26.82-.58v-2.03c-3.34.73-4.04-1.61-4.04-1.61-.54-1.38-1.33-1.75-1.33-1.75-1.09-.74.08-.73.08-.73 1.2.08 1.84 1.24 1.84 1.24 1.07 1.83 2.8 1.3 3.49.99.11-.78.42-1.3.76-1.6-2.67-.3-5.47-1.33-5.47-5.93 0-1.31.47-2.38 1.24-3.22-.13-.3-.54-1.52.12-3.17 0 0 1.01-.32 3.3 1.23a11.5 11.5 0 0 1 3-.4c1.02 0 2.04.13 3 .4 2.28-1.55 3.29-1.23 3.29-1.23.66 1.65.25 2.87.12 3.17.77.84 1.24 1.91 1.24 3.22 0 4.61-2.81 5.63-5.48 5.92.43.37.81 1.1.81 2.22v3.29c0 .32.22.7.83.58A12 12 0 0 0 24 12c0-6.63-5.37-12-12-12z" />
-                </svg>
-                Voir le dépôt GitHub
-            </a>
-            <a class="btn-hero btn-hero-outline" href="../../index.html">
-                <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                    <path stroke-linecap="round" stroke-linejoin="round"
-                        d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
-                </svg>
-                Toutes les équipes
-            </a>
-        </div>
-    </section>
-    <main class="container">
-        <section class="section">
-            <h2 class="section-title"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                    <path stroke-linecap="round" stroke-linejoin="round"
-                        d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
-                </svg>Membres de l'équipe</h2>
-            <div class="members-grid">
-                <div class="member-placeholder" style="grid-column: 1 / -1;">Les informations sur les membres seront
-                    ajoutées prochainement par l'équipe.</div>
-            </div>
-        </section>
-        <section class="section">
-            <h2 class="section-title"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                    <polygon
-                        points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
-                </svg>Notre Robot</h2>
-            <div class="robot-card">
-                <div class="robot-placeholder"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor"
-                        stroke-width="1.5">
-                        <path stroke-linecap="round" stroke-linejoin="round"
-                            d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 001.5-1.5V6a1.5 1.5 0 00-1.5-1.5H3.75A1.5 1.5 0 002.25 6v12a1.5 1.5 0 001.5 1.5zm10.5-11.25h.008v.008h-.008V8.25zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z" />
-                    </svg>
-                    <p>Photo du robot à venir</p>
-                </div>
-                <div class="robot-specs">
-                    <div class="spec-item">
-                        <div class="spec-label">Nom du robot</div>
-                        <div class="spec-value">—</div>
-                    </div>
-                    <div class="spec-item">
-                        <div class="spec-label">Type de châssis</div>
-                        <div class="spec-value">—</div>
-                    </div>
-                    <div class="spec-item">
-                        <div class="spec-label">Capteurs</div>
-                        <div class="spec-value">—</div>
-                    </div>
-                    <div class="spec-item">
-                        <div class="spec-label">Carte de contrôle</div>
-                        <div class="spec-value">—</div>
-                    </div>
-                    <div class="spec-item">
-                        <div class="spec-label">Langage utilisé</div>
-                        <div class="spec-value">—</div>
-                    </div>
-                    <div class="spec-item">
-                        <div class="spec-label">Stratégie</div>
-                        <div class="spec-value">—</div>
-                    </div>
-                </div>
-            </div>
-        </section>
-        <section class="section">
-            <h2 class="section-title"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                    <path stroke-linecap="round" stroke-linejoin="round"
-                        d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-                </svg>Journal de bord</h2>
-            <div class="log-placeholder">Le journal de progression sera mis à jour par l'équipe au fil des séances de
-                préparation.</div>
-        </section>
-        <section class="section">
-            <h2 class="section-title"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                    <path stroke-linecap="round" stroke-linejoin="round"
-                        d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
-                </svg>Ressources utiles</h2>
-            <div class="resources-list">
-                <a class="resource-item" href="https://github.com/Olympiades-de-Robotique-UCAO-Benin/Team-Nova-Tech"
-                    target="_blank">
-                    <div class="resource-icon"><svg viewBox="0 0 24 24" fill="currentColor">
-                            <path
-                                d="M12 0C5.37 0 0 5.37 0 12c0 5.3 3.44 9.8 8.2 11.39.6.11.82-.26.82-.58v-2.03c-3.34.73-4.04-1.61-4.04-1.61-.54-1.38-1.33-1.75-1.33-1.75-1.09-.74.08-.73.08-.73 1.2.08 1.84 1.24 1.84 1.24 1.07 1.83 2.8 1.3 3.49.99.11-.78.42-1.3.76-1.6-2.67-.3-5.47-1.33-5.47-5.93 0-1.31.47-2.38 1.24-3.22-.13-.3-.54-1.52.12-3.17 0 0 1.01-.32 3.3 1.23a11.5 11.5 0 0 1 3-.4c1.02 0 2.04.13 3 .4 2.28-1.55 3.29-1.23 3.29-1.23.66 1.65.25 2.87.12 3.17.77.84 1.24 1.91 1.24 3.22 0 4.61-2.81 5.63-5.48 5.92.43.37.81 1.1.81 2.22v3.29c0 .32.22.7.83.58A12 12 0 0 0 24 12c0-6.63-5.37-12-12-12z" />
-                        </svg></div>
-                    <div>
-                        <div class="resource-title">Dépôt GitHub de l'équipe</div>
-                        <div class="resource-desc">Code source, documentation technique et fichiers du projet</div>
-                    </div>
-                    <div class="resource-arrow"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor"
-                            stroke-width="2">
-                            <path d="M5 12h14M12 5l7 7-7 7" />
-                        </svg></div>
-                </a>
-                <a class="resource-item"
-                    href="https://github.com/Olympiades-de-Robotique-UCAO-Benin/guide-technique-officiel"
-                    target="_blank">
-                    <div class="resource-icon"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor"
-                            stroke-width="2">
-                            <path stroke-linecap="round" stroke-linejoin="round"
-                                d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
-                        </svg></div>
-                    <div>
-                        <div class="resource-title">Guide Technique Officiel</div>
-                        <div class="resource-desc">Règles, spécifications et guide de la compétition ORC 2026</div>
-                    </div>
-                    <div class="resource-arrow"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor"
-                            stroke-width="2">
-                            <path d="M5 12h14M12 5l7 7-7 7" />
-                        </svg></div>
-                </a>
-                <a class="resource-item"
-                    href="https://github.com/Olympiades-de-Robotique-UCAO-Benin/ressources-formations" target="_blank">
-                    <div class="resource-icon"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor"
-                            stroke-width="2">
-                            <path stroke-linecap="round" stroke-linejoin="round"
-                                d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
-                        </svg></div>
-                    <div>
-                        <div class="resource-title">Ressources de formation</div>
-                        <div class="resource-desc">Tutoriels Arduino, capteurs, algorithmes de suivi de ligne</div>
-                    </div>
-                    <div class="resource-arrow"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor"
-                            stroke-width="2">
-                            <path d="M5 12h14M12 5l7 7-7 7" />
-                        </svg></div>
-                </a>
-            </div>
-        </section>
-    </main>
-    <footer class="page-footer">
-        <p>ORC 2026 — Olympiade de Robotique UCAO-UUC Bénin &nbsp;·&nbsp; <a
-                href="mailto:ucaotech@ucaobenin.org">ucaotech@ucaobenin.org</a></p>
-    </footer>
-</body>
 
+  <!-- Scroll Progress -->
+  <div class="scroll-progress" id="scrollProgress"></div>
+
+  <!-- ═══ NAVBAR ═══ -->
+  <nav class="navbar" id="navbar">
+    <div class="container">
+      <a href="index.html" class="logo">
+        <img src="img/logo.jpeg" alt="Nova Tech" style="height:40px; border-radius:6px;">
+        NOVA TECH
+      </a>
+      <div class="nav-links" id="navLinks">
+        <a href="index.html">Accueil</a>
+        <a href="docs/documentation.html">Documentation</a>
+        <a href="docs/equipe.html">Équipe</a>
+        <a href="index.html#roadmap">Roadmap</a>
+        <a href="index.html#faq">FAQ</a>
+        <a href="https://eventslink.diginets.site/vote-nominee.php?slug=olympiade-de-robotique-ucao-2026-69af11ed33d40&candidat=team-novatech" target="_blank">Soutenir NovaTech</a>
+        <div class="nav-tools">
+          <button class="nav-tool-btn" id="themeToggle" aria-label="Changer de thème" title="Mode clair / sombre">
+            <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+            <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+          </button>
+          <button class="nav-tool-btn" id="langToggle" aria-label="Translate" title="English / Français">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+          </button>
+        </div>
+      </div>
+      <button class="hamburger" id="hamburger" aria-label="Menu">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </nav>
+  <div class="mobile-menu" id="mobileMenu">
+    <a href="index.html">Accueil</a>
+    <a href="docs/documentation.html">Documentation</a>
+    <a href="docs/equipe.html">Équipe</a>
+    <a href="index.html#roadmap">Roadmap</a>
+    <a href="index.html#faq">FAQ</a>
+    <a href="https://eventslink.diginets.site/vote-nominee.php?slug=olympiade-de-robotique-ucao-2026-69af11ed33d40&candidat=team-novatech" target="_blank">Soutenir NovaTech</a>
+  </div>
+
+  <main>
+
+    <!-- ═══ HERO ═══ -->
+    <section class="hero" id="accueil">
+      <div class="hero-glow"></div>
+      <div class="hero-glow-2"></div>
+      <div class="container">
+        <div class="badge-pill">
+          <span class="dot"></span>
+          UCAO TECH • Site de documentation — RSL 2026
+        </div>
+        <h1>
+          <span class="line">Robot suiveur de ligne</span>
+          <span class="line">avec <span class="gradient-text">évitement d'obstacles.</span></span>
+        </h1>
+        <p class="hero-sub">Le projet Nova Tech vise à concevoir un robot autonome performant, précis et réactif, capable de suivre une ligne noire et de contourner les obstacles pour remporter le concours UCAO TECH.</p>
+        <div class="hero-btns">
+          <a href="docs/documentation.html" class="btn btn-white">
+            Explorer la documentation
+            <svg viewBox="0 0 16 16" fill="currentColor"><path d="M6.22 3.22a.75.75 0 011.06 0l4.25 4.25a.75.75 0 010 1.06l-4.25 4.25a.75.75 0 01-1.06-1.06L9.94 8 6.22 4.28a.75.75 0 010-1.06z"/></svg>
+          </a>
+          <a href="https://eventslink.diginets.site/vote-nominee.php?slug=olympiade-de-robotique-ucao-2026-69af11ed33d40&candidat=team-novatech" target="_blank" class="btn btn-ghost">Soutenir Nova Tech ♥</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══ METRICS ═══ -->
+    <section class="metrics fade-in">
+      <div class="container">
+        <div class="metrics-grid">
+          <div class="metric">
+            <div class="metric-value" data-count="7">0</div>
+            <div class="metric-label">Membres actifs</div>
+          </div>
+          <div class="metric">
+            <div class="metric-value" data-count="3">0</div>
+            <div class="metric-label">Capteurs IR</div>
+          </div>
+          <div class="metric">
+            <div class="metric-value" data-count="2">0</div>
+            <div class="metric-label">Objectifs clés (ligne + obstacle)</div>
+          </div>
+          <div class="metric">
+            <div class="metric-value" data-count="+1000">0</div>
+            <div class="metric-label">votes</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══ FEATURES ═══ -->
+    <section id="features" class="fade-in">
+      <div class="container">
+        <div class="section-header">
+          <div class="section-label">But du projet</div>
+          <h2 class="section-title">Objectifs et idéaux recherchés.</h2>
+          <p class="section-desc">Le robot est construit pour la compétition, avec un focus sur le mouvement dynamique, la réactivité et la précision.</p>
+        </div>
+        <div class="features-grid">
+          <div class="feature-card">
+            <div class="feature-icon icon-cyan">🖤</div>
+            <h3>Suivi de ligne</h3>
+            <p>Les capteurs infrarouges détectent la ligne noire et envoient les données à l'Arduino qui corrige la direction en continu.</p>
+            <span class="feature-tag tag-cyan">Mission 1</span>
+          </div>
+          <div class="feature-card">
+            <div class="feature-icon icon-purple">🚧</div>
+            <h3>Évitement d'obstacles</h3>
+            <p>Le robot détecte les obstacles sur son parcours puis adapte sa trajectoire pour les contourner sans perdre le suivi.</p>
+            <span class="feature-tag tag-purple">Mission 2</span>
+          </div>
+          <div class="feature-card">
+            <div class="feature-icon icon-green">🎯</div>
+            <h3>Performance UCAO TECH</h3>
+            <p>L'objectif principal est de remporter le concours en combinant vitesse, stabilité et bonne gestion des décisions embarquées.</p>
+            <span class="feature-tag tag-green">Objectif principal</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══ ROBOT ARCHITECTURE (Bento) ═══ -->
+    <section id="robot" class="fade-in">
+      <div class="container">
+        <div class="section-header">
+          <div class="section-label">Principe de fonctionnement</div>
+          <h2 class="section-title">Du capteur au mouvement.</h2>
+          <p class="section-desc">Le système suit une chaîne simple : capteurs → microcontrôleur → interface de puissance → moteurs.</p>
+        </div>
+        <div class="bento">
+          <div class="bento-card b1">
+            <div>
+              <h3>Chaîne de traitement</h3>
+              <p>Lecture ligne noire, décision de correction, commande moteur, puis ajustement de trajectoire en boucle.</p>
+              <img src="img/logo.jpeg" alt="Processus" style="width:100%; margin-top:1rem; border-radius:8px;">
+            </div>
+            <div class="code-block" style="display:none;"><span class="cm">// Logique simplifiée Arduino</span>
+<span class="kw">int</span> g = <span class="fn">readIR</span>(<span class="nb">LEFT</span>);
+<span class="kw">int</span> c = <span class="fn">readIR</span>(<span class="nb">CENTER</span>);
+<span class="kw">int</span> d = <span class="fn">readIR</span>(<span class="nb">RIGHT</span>);
+
+<span class="kw">if</span>(<span class="fn">obstacleDetected</span>()){
+  <span class="fn">avoidObstacle</span>();
+} <span class="kw">else</span> {
+  <span class="fn">followLine</span>(g,c,d);
+}</div>
+            <span class="number">01</span>
+          </div>
+          <div class="bento-card b2">
+            <h3>Microcontrôleur</h3>
+            <p>Arduino UNO pour le pilotage du comportement du robot et le traitement des capteurs.</p>
+            <div class="spec-list">
+              <div class="spec-item"><div class="spec-dot" style="background:var(--accent)"></div> Plateforme : Arduino</div>
+              <div class="spec-item"><div class="spec-dot" style="background:var(--accent2)"></div> 14 E/S digitales</div>
+              <div class="spec-item"><div class="spec-dot" style="background:var(--accent3)"></div> 6 entrées analogiques</div>
+            </div>
+            <span class="number">02</span>
+          </div>
+          <div class="bento-card b3">
+            <h3>Actionneurs</h3>
+            <p>Deux moteurs à courant continu commandés via un driver moteur pour contrôler la direction et la vitesse.</p>
+            <div class="spec-list">
+              <div class="spec-item"><div class="spec-dot" style="background:var(--accent)"></div> Moteurs DC ×2</div>
+              <div class="spec-item"><div class="spec-dot" style="background:var(--accent2)"></div> Driver moteur</div>
+            </div>
+            <span class="number">03</span>
+          </div>
+          <div class="bento-card b4">
+            <h3>Capteurs IR</h3>
+            <p>3 capteurs infrarouges pour détecter la ligne noire et corriger la trajectoire.</p>
+            <span class="number">04</span>
+          </div>
+          <div class="bento-card b5">
+            <h3>Alimentation</h3>
+            <p>Deux piles ou batteries + interrupteur de mise sous tension.</p>
+            <span class="number">05</span>
+          </div>
+          <div class="bento-card b6">
+            <h3>Application</h3>
+            <div class="metric-value" style="font-size:2.2rem; margin-top:.5rem">UCAO<span class="unit">TECH</span></div>
+            <span class="number">06</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══ ROADMAP ═══ -->
+    <section id="roadmap" class="fade-in">
+      <div class="container">
+        <div class="section-header">
+          <div class="section-label">Roadmap</div>
+          <h2 class="section-title">Plan de réalisation du projet.</h2>
+          <p class="section-desc">Les tâches prévues dans le cahier de charge, du design à la préparation du concours.</p>
+        </div>
+        <div class="timeline">
+          <div class="tl-item">
+            <div class="tl-dot cyan"></div>
+            <div class="tl-content">
+              <div class="tl-date">Phase 1</div>
+              <h3>Conception du robot</h3>
+              <p>Design, architecture générale, choix des composants et schémas techniques.</p>
+              <div class="tl-tasks"><span class="tl-tag">Design</span><span class="tl-tag">Architecture</span><span class="tl-tag">Schémas</span></div>
+            </div>
+          </div>
+          <div class="tl-item">
+            <div class="tl-dot purple"></div>
+            <div class="tl-content">
+              <div class="tl-date">Phase 2</div>
+              <h3>Programmation &amp; assemblage</h3>
+              <p>Développement du programme Arduino, montage châssis, câblage et mise sous tension.</p>
+              <div class="tl-tasks"><span class="tl-tag">Arduino</span><span class="tl-tag">Assemblage</span><span class="tl-tag">Câblage</span></div>
+            </div>
+          </div>
+          <div class="tl-item">
+            <div class="tl-dot green"></div>
+            <div class="tl-content">
+              <div class="tl-date">Phase 3</div>
+              <h3>Tests et optimisation</h3>
+              <p>Validation du suivi de ligne, gestion de la vitesse, évitement des obstacles et optimisation des mouvements.</p>
+              <div class="tl-tasks"><span class="tl-tag">Suivi ligne</span><span class="tl-tag">Obstacle</span><span class="tl-tag">Optimisation</span></div>
+            </div>
+          </div>
+          <div class="tl-item">
+            <div class="tl-dot amber"></div>
+            <div class="tl-content">
+              <div class="tl-date">Phase 4</div>
+              <h3>Préparation concours</h3>
+              <p>Planification finale, répétitions, gestion administrative et préparation de la présentation équipe.</p>
+              <div class="tl-tasks"><span class="tl-tag">Planning</span><span class="tl-tag">Démarches</span><span class="tl-tag">Présentation</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══ EQUIPE ═══ -->
+    <section id="equipe" class="fade-in">
+      <div class="container">
+        <div class="section-header">
+          <div class="section-label">L'équipe</div>
+          <h2 class="section-title">Membres Nova Tech.</h2>
+          <p class="section-desc">Organisation en trois départements : Mecatro Nova, Nova Net et Nova Môn, dirigée par KPAKPO Loris.</p>
+        </div>
+        <div class="team-grid">
+          <div class="team-card"><div class="avatar" style="background:var(--accent-dim); color:var(--accent)">KL</div><h3>KPAKPO Loris</h3><div class="team-role">Chef d'équipe</div><p>Direction générale du projet, coordination entre départements et communication stratégique.</p></div>
+          <div class="team-card"><div class="avatar" style="background:var(--accent2-dim); color:var(--accent2)">GE</div><h3>GANYE Exauce</h3><div class="team-role">Nova Môn</div><p>Gestion du budget et démarches administratives du projet et du concours.</p></div>
+          <div class="team-card"><div class="avatar" style="background:var(--accent3-dim); color:var(--accent3)">MC</div><h3>MESSANGBO Charles</h3><div class="team-role">Mecatro Nova</div><p>Programmation et participation au design/architecture du robot.</p></div>
+          <div class="team-card"><div class="avatar" style="background:rgba(245,158,11,.12); color:#f59e0b">ZC</div><h3>ZOUEKPE Chantal</h3><div class="team-role">Mecatro Nova</div><p>Conception mécanique et assemblage matériel.</p></div>
+          <div class="team-card"><div class="avatar" style="background:rgba(244,63,94,.12); color:#f43f5e">DD</div><h3>DANSOU Dayann</h3><div class="team-role">Mecatro Nova</div><p>Développement de l'algorithme et tests d'optimisation.</p></div>
+          <div class="team-card"><div class="avatar" style="background:rgba(99,102,241,.12); color:#6366f1">HC</div><h3>HOUNGUE Christella</h3><div class="team-role">Cheffe Mecatro Nova</div><p>Pilotage technique : design, architecture, programmation robot.</p></div>
+          <div class="team-card"><div class="avatar" style="background:rgba(16,185,129,.15); color:#34d399">DI</div><h3>DJEHOUGA Ivy Gina</h3><div class="team-role">Nova Net</div><p>Base de données du site, communication et diffusion des activités.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══ REGLEMENT / CADRAGE ═══ -->
+    <section id="reglement" class="fade-in">
+      <div class="container">
+        <div class="section-header">
+          <div class="section-label">Cadrage projet</div>
+          <h2 class="section-title">Domaines, tâches et matériel.</h2>
+          <p class="section-desc">Synthèse du cahier de charge : application concours, technologie et ressources.</p>
+        </div>
+        <div class="rules-grid">
+          <div class="rule-card">
+            <div class="rule-num" style="color:var(--accent)">01 — Domaine</div>
+            <h3>Application visée</h3>
+            <ul>
+              <li>Utilisation dans le cadre d'un concours de robotique</li>
+              <li>Parcours à ligne noire avec obstacles</li>
+              <li>Objectif : performance, précision, réactivité</li>
+            </ul>
+          </div>
+          <div class="rule-card">
+            <div class="rule-num" style="color:var(--accent2)">02 — Technologie</div>
+            <h3>Base technique</h3>
+            <ul>
+              <li>Microcontrôleur principal : Arduino UNO</li>
+              <li>Programme embarqué pour la prise de décision</li>
+              <li>Interface de puissance pour piloter les moteurs</li>
+            </ul>
+          </div>
+          <div class="rule-card">
+            <div class="rule-num" style="color:var(--accent3)">03 — Matériel</div>
+            <h3>Liste principale</h3>
+            <ul>
+              <li>Arduino UNO, driver moteur, 2 moteurs DC</li>
+              <li>3 capteurs IR, 3 roues, châssis, breadboard</li>
+              <li>Fils jumper, interrupteur, piles/batteries</li>
+            </ul>
+          </div>
+          <div class="rule-card">
+            <div class="rule-num" style="color:#f59e0b">04 — Tâches</div>
+            <h3>Travaux à réaliser</h3>
+            <ul>
+              <li>Conception du robot</li>
+              <li>Développement du programme</li>
+              <li>Assemblage matériel</li>
+              <li>Tests, optimisation, préparation concours</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══ FAQ ═══ -->
+    <section id="faq" class="fade-in">
+      <div class="container">
+        <div class="section-header" style="text-align:center">
+          <div class="section-label">FAQ</div>
+          <h2 class="section-title">Questions fréquentes.</h2>
+          <p class="section-desc" style="margin:0 auto">Réponses liées au cahier de charge Nova Tech.</p>
+        </div>
+        <div class="faq-list">
+          <div class="faq-item">
+            <button class="faq-q">Quel est l'objectif principal du projet ?<span class="arrow">▼</span></button>
+            <div class="faq-a"><div class="faq-a-inner">L'objectif principal est de gagner le concours UCAO TECH avec un robot performant, précis et réactif.</div></div>
+          </div>
+          <div class="faq-item">
+            <button class="faq-q">Quelle technologie est utilisée ?<span class="arrow">▼</span></button>
+            <div class="faq-a"><div class="faq-a-inner">Le robot est piloté avec une carte <code>Arduino UNO</code>, qui traite les données capteurs et contrôle les moteurs.</div></div>
+          </div>
+          <div class="faq-item">
+            <button class="faq-q">Combien de capteurs de ligne sont prévus ?<span class="arrow">▼</span></button>
+            <div class="faq-a"><div class="faq-a-inner">Le cahier de charge prévoit <code>3 capteurs infrarouges</code> pour le suivi de ligne.</div></div>
+          </div>
+          <div class="faq-item">
+            <button class="faq-q">Le robot gère-t-il les obstacles ?<span class="arrow">▼</span></button>
+            <div class="faq-a"><div class="faq-a-inner">Oui. En plus du suivi de ligne, le robot doit détecter et contourner les obstacles présents sur le parcours.</div></div>
+          </div>
+          <div class="faq-item">
+            <button class="faq-q">Quel est le budget minimum déjà connu ?<span class="arrow">▼</span></button>
+            <div class="faq-a"><div class="faq-a-inner">Les frais d'inscription au concours sont de <code>20 000 FCFA</code>, auxquels s'ajoutent le matériel et le transport dont les frais sont à déterminer.</div></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+        
+
+  </main>
+
+  <!-- ═══ FOOTER ═══ -->
+  <footer>
+    <div class="container footer-inner">
+      <div class="footer-copy">© 2026 Nova Tech Engineering — Propulsé par la passion du code.</div>
+      <div class="footer-links">
+        <a href="index.html">Accueil</a>
+        <a href="docs/documentation.html">Documentation</a>
+        <a href="docs/equipe.html">Équipe</a>
+        <a href="index.html#soutenir">Soutenir</a>
+      </div>
+    </div>
+  </footer>
+
+  <button class="back-top" id="backTop" aria-label="Retour en haut">↑</button>
+
+  <script>
+    /* ── Theme toggle ── */
+    const themeToggle = document.getElementById('themeToggle');
+    const savedTheme = localStorage.getItem('nt-theme') || 'dark';
+    if (savedTheme === 'light') document.documentElement.setAttribute('data-theme', 'light');
+    themeToggle.addEventListener('click', () => {
+      const isLight = document.documentElement.getAttribute('data-theme') === 'light';
+      document.documentElement.setAttribute('data-theme', isLight ? 'dark' : 'light');
+      localStorage.setItem('nt-theme', isLight ? 'dark' : 'light');
+    });
+
+    /* ── Language toggle ── */
+    const langToggle = document.getElementById('langToggle');
+    let currentLang = localStorage.getItem('nt-lang') || 'fr';
+    const translations = {
+      'Accueil': 'Home', 'Documentation': 'Docs', 'Équipe': 'Team',
+      'Roadmap': 'Roadmap', 'FAQ': 'FAQ', 'Soutenir NovaTech': 'Support NovaTech',
+      'Saison 2026 — Compétition Nationale': '2026 Season — National Competition',
+      "L'ingénierie au": 'Engineering at the',
+      'service de la': 'service of',
+      'vitesse.': 'speed.',
+      'Documentation complète de l\'équipe Nova Tech pour la conception, le développement et l\'optimisation de notre robot suiveur de lignes haute performance.': 'Complete Nova Tech team documentation for the design, development and optimization of our high-performance line-following robot.',
+      'Explorer la documentation': 'Explore Documentation',
+      'Soutenir Nova Tech ♥': 'Support Nova Tech ♥',
+      'Membres actifs': 'Active Members', 'Capteurs IR': 'IR Sensors',
+      'Capteurs': 'Sensors', 'Poids total': 'Total Weight',
+      'Soutenir': 'Support',
+      'Nous contacter ✉': 'Contact Us ✉', 'Découvrir l\'équipe': 'Meet the Team'
+    };
+    function applyLang(lang) {
+      if (lang === 'en') {
+        document.querySelectorAll('[data-fr]').forEach(el => { el.textContent = el.dataset.en; });
+      } else {
+        document.querySelectorAll('[data-fr]').forEach(el => { el.textContent = el.dataset.fr; });
+      }
+    }
+    langToggle.addEventListener('click', () => {
+      currentLang = currentLang === 'fr' ? 'en' : 'fr';
+      localStorage.setItem('nt-lang', currentLang);
+      applyLang(currentLang);
+    });
+
+    /* ── Scroll progress ── */
+    const scrollBar = document.getElementById('scrollProgress');
+    function updateProgress() {
+      const h = document.documentElement.scrollHeight - window.innerHeight;
+      scrollBar.style.width = h > 0 ? (window.scrollY / h * 100) + '%' : '0%';
+    }
+
+    /* ── Back to top ── */
+    const backTop = document.getElementById('backTop');
+    function updateBackTop() { backTop.classList.toggle('visible', window.scrollY > 500); }
+    backTop.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
+
+    /* ── Mobile menu ── */
+    const hamburger = document.getElementById('hamburger');
+    const mobileMenu = document.getElementById('mobileMenu');
+    hamburger.addEventListener('click', () => { hamburger.classList.toggle('open'); mobileMenu.classList.toggle('open'); });
+    mobileMenu.querySelectorAll('a').forEach(a => a.addEventListener('click', () => { hamburger.classList.remove('open'); mobileMenu.classList.remove('open'); }));
+
+    /* ── Smooth scroll ── */
+    document.querySelectorAll('a[href^="#"]').forEach(a => {
+      a.addEventListener('click', e => {
+        const t = document.querySelector(a.getAttribute('href'));
+        if (t) { e.preventDefault(); t.scrollIntoView({ behavior: 'smooth' }); }
+      });
+    });
+
+    /* ── Fade in on scroll ── */
+    const fadeEls = document.querySelectorAll('.fade-in');
+    const fadeObs = new IntersectionObserver(entries => {
+      entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); fadeObs.unobserve(e.target); } });
+    }, { threshold: .12, rootMargin: '0px 0px -40px 0px' });
+    fadeEls.forEach(el => fadeObs.observe(el));
+
+    /* ── Count-up ── */
+    const countEls = document.querySelectorAll('[data-count]');
+    const countObs = new IntersectionObserver(entries => {
+      entries.forEach(entry => {
+        if (!entry.isIntersecting) return;
+        const el = entry.target, target = parseInt(el.dataset.count);
+        const unitEl = el.querySelector('.unit'), unitTxt = unitEl ? unitEl.textContent : '';
+        let cur = 0;
+        const step = Math.max(1, Math.floor(target / 40));
+        const iv = setInterval(() => {
+          cur += step; if (cur >= target) { cur = target; clearInterval(iv); }
+          el.textContent = cur;
+          if (unitTxt) { const s = document.createElement('span'); s.className = 'unit'; s.textContent = unitTxt; el.appendChild(s); }
+        }, 30);
+        countObs.unobserve(el);
+      });
+    }, { threshold: .5 });
+    countEls.forEach(el => countObs.observe(el));
+
+    /* ── FAQ Accordion ── */
+    document.querySelectorAll('.faq-q').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const item = btn.parentElement, wasOpen = item.classList.contains('open');
+        document.querySelectorAll('.faq-item').forEach(i => i.classList.remove('open'));
+        if (!wasOpen) item.classList.add('open');
+      });
+    });
+
+    /* ── Glow mouse ── */
+    const glow = document.querySelector('.hero-glow');
+    if (glow) {
+      window.addEventListener('mousemove', e => {
+        const x = (e.clientX / window.innerWidth - .5) * 60;
+        const y = (e.clientY / window.innerHeight - .5) * 40;
+        glow.style.transform = `translateX(calc(-50% + ${x}px)) translateY(${y}px)`;
+      });
+    }
+
+    /* ── Unified scroll ── */
+    window.addEventListener('scroll', () => { updateProgress(); updateBackTop(); }, { passive: true });
+    updateProgress(); updateBackTop();
+  </script>
+</body>
 </html>
