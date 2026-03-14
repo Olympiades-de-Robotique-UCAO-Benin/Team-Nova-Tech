@@ -1,0 +1,579 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Documentation Technique • Nova Tech</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    :root{--bg:#050505;--bg-alt:#0a0a0a;--surface:#111;--surface-bright:#181818;--text:#f5f5f5;--text-secondary:#a1a1aa;--text-muted:#71717a;--accent:#22d3ee;--accent-dim:rgba(34,211,238,.12);--accent2:#a78bfa;--accent2-dim:rgba(167,139,250,.12);--accent3:#34d399;--accent3-dim:rgba(52,211,153,.12);--border:rgba(255,255,255,.08);--border-strong:rgba(255,255,255,.14);--glass:rgba(255,255,255,.03);--font:'Inter',system-ui,-apple-system,sans-serif;--mono:'JetBrains Mono','Fira Code',monospace;--ease:cubic-bezier(.4,0,.2,1);--max-w:1200px;--nav-h:64px}
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    html{scroll-behavior:smooth;scroll-padding-top:calc(var(--nav-h) + 2rem)}
+    body{font-family:var(--font);background:var(--bg);color:var(--text);line-height:1.6;overflow-x:hidden;-webkit-font-smoothing:antialiased}
+    a{color:inherit;text-decoration:none}
+    ul,ol{list-style:none}
+    button{font-family:inherit;cursor:pointer;border:none;background:transparent;color:inherit}
+    .container{max-width:var(--max-w);margin:0 auto;padding:0 1.5rem}
+    .fade-in{opacity:0;transform:translateY(28px);transition:opacity .7s var(--ease),transform .7s var(--ease)}
+    .fade-in.visible{opacity:1;transform:translateY(0)}
+
+    /* Navbar */
+    .navbar{position:fixed;top:0;left:0;width:100%;height:var(--nav-h);z-index:1000;backdrop-filter:blur(16px) saturate(1.3);background:rgba(5,5,5,.75);border-bottom:1px solid var(--border)}
+    .navbar .container{display:flex;align-items:center;justify-content:space-between;height:100%}
+    .logo{display:flex;align-items:center;gap:.55rem;font-weight:800;font-size:1.15rem;letter-spacing:-.02em}
+    .logo-mark{width:28px;height:28px;border-radius:6px;background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;font-size:.7rem;font-weight:900;color:#000}
+    .nav-links{display:flex;align-items:center;gap:.25rem}
+    .nav-links a{font-size:.875rem;font-weight:500;color:var(--text-secondary);padding:.45rem .75rem;border-radius:8px;transition:all .2s var(--ease)}
+    .nav-links a:hover,.nav-links a.active{color:var(--text);background:rgba(255,255,255,.06)}
+    .nav-tools{display:flex;align-items:center;gap:.35rem;margin-left:.5rem;padding-left:.75rem;border-left:1px solid var(--border)}
+    .nav-tool-btn{width:34px;height:34px;border-radius:8px;display:flex;align-items:center;justify-content:center;color:var(--text-secondary);transition:all .2s var(--ease);border:1px solid transparent}
+    .nav-tool-btn:hover{color:var(--text);background:rgba(255,255,255,.06);border-color:var(--border)}
+    .nav-tool-btn svg{width:18px;height:18px}
+    .nav-tool-btn .icon-sun{display:none}
+    [data-theme="light"] .nav-tool-btn .icon-sun{display:block}
+    [data-theme="light"] .nav-tool-btn .icon-moon{display:none}
+    [data-theme="light"]{--bg:#fafafa;--bg-alt:#f0f0f0;--surface:#ffffff;--surface-bright:#f5f5f5;--text:#18181b;--text-secondary:#52525b;--text-muted:#a1a1aa;--border:rgba(0,0,0,.1);--border-strong:rgba(0,0,0,.18);--glass:rgba(0,0,0,.03)}
+    [data-theme="light"] .navbar{background:rgba(250,250,250,.8)}
+    [data-theme="light"] .mobile-menu{background:rgba(250,250,250,.97)}
+    [data-theme="light"] .logo-mark{color:#fff}
+    [data-theme="light"] .hamburger span{background:var(--text)}
+    .hamburger{display:none;flex-direction:column;gap:5px;padding:.5rem}
+    .hamburger span{display:block;width:20px;height:2px;background:var(--text);border-radius:2px;transition:.3s var(--ease)}
+    .hamburger.open span:nth-child(1){transform:rotate(45deg) translate(5px,5px)}
+    .hamburger.open span:nth-child(2){opacity:0}
+    .hamburger.open span:nth-child(3){transform:rotate(-45deg) translate(5px,-5px)}
+    .mobile-menu{display:none;position:fixed;top:var(--nav-h);left:0;width:100%;background:rgba(5,5,5,.97);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);padding:1rem 1.5rem 1.5rem;z-index:999}
+    .mobile-menu.open{display:block}
+    .mobile-menu a{display:block;padding:.7rem 0;color:var(--text-secondary);font-weight:500;border-bottom:1px solid var(--border)}
+
+    /* Page Header */
+    .page-header{padding:calc(var(--nav-h) + 4rem) 0 3rem;position:relative;overflow:hidden}
+    .page-header .glow{position:absolute;width:500px;height:350px;background:radial-gradient(circle,var(--accent) 0%,transparent 70%);opacity:.1;filter:blur(90px);top:-60px;left:50%;transform:translateX(-50%);pointer-events:none}
+    .page-header .container{position:relative;z-index:1}
+    .breadcrumb{display:flex;align-items:center;gap:.5rem;font-size:.82rem;color:var(--text-muted);margin-bottom:1.5rem}
+    .breadcrumb a{color:var(--text-secondary);transition:color .2s}
+    .breadcrumb a:hover{color:var(--text)}
+    .page-header h1{font-size:clamp(2rem,5vw,3.5rem);font-weight:900;letter-spacing:-.04em;line-height:1;margin-bottom:1rem}
+    .page-header p{color:var(--text-secondary);font-size:1.1rem;max-width:650px}
+
+    /* Layout: sidebar + content */
+    .doc-layout{display:grid;grid-template-columns:260px 1fr;gap:3rem;padding:3rem 0 6rem}
+    .sidebar{position:sticky;top:calc(var(--nav-h) + 2rem);height:fit-content}
+    .sidebar-nav{display:grid;gap:.15rem}
+    .sidebar-nav a{display:block;padding:.5rem .75rem;border-radius:8px;font-size:.88rem;font-weight:500;color:var(--text-secondary);transition:all .2s var(--ease);border-left:2px solid transparent}
+    .sidebar-nav a:hover{color:var(--text);background:rgba(255,255,255,.04)}
+    .sidebar-nav a.active{color:var(--accent);background:var(--accent-dim);border-left-color:var(--accent)}
+    .sidebar-label{font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--text-muted);padding:.75rem .75rem .3rem;margin-top:.5rem}
+
+    /* Content */
+    .doc-content{min-width:0}
+    .doc-section{margin-bottom:4rem}
+    .doc-section h2{font-size:1.6rem;font-weight:800;letter-spacing:-.02em;margin-bottom:.5rem;padding-bottom:.75rem;border-bottom:1px solid var(--border)}
+    .doc-section h3{font-size:1.15rem;font-weight:700;margin:1.5rem 0 .5rem;color:var(--text)}
+    .doc-section p{color:var(--text-secondary);font-size:.92rem;line-height:1.8;margin-bottom:1rem}
+    .doc-section ul,.doc-section ol{margin:.5rem 0 1rem 1.2rem;display:grid;gap:.3rem}
+    .doc-section li{color:var(--text-secondary);font-size:.9rem;line-height:1.7;list-style:disc}
+    .doc-section ol li{list-style:decimal}
+
+    /* Code blocks */
+    pre{background:var(--bg-alt);border:1px solid var(--border);border-radius:12px;padding:1.2rem 1.5rem;margin:1rem 0 1.5rem;overflow-x:auto;font-family:var(--mono);font-size:.82rem;line-height:1.8;color:var(--text-secondary)}
+    pre .kw{color:var(--accent2)}
+    pre .fn{color:var(--accent)}
+    pre .cm{color:var(--text-muted)}
+    pre .st{color:var(--accent3)}
+    pre .nb{color:#f59e0b}
+    code{font-family:var(--mono);background:var(--glass);border:1px solid var(--border);padding:.1rem .4rem;border-radius:4px;font-size:.82rem;color:var(--accent)}
+
+    /* Info boxes */
+    .info-box{border-radius:12px;padding:1.2rem 1.5rem;margin:1rem 0 1.5rem;font-size:.9rem;line-height:1.7;border:1px solid}
+    .info-box.tip{background:var(--accent3-dim);border-color:rgba(52,211,153,.2);color:var(--accent3)}
+    .info-box.warn{background:rgba(245,158,11,.08);border-color:rgba(245,158,11,.2);color:#f59e0b}
+    .info-box.danger{background:rgba(248,113,113,.08);border-color:rgba(248,113,113,.2);color:#f87171}
+    .info-box strong{display:block;margin-bottom:.3rem}
+
+    /* Tables */
+    .doc-table{width:100%;border-collapse:collapse;margin:1rem 0 1.5rem;font-size:.88rem}
+    .doc-table th{text-align:left;padding:.65rem .8rem;background:var(--surface);border:1px solid var(--border);font-weight:600;color:var(--text);font-size:.8rem;text-transform:uppercase;letter-spacing:.05em}
+    .doc-table td{padding:.6rem .8rem;border:1px solid var(--border);color:var(--text-secondary)}
+    .doc-table tr:hover td{background:rgba(255,255,255,.02)}
+
+    /* Footer */
+    footer{border-top:1px solid var(--border);padding:3rem 0}
+    .footer-inner{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1rem}
+    .footer-copy{font-size:.82rem;color:var(--text-muted)}
+    .footer-links{display:flex;gap:1.5rem}
+    .footer-links a{font-size:.82rem;color:var(--text-secondary);transition:color .2s}
+    .footer-links a:hover{color:var(--text)}
+
+    @media(max-width:1024px){.doc-layout{grid-template-columns:1fr}.sidebar{display:none}}
+    @media(max-width:768px){.nav-links{display:none}.hamburger{display:flex}}
+  </style>
+</head>
+<body>
+
+  <nav class="navbar">
+    <div class="container">
+      <a href="../index.html" class="logo"><img src="../img/logo.jpeg" alt="Nova Tech" style="height:38px; border-radius:6px;"> NOVA TECH</a>
+      <div class="nav-links">
+        <a href="../index.html">Accueil</a>
+        <a href="documentation.html">Documentation</a>
+        <a href="equipe.html">Équipe</a>
+        <a href="../index.html#roadmap">Roadmap</a>
+        <a href="../index.html#faq">FAQ</a>
+        <a href="https://eventslink.diginets.site/vote-nominee.php?slug=olympiade-de-robotique-ucao-2026-69af11ed33d40&candidat=team-novatech" target="_blank">Soutenir NovaTech</a>
+        <div class="nav-tools">
+          <button class="nav-tool-btn" id="themeToggle" aria-label="Changer de thème" title="Mode clair / sombre">
+            <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+            <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+          </button>
+          <button class="nav-tool-btn" id="langToggle" aria-label="Translate" title="English / Français">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+          </button>
+        </div>
+      </div>
+      <button class="hamburger" id="hamburger" aria-label="Menu"><span></span><span></span><span></span></button>
+    </div>
+  </nav>
+  <div class="mobile-menu" id="mobileMenu">
+    <a href="../index.html">Accueil</a>
+    <a href="documentation.html">Documentation</a>
+    <a href="equipe.html">Équipe</a>
+    <a href="../index.html#roadmap">Roadmap</a>
+    <a href="../index.html#faq">FAQ</a>
+    <a href="https://eventslink.diginets.site/vote-nominee.php?slug=olympiade-de-robotique-ucao-2026-69af11ed33d40&candidat=team-novatech" target="_blank">Soutenir NovaTech</a>
+  </div>
+
+  <header class="page-header">
+    <div class="glow"></div>
+    <div class="container">
+      <div class="breadcrumb">
+        <a href="../index.html">Accueil</a>
+        <span>/</span>
+        <span>Documentation</span>
+      </div>
+      <h1>Documentation <span style="color:var(--accent)">Projet</span></h1>
+      <p>Le robot suiveur de ligne avec évitement d'obstacles pour le concours UCAO TECH</p>
+    </div>
+  </header>
+
+  <main>
+    <div class="container doc-layout">
+
+      <!-- Signaler que la doc est en cours -->
+      <div style="grid-column:1/-1;background:rgba(255,255,255,.06);border:1px solid var(--border);border-radius:12px;padding:1.5rem;text-align:center;color:var(--text-secondary);font-size:.9rem;margin-bottom:2rem">
+        🚧 Documentation en cours de rédaction — Restez connectés pour les mises à jour ! 🚧
+
+      <!-- Sidebar -->
+      <!-- <aside class="sidebar">
+        <nav class="sidebar-nav">
+          <div class="sidebar-label">NOVA TECH</div>
+          <a href="#quickstart" class="active">Présentation</a>
+          <a href="#prerequis">Matériel</a>
+          <a href="#financement">Financement</a>
+          <div class="sidebar-label">Capteurs</div>
+          <a href="#capteurs">Vue d'ensemble</a>
+          <a href="#calibration">Calibration</a>
+          <div class="sidebar-label">Contrôle</div>
+          <a href="#pid">Algorithme PID</a>
+          <a href="#tuning">Réglage des gains</a>
+          <a href="#vitesse">Stratégie vitesse</a>
+          <div class="sidebar-label">Système</div>
+          <a href="#firmware">Firmware</a>
+          <a href="#telemetrie">Télémétrie</a>
+          <a href="#maintenance">Maintenance</a>
+          <a href="#troubleshooting">Troubleshooting</a>
+        </nav>
+      </aside> -->
+
+      <!-- Content -->
+      <!-- <div class="doc-content">
+
+        <!-- Présentation -->
+        <!-- <section id="quickstart" class="doc-section fade-in">
+          <h2>Présentation et objectifs</h2>
+          <p>Le projet consiste à concevoir un robot autonome capable de :</p>
+          <ol>
+            <li>Suivre une ligne noire tracée sur une piste.</li>
+            <li>Détecter et contourner les obstacles rencontrés.</li>
+            <li>Rester performant, précis et réactif.</li>
+            <li>Permettre à l'équipe Nova Tech de viser la victoire au concours UCAO TECH.</li>
+          </ol>
+          <div class="info-box tip">
+            <strong>💡 Astuce</strong>
+            Le robot est destiné à un contexte de compétition : toujours valider les essais sur une piste proche des conditions réelles.
+          </div>
+        </section> -->
+
+        <!-- Matériel -->
+        <!-- <section id="prerequis" class="doc-section fade-in">
+          <h2>Liste du matériel</h2>
+          <p>Matériel requis selon le cahier de charge.</p>
+          <table class="doc-table">
+            <thead>
+              <tr><th>Composant</th><th>Qté</th><th>Rôle</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>Carte Arduino UNO</td><td>1</td><td>Contrôle principal du robot</td></tr>
+              <tr><td>Moteurs à courant continu</td><td>2</td><td>Déplacement</td></tr>
+              <tr><td>Driver moteur</td><td>1</td><td>Interface de puissance</td></tr>
+              <tr><td>Capteurs infrarouges</td><td>3</td><td>Suivi de ligne</td></tr>
+              <tr><td>Fils jumper + breadboard</td><td>1 set</td><td>Connexions</td></tr>
+              <tr><td>Interrupteur</td><td>1</td><td>Mise sous tension</td></tr>
+              <tr><td>Piles / batteries</td><td>2</td><td>Alimentation</td></tr>
+              <tr><td>Roues</td><td>3</td><td>Mobilité</td></tr>
+              <tr><td>Châssis</td><td>1</td><td>Structure</td></tr>
+              <tr><td>Pistolet à colle, scotch, vis, écrous</td><td>—</td><td>Assemblage</td></tr>
+            </tbody>
+          </table>
+          <p>Technologie principale utilisée : <strong>Arduino</strong>.</p>
+        </section> -->
+
+        <!-- Financement -->
+        <!-- <section id="financement" class="doc-section fade-in">
+          <h2>Financement</h2>
+          <p>Le budget projet inclut les coûts obligatoires et les dépenses de fonctionnement.</p>
+          <table class="doc-table">
+            <thead><tr><th>Poste</th><th>Montant</th><th>Détails</th></tr></thead>
+            <tbody>
+              <tr><td>Inscription concours UCAO TECH</td><td>20 000 FCFA</td><td>Coût fixe</td></tr>
+              <tr><td>Achat matériel robot</td><td>Variable</td><td>Composants électroniques et mécaniques</td></tr>
+              <tr><td>Transport</td><td>Variable</td><td>Déplacements équipe et logistique</td></tr>
+            </tbody>
+          </table>
+        </section> -->
+
+        <!-- Capteurs -->
+        <!-- <section id="capteurs" class="doc-section fade-in">
+          <h2>Capteurs — Vue d'ensemble</h2>
+          <p>Le robot utilise <strong>3 capteurs infrarouges</strong> pour détecter la ligne noire (gauche, centre, droite), plus un module dédié à l'évitement d'obstacles.</p>
+
+          <h3>Schéma de la barrette</h3>
+          <pre>
+  Position :  Gauche   Centre   Droite
+              |          |         |
+  ════════════●══════════●═════════●════════
+              
+  Sortie analogique : noir / blanc
+  Décision : correction gauche, droite ou maintien</pre>
+
+          <h3>Principe de décision</h3>
+          <p>Le microcontrôleur compare les trois lectures IR et corrige les moteurs :</p>
+          <pre>si capteur_gauche détecte la ligne → tourner à gauche
+si capteur_droite détecte la ligne  → tourner à droite
+si capteur_centre détecte la ligne  → avancer
+si obstacle détecté                  → contourner l'obstacle</pre>
+        </section> -->
+
+        <!-- Calibration et Ajustement -->
+        <!-- <section id="calibration" class="doc-section fade-in">
+          <h2>Calibration et Ajustement des Seuils</h2>
+          <p>Les capteurs IR retournent une valeur analogique entre 0 et 1023. Il est important de calibrer les seuils pour bien distinguer la ligne noire du fond blanc.</p>
+          
+          <h3>Procédure de calibration</h3>
+          <ol>
+            <li>Placer le robot sur une surface blanche (fond).</li>
+            <li>Mesurer les valeurs analogiques pour les 3 capteurs (afficher via Serial.println).</li>
+            <li>Placer le robot sur la ligne noire.</li>
+            <li>Mesurer à nouveau les 3 valeurs.</li>
+            <li>Calculer le seuil comme la moyenne : <code>seuil = (valeur_blanche + valeur_noire) / 2</code></li>
+            <li>Utiliser ces seuils dans la logique de détection.</li>
+          </ol>
+
+          <h3>Code exemple</h3>
+          <pre><span class="cm">// Seuils calibrés (à adapter selon votre robot)</span>
+<span class="kw">const int</span> SEUIL = <span class="nb">500</span>;
+
+<span class="kw">void</span> <span class="fn">readSensors</span>() {
+  left = <span class="fn">analogRead</span>(IR_LEFT);
+  center = <span class="fn">analogRead</span>(IR_CENTER);
+  right = <span class="fn">analogRead</span>(IR_RIGHT);
+  
+  <span class="cm">// 1 = ligne détectée, 0 = pas de ligne</span>
+  detecL = (left > SEUIL) ? <span class="nb">1</span> : <span class="nb">0</span>;
+  detecC = (center > SEUIL) ? <span class="nb">1</span> : <span class="nb">0</span>;
+  detecR = (right > SEUIL) ? <span class="nb">1</span> : <span class="nb">0</span>;
+}</pre>
+
+          <div class="info-box warn">
+            <strong>⚠️ Important</strong>
+            Si les capteurs donnent des valeurs instables, nettoyer les lentilles (poussière, traces de doigts) et vérifier la hauteur (5-8 mm du sol).
+          </div>
+        </section> -->
+
+        <!-- Contrôle Moteur -->
+        <!-- <section id="pid" class="doc-section fade-in">
+          <h2>Logique de Contrôle des Moteurs</h2>
+          <p>Sur l'Arduino UNO avec 3 capteurs IR, le contrôle est simple : chaque configuration de capteurs correspond à une action moteur.</p>
+
+          <h3>Table de vérité</h3>
+          <table class="doc-table">
+            <thead><tr><th>Gauche</th><th>Centre</th><th>Droite</th><th>Action</th></tr></thead>
+            <tbody>
+              <tr><td>0</td><td>1</td><td>0</td><td style="color:var(--accent)">Avancer tout droit</td></tr>
+              <tr><td>1</td><td>0</td><td>0</td><td style="color:#f59e0b">Tourner à gauche</td></tr>
+              <tr><td>0</td><td>0</td><td>1</td><td style="color:#f59e0b">Tourner à droite</td></tr>
+              <tr><td>1</td><td>1</td><td>0</td><td style="color:#f59e0b">Tourner légèrement à gauche</td></tr>
+              <tr><td>0</td><td>1</td><td>1</td><td style="color:#f59e0b">Tourner légèrement à droite</td></tr>
+              <tr><td>1</td><td>1</td><td>1</td><td style="color:var(--accent)">Peut être la ligne — avancer</td></tr>
+              <tr><td>0</td><td>0</td><td>0</td><td style="color:var(--danger)">Perte de ligne</td></tr>
+            </tbody>
+          </table>
+
+          <h3>Implémentation</h3>
+          <pre><span class="kw">void</span> <span class="fn">followLine</span>() {
+  <span class="fn">readSensors</span>();
+  
+  <span class="kw">if</span> (detecL && !detecC && !detecR) {
+    <span class="fn">setMotors</span>(<span class="nb">80</span>, <span class="nb">200</span>);  <span class="cm">// Tourner à gauche</span>
+  } 
+  <span class="kw">else if</span> (!detecL && !detecC && detecR) {
+    <span class="fn">setMotors</span>(<span class="nb">200</span>, <span class="nb">80</span>);   <span class="cm">// Tourner à droite</span>
+  }
+  <span class="kw">else</span> {
+    <span class="fn">setMotors</span>(<span class="nb">150</span>, <span class="nb">150</span>);   <span class="cm">// Avancer</span>
+  }
+}</pre>
+
+          <h3>Vitesses adaptatives</h3>
+          <p>Optionnel : augmenter la vitesse en ligne droite, la réduire en virage :</p>
+          <pre><span class="kw">int</span> vitesseBase = <span class="nb">180</span>;
+<span class="kw">int</span> reductionVirage = <span class="nb">40</span>;
+
+<span class="cm">// En virage : réduire la vitesse</span>
+<span class="kw">if</span> (detecL || detecR) {
+  vitesseBase = <span class="nb">140</span>;
+}
+          <ol>
+            <li>Seulement si le robot a un biais constant d'un côté.</li>
+            <li>Commencer très bas : Ki = 0.0001.</li>
+            <li>Augmenter doucement. L'anti-windup est critique ici.</li>
+          </ol>
+
+          <h3>Profils sauvegardés</h3>
+          <table class="doc-table">
+            <thead><tr><th>Profil</th><th>Kp</th><th>Ki</th><th>Kd</th><th>Usage</th></tr></thead>
+            <tbody>
+              <tr><td>Safe</td><td>0.10</td><td>0.0001</td><td>1.5</td><td>Premiers tests, piste inconnue</td></tr>
+              <tr><td>Normal</td><td>0.15</td><td>0.0001</td><td>2.5</td><td>Entraînement standard</td></tr>
+              <tr><td>Aggressif</td><td>0.22</td><td>0.0002</td><td>3.8</td><td>Compétition, piste connue</td></tr>
+            </tbody>
+          </table>
+
+          <div class="info-box tip">
+            <strong>💡 Conseil</strong>
+            Toujours tester sur au minimum 3 types de pistes : ligne droite, virage large, virage serré à 90°.
+          </div>
+        </section> -->
+
+        <!-- Vitesse -->
+        <!-- <section id="vitesse" class="doc-section fade-in">
+          <h2>Stratégie Vitesse</h2>
+          <p>La vitesse de base n'est pas fixe : elle s'adapte en fonction de la déviation de la ligne.</p>
+
+          <h3>Principe</h3>
+          <ul>
+            <li><strong>Ligne droite</strong> (erreur faible) → vitesse maximale.</li>
+            <li><strong>Virage</strong> (erreur élevée) → vitesse réduite progressivement.</li>
+            <li>Transition douce pour éviter les à-coups mécaniques.</li>
+          </ul>
+
+          <pre><span class="kw">int</span> <span class="fn">vitesseAdaptative</span>(<span class="kw">float</span> erreur) {
+  <span class="kw">float</span> absErr = <span class="fn">abs</span>(erreur);
+  
+  <span class="kw">if</span> (absErr < <span class="nb">500</span>)  <span class="kw">return</span> <span class="nb">MAX_SPEED</span>;      <span class="cm">// 255 - ligne droite</span>
+  <span class="kw">if</span> (absErr < <span class="nb">1500</span>) <span class="kw">return</span> <span class="nb">MED_SPEED</span>;      <span class="cm">// 200 - virage léger</span>
+  <span class="kw">if</span> (absErr < <span class="nb">2500</span>) <span class="kw">return</span> <span class="nb">SLOW_SPEED</span>;     <span class="cm">// 150 - virage serré</span>
+  <span class="kw">return</span> <span class="nb">MIN_SPEED</span>;                        <span class="cm">// 100 - urgence</span>
+}</pre>
+        </section> -->
+
+        <!-- Programmation Arduino -->
+        <!-- <section id="firmware" class="doc-section fade-in">
+          <h2>Programmation Arduino</h2>
+          <p>Le programme embarqué est développé en langage Arduino (C++ simplifié) pour l'Arduino UNO.</p>
+
+          <h3>Structure du programme</h3>
+          <p>Le programme comprend :</p>
+          <ul>
+            <li><strong>setup()</strong> : Initialisation des pins et des capteurs.</li>
+            <li><strong>readSensors()</strong> : Lecture des 3 capteurs IR (Gauche, Centre, Droit).</li>
+            <li><strong>followLine()</strong> : Logique de suivi de la ligne noire.</li>
+            <li><strong>avoidObstacle()</strong> : Logique d'évitement d'obstacle.</li>
+            <li><strong>controlMotors()</strong> : Pilotage des 2 moteurs DC (vitesse + direction).</li>
+            <li><strong>loop()</strong> : Boucle principale répétée continuellement (~100 Hz).</li>
+          </ul>
+
+          <h3>Configuration des pins Arduino</h3>
+          <pre><span class="cm">// Capteurs infrarouges</span>
+<span class="kw">const int</span> <span class="nb">IR_LEFT</span>   = <span class="nb">A0</span>;
+<span class="kw">const int</span> <span class="nb">IR_CENTER</span> = <span class="nb">A1</span>;
+<span class="kw">const int</span> <span class="nb">IR_RIGHT</span>  = <span class="nb">A2</span>;
+
+<span class="cm">// Moteur gauche</span>
+<span class="kw">const int</span> <span class="nb">MOT_L_IN1</span> = <span class="nb">8</span>;
+<span class="kw">const int</span> <span class="nb">MOT_L_IN2</span> = <span class="nb">9</span>;
+<span class="kw">const int</span> <span class="nb">MOT_L_PWM</span> = <span class="nb">10</span>;
+
+<span class="cm">// Moteur droit</span>
+<span class="kw">const int</span> <span class="nb">MOT_R_IN1</span> = <span class="nb">11</span>;
+<span class="kw">const int</span> <span class="nb">MOT_R_IN2</span> = <span class="nb">12</span>;
+<span class="kw">const int</span> <span class="nb">MOT_R_PWM</span> = <span class="nb">5</span>;
+
+<span class="cm">// Détecteur d'obstacle (capteur IR numérique)</span>
+<span class="kw">const int</span> <span class="nb">OBSTACLE_PIN</span> = <span class="nb">2</span>;</pre>
+
+          <h3>Déploiement</h3>
+          <ol>
+            <li>Télécharger l'IDE Arduino officiel (arduino.cc).</li>
+            <li>Sélectionner "Arduino UNO" dans Outils → Carte.</li>
+            <li>Charger votre sketch (.ino).</li>
+            <li>Cliquer "Vérifier" pour compiler, puis "Téléverser" pour charger dans le microcontrôleur.</li>
+            <li>Ouvrir le Moniteur série (9600 baud) pour suivre l'exécution.</li>
+          </ol>
+        </section> -->
+
+        <!-- Tests et optimisation -->
+        <!-- <section id="telemetrie" class="doc-section fade-in">
+          <h2>Tests et Optimisation</h2>
+          <p>Procédure systématique pour tester et affiner les performances du robot avant la compétition.</p>
+
+          <h3>Étapes de test</h3>
+          <ol>
+            <li><strong>Test de ligne droite</strong> : Robot suit une ligne noire d'1 mètre sans obstacle. Vérifier la stabilité (pas d'oscillation).</li>
+            <li><strong>Test de virages</strong> : Ajouter une courbe à 90° puis en S. Mesurer le temps et la trajectoire.</li>
+            <li><strong>Test d'obstacle</strong> : Placer un obstacle à 10 cm. Vérifier que le robot le détecte et s'arrête ou contourne.</li>
+            <li><strong>Test de performance</strong> : Chronomètrer le parcours complet de la piste UCAO TECH.</li>
+            <li><strong>Test d'endurance</strong> : Répéter 5 fois consécutives, noter les variations de temps.</li>
+          </ol>
+
+          <h3>Enregistrement des résultats</h3>
+          <p>Pour chaque session de test, documenter :</p>
+          <ul>
+            <li>Date et heure du test.</li>
+            <li>Tension batterie (V) au début et à la fin.</li>
+            <li>Conditions d'éclairage et état de la piste.</li>
+            <li>Paramètres du firmware (seuils capteurs, vitesses).</li>
+            <li>Temps d'exécution et nombre d'erreurs (sorties de ligne, non-détection obstacle).</li>
+            <li>Observations qualitatives et ajustements effectués.</li>
+          </ul>
+          <p>Ces données permettent d'optimiser progressivement le robot et de détecter les problèmes intermittents.</p>
+        </section> -->
+
+        <!-- Maintenance -->
+        <!-- <section id="maintenance" class="doc-section fade-in">
+          <h2>Maintenance et Vérifications</h2>
+          <p>Procédures pour garder le robot en état optimal avant la compétition.</p>
+
+          <h3>Check-list pré-compétition</h3>
+          <table class="doc-table">
+            <thead><tr><th>Vérification</th><th>Fréquence</th><th>Criticité</th></tr></thead>
+            <tbody>
+              <tr><td>Tension batterie > 7.0V</td><td>Avant chaque session</td><td style="color:var(--danger)">Critique</td></tr>
+              <tr><td>Capteurs IR propres (pas de poussière/traces)</td><td>Avant chaque test</td><td style="color:#f59e0b">Haute</td></tr>
+              <tr><td>Roues intactes, pas d'usure excessive</td><td>Chaque semaine</td><td style="color:#f59e0b">Haute</td></tr>
+              <tr><td>Vis du châssis bien serrées</td><td>Chaque semaine</td><td style="color:var(--accent3)">Moyenne</td></tr>
+              <tr><td>Connexions électriques (pas de corrosion)</td><td>Toutes les 2 semaines</td><td style="color:var(--accent3)">Moyenne</td></tr>
+              <tr><td>Soudures intactes sur la breadboard</td><td>Toutes les 2 semaines</td><td style="color:var(--accent3)">Moyenne</td></tr>
+              <tr><td>Firmware chargé et testé</td><td>Avant compétition</td><td style="color:var(--danger)">Critique</td></tr>
+            </tbody>
+          </table>
+
+          <h3>Entretien des batteries</h3>
+          <p>Les batteries alcalines perdent de la charge progressivement. Signes de remplacement :</p>
+          <ul>
+            <li>Tension inférieure à 7.0V (mesurer avec un multimètre).</li>
+            <li>Robot visiblement plus lent (moins de couple moteur).</li>
+            <li>Comportement instable après 30 minutes d'utilisation.</li>
+          </ul>
+
+          <div class="info-box danger">
+            <strong>⚠️ Important — Alimentation</strong>
+            Toujours couper l'interrupteur avant de débrancher la batterie. Ne pas court-circuiter les bornes. Charger les piles en dehors du robot pour éviter les dégâts.
+          </div>
+        </section> -->
+
+        <!-- Troubleshooting -->
+        <!-- <section id="troubleshooting" class="doc-section fade-in">
+          <h2>Dépannage</h2>
+          <p>Solutions rapides aux problèmes courants rencontrés avec l'Arduino UNO et le robot.</p>
+
+          <table class="doc-table">
+            <thead><tr><th>Problème</th><th>Cause probable</th><th>Solution</th></tr></thead>
+            <tbody>
+              <tr><td>Robot oscille sur la ligne</td><td>Seuil détection trop sensible</td><td>Augmenter le seuil d'au moins 50 valeurs analogiques</td></tr>
+              <tr><td>Robot se désaxe en virage</td><td>Moteurs déséquilibrés (vitesses différentes)</td><td>Ajuster les PWM par calibrage individuel des moteurs</td></tr>
+              <tr><td>Capteurs donnent des valeurs erratiques</td><td>Bruit électrique des moteurs, capteurs sales</td><td>Nettoyer les capteurs, ajouter des condensateurs près de la breadboard</td></tr>
+              <tr><td>Un moteur ne tourne pas</td><td>Faux contact, batterie faible, ou pin PWM cassée</td><td>Vérifier les soudures, mesurer la tension batterie, tester avec un autre pin</td></tr>
+              <tr><td>Arduino ne reconnaît pas le chargement</td><td>Câble USB défectueux ou port COM non sélectionné</td><td>Essayer un autre câble USB, redémarrer l'IDE Arduino</td></tr>
+              <tr><td>Obstacle détecté tous les 2 secondes sans raison</td><td>Capteur obstacle trop sensible ou objet réfléchissant à proximité</td><td>Réduire la sensibilité ou éloigner les objets parasites</td></tr>
+              <tr><td>Robot très lent malgré batterie correcte</td><td>Friction mécanique ou dégâts moteur</td><td>Vérifier les roues (pas d'obstruction), tester les moteurs séparément</td></tr>
+            </tbody>
+          </table>
+        </section> -->
+
+      </div> -->
+    </div>
+  </main>
+
+  <footer>
+    <div class="container footer-inner">
+      <div class="footer-copy">© 2026 Nova Tech Engineering</div>
+      <div class="footer-links">
+        <a href="../index.html">Accueil</a>
+        <a href="documentation.html">Documentation</a>
+        <a href="equipe.html">Équipe</a>
+        <a href="https://eventslink.diginets.site/vote-nominee.php?slug=olympiade-de-robotique-ucao-2026-69af11ed33d40&candidat=team-novatech" target="_blank">Soutenir</a>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    /* Theme toggle */
+    const themeToggle = document.getElementById('themeToggle');
+    const savedTheme = localStorage.getItem('nt-theme') || 'dark';
+    if (savedTheme === 'light') document.documentElement.setAttribute('data-theme', 'light');
+    themeToggle.addEventListener('click', () => {
+      const isLight = document.documentElement.getAttribute('data-theme') === 'light';
+      document.documentElement.setAttribute('data-theme', isLight ? 'dark' : 'light');
+      localStorage.setItem('nt-theme', isLight ? 'dark' : 'light');
+    });
+    /* Language toggle (placeholder) */
+    const langToggle = document.getElementById('langToggle');
+    langToggle.addEventListener('click', () => {
+      const cur = localStorage.getItem('nt-lang') || 'fr';
+      const next = cur === 'fr' ? 'en' : 'fr';
+      localStorage.setItem('nt-lang', next);
+      langToggle.title = next === 'en' ? 'Français' : 'English';
+    });
+
+    /* Mobile menu */
+    const hamburger = document.getElementById('hamburger');
+    const mobileMenu = document.getElementById('mobileMenu');
+    hamburger.addEventListener('click', () => { hamburger.classList.toggle('open'); mobileMenu.classList.toggle('open'); });
+    mobileMenu.querySelectorAll('a').forEach(a => a.addEventListener('click', () => { hamburger.classList.remove('open'); mobileMenu.classList.remove('open'); }));
+
+    /* Fade in */
+    const fadeEls = document.querySelectorAll('.fade-in');
+    const fadeObs = new IntersectionObserver(entries => {
+      entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); fadeObs.unobserve(e.target); } });
+    }, { threshold: .1 });
+    fadeEls.forEach(el => fadeObs.observe(el));
+
+    /* Sidebar active tracking */
+    const sections = document.querySelectorAll('.doc-section');
+    const sideLinks = document.querySelectorAll('.sidebar-nav a');
+    const sectionObs = new IntersectionObserver(entries => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          sideLinks.forEach(l => l.classList.remove('active'));
+          const target = document.querySelector(`.sidebar-nav a[href="#${entry.target.id}"]`);
+          if (target) target.classList.add('active');
+        }
+      });
+    }, { threshold: .2, rootMargin: '-80px 0px -60% 0px' });
+    sections.forEach(s => sectionObs.observe(s));
+  </script>
+</body>
+</html>

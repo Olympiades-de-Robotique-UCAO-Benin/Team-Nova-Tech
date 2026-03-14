@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Architecture Robot • Nova Tech</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    :root{--bg:#050505;--bg-alt:#0a0a0a;--surface:#111;--surface-bright:#181818;--text:#f5f5f5;--text-secondary:#a1a1aa;--text-muted:#71717a;--accent:#22d3ee;--accent-dim:rgba(34,211,238,.12);--accent2:#a78bfa;--accent2-dim:rgba(167,139,250,.12);--accent3:#34d399;--accent3-dim:rgba(52,211,153,.12);--border:rgba(255,255,255,.08);--border-strong:rgba(255,255,255,.14);--glass:rgba(255,255,255,.03);--font:'Inter',system-ui,-apple-system,sans-serif;--mono:'JetBrains Mono','Fira Code',monospace;--ease:cubic-bezier(.4,0,.2,1);--max-w:1200px;--nav-h:64px}
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    html{scroll-behavior:smooth;scroll-padding-top:calc(var(--nav-h) + 2rem)}
+    body{font-family:var(--font);background:var(--bg);color:var(--text);line-height:1.6;overflow-x:hidden;-webkit-font-smoothing:antialiased}
+    a{color:inherit;text-decoration:none}ul,ol{list-style:none}
+    button{font-family:inherit;cursor:pointer;border:none;background:transparent;color:inherit}
+    .container{max-width:var(--max-w);margin:0 auto;padding:0 1.5rem}
+    .fade-in{opacity:0;transform:translateY(28px);transition:opacity .7s var(--ease),transform .7s var(--ease)}
+    .fade-in.visible{opacity:1;transform:translateY(0)}
+
+    /* Navbar */
+    .navbar{position:fixed;top:0;left:0;width:100%;height:var(--nav-h);z-index:1000;backdrop-filter:blur(16px) saturate(1.3);background:rgba(5,5,5,.75);border-bottom:1px solid var(--border)}
+    .navbar .container{display:flex;align-items:center;justify-content:space-between;height:100%}
+    .logo{display:flex;align-items:center;gap:.55rem;font-weight:800;font-size:1.15rem;letter-spacing:-.02em}
+    .logo-mark{width:28px;height:28px;border-radius:6px;background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;font-size:.7rem;font-weight:900;color:#000}
+    .nav-links{display:flex;align-items:center;gap:.25rem}
+    .nav-links a{font-size:.875rem;font-weight:500;color:var(--text-secondary);padding:.45rem .75rem;border-radius:8px;transition:all .2s var(--ease)}
+    .nav-links a:hover,.nav-links a.active{color:var(--text);background:rgba(255,255,255,.06)}
+    .nav-tools{display:flex;align-items:center;gap:.35rem;margin-left:.5rem;padding-left:.75rem;border-left:1px solid var(--border)}
+    .nav-tool-btn{width:34px;height:34px;border-radius:8px;display:flex;align-items:center;justify-content:center;color:var(--text-secondary);transition:all .2s var(--ease);border:1px solid transparent}
+    .nav-tool-btn:hover{color:var(--text);background:rgba(255,255,255,.06);border-color:var(--border)}
+    .nav-tool-btn svg{width:18px;height:18px}
+    .nav-tool-btn .icon-sun{display:none}
+    [data-theme="light"] .nav-tool-btn .icon-sun{display:block}
+    [data-theme="light"] .nav-tool-btn .icon-moon{display:none}
+    [data-theme="light"]{--bg:#fafafa;--bg-alt:#f0f0f0;--surface:#ffffff;--surface-bright:#f5f5f5;--text:#18181b;--text-secondary:#52525b;--text-muted:#a1a1aa;--border:rgba(0,0,0,.1);--border-strong:rgba(0,0,0,.18);--glass:rgba(0,0,0,.03)}
+    [data-theme="light"] .navbar{background:rgba(250,250,250,.8)}
+    [data-theme="light"] .mobile-menu{background:rgba(250,250,250,.97)}
+    [data-theme="light"] .logo-mark{color:#fff}
+    [data-theme="light"] .hamburger span{background:var(--text)}
+    .hamburger{display:none;flex-direction:column;gap:5px;padding:.5rem}
+    .hamburger span{display:block;width:20px;height:2px;background:var(--text);border-radius:2px;transition:.3s var(--ease)}
+    .hamburger.open span:nth-child(1){transform:rotate(45deg) translate(5px,5px)}
+    .hamburger.open span:nth-child(2){opacity:0}
+    .hamburger.open span:nth-child(3){transform:rotate(-45deg) translate(5px,-5px)}
+    .mobile-menu{display:none;position:fixed;top:var(--nav-h);left:0;width:100%;background:rgba(5,5,5,.97);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);padding:1rem 1.5rem 1.5rem;z-index:999}
+    .mobile-menu.open{display:block}
+    .mobile-menu a{display:block;padding:.7rem 0;color:var(--text-secondary);font-weight:500;border-bottom:1px solid var(--border)}
+
+    /* Page Header */
+    .page-header{padding:calc(var(--nav-h) + 4rem) 0 3rem;position:relative;overflow:hidden}
+    .page-header .glow{position:absolute;width:500px;height:350px;background:radial-gradient(circle,var(--accent2) 0%,transparent 70%);opacity:.1;filter:blur(90px);top:-60px;left:50%;transform:translateX(-50%);pointer-events:none}
+    .page-header .container{position:relative;z-index:1}
+    .breadcrumb{display:flex;align-items:center;gap:.5rem;font-size:.82rem;color:var(--text-muted);margin-bottom:1.5rem}
+    .breadcrumb a{color:var(--text-secondary);transition:color .2s}
+    .breadcrumb a:hover{color:var(--text)}
+    .page-header h1{font-size:clamp(2rem,5vw,3.5rem);font-weight:900;letter-spacing:-.04em;line-height:1;margin-bottom:1rem}
+    .page-header p{color:var(--text-secondary);font-size:1.1rem;max-width:650px}
+
+    /* Section */
+    .section-label{font-size:.78rem;font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:var(--accent);margin-bottom:.75rem}
+    .section-title{font-size:clamp(1.6rem,3vw,2.4rem);font-weight:800;letter-spacing:-.03em;line-height:1.1;margin-bottom:.75rem}
+    .section-desc{color:var(--text-secondary);font-size:1rem;max-width:600px;margin-bottom:3rem}
+    section{padding:5rem 0}
+    section:nth-child(even){background:var(--bg-alt)}
+
+    /* Spec cards */
+    .specs-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1.25rem}
+    .spec-card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:2rem;transition:all .35s var(--ease);position:relative;overflow:hidden}
+    .spec-card:hover{border-color:rgba(255,255,255,.15);transform:translateY(-3px)}
+    .spec-card h3{font-size:1.1rem;font-weight:700;margin-bottom:.75rem}
+    .spec-card p{color:var(--text-secondary);font-size:.88rem;line-height:1.7}
+    .spec-icon{width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:1.2rem;margin-bottom:1.25rem}
+    .spec-detail{margin-top:1rem;display:grid;gap:.35rem}
+    .spec-row{display:flex;justify-content:space-between;align-items:center;padding:.4rem .6rem;border-radius:6px;background:rgba(255,255,255,.02);border:1px solid var(--border);font-size:.84rem}
+    .spec-row span:first-child{color:var(--text-muted)}
+    .spec-row span:last-child{font-weight:600;color:var(--text)}
+
+    /* BOM */
+    .bom-table{width:100%;border-collapse:collapse;font-size:.88rem}
+    .bom-table th{text-align:left;padding:.7rem .9rem;background:var(--surface);border:1px solid var(--border);font-weight:600;font-size:.78rem;text-transform:uppercase;letter-spacing:.05em;color:var(--text)}
+    .bom-table td{padding:.6rem .9rem;border:1px solid var(--border);color:var(--text-secondary)}
+    .bom-table tr:hover td{background:rgba(255,255,255,.02)}
+    .bom-badge{display:inline-block;font-size:.7rem;padding:.12rem .45rem;border-radius:6px;font-weight:600}
+
+    /* Wiring diagram ASCII */
+    .diagram{background:var(--bg-alt);border:1px solid var(--border);border-radius:14px;padding:2rem;margin:2rem 0;overflow-x:auto;font-family:var(--mono);font-size:.75rem;line-height:1.6;color:var(--text-secondary);white-space:pre}
+
+    /* Software architecture */
+    .arch-grid{display:grid;grid-template-columns:1fr 1fr;gap:1.25rem}
+    .arch-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:1.75rem;transition:all .3s var(--ease)}
+    .arch-card:hover{border-color:rgba(255,255,255,.12)}
+    .arch-card h3{font-size:1.05rem;font-weight:700;margin-bottom:.5rem;display:flex;align-items:center;gap:.5rem}
+    .arch-card p{color:var(--text-secondary);font-size:.88rem;line-height:1.7}
+    .arch-tag{font-size:.68rem;padding:.15rem .45rem;border-radius:6px;font-weight:600}
+    pre{background:var(--bg-alt);border:1px solid var(--border);border-radius:12px;padding:1.2rem 1.5rem;margin:1rem 0 1.5rem;overflow-x:auto;font-family:var(--mono);font-size:.8rem;line-height:1.8;color:var(--text-secondary);white-space:pre}
+    pre .kw{color:var(--accent2)}pre .fn{color:var(--accent)}pre .cm{color:var(--text-muted)}pre .st{color:var(--accent3)}pre .nb{color:#f59e0b}
+    code{font-family:var(--mono);background:var(--glass);border:1px solid var(--border);padding:.1rem .4rem;border-radius:4px;font-size:.82rem;color:var(--accent)}
+
+    /* Gallery */
+    .gallery{display:grid;grid-template-columns:repeat(3,1fr);gap:1.25rem;margin-top:2rem}
+    .gallery-item{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:1.5rem;text-align:center;transition:all .3s var(--ease)}
+    .gallery-item:hover{border-color:rgba(255,255,255,.12)}
+    .gallery-placeholder{width:100%;aspect-ratio:16/10;background:var(--bg-alt);border:1px dashed var(--border-strong);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:.82rem;color:var(--text-muted);margin-bottom:.75rem}
+    .gallery-item h4{font-size:.9rem;font-weight:600}
+    .gallery-item p{font-size:.78rem;color:var(--text-muted);margin-top:.25rem}
+
+    /* Footer */
+    footer{border-top:1px solid var(--border);padding:3rem 0}
+    .footer-inner{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1rem}
+    .footer-copy{font-size:.82rem;color:var(--text-muted)}
+    .footer-links{display:flex;gap:1.5rem}
+    .footer-links a{font-size:.82rem;color:var(--text-secondary);transition:color .2s}
+    .footer-links a:hover{color:var(--text)}
+
+    @media(max-width:1024px){.specs-grid,.gallery{grid-template-columns:repeat(2,1fr)}.arch-grid{grid-template-columns:1fr}}
+    @media(max-width:768px){.nav-links{display:none}.hamburger{display:flex}.specs-grid,.gallery{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+
+  <nav class="navbar">
+    <div class="container">
+      <a href="../index.html" class="logo"><img src="../img/logo.jpeg" alt="Nova Tech" style="height:38px; border-radius:6px;"> NOVA TECH</a>
+      <div class="nav-links">
+        <a href="../index.html">Accueil</a>
+        <a href="documentation.html">Documentation</a>
+        <a href="equipe.html">Équipe</a>
+        <a href="../index.html#roadmap">Roadmap</a>
+        <a href="../index.html#faq">FAQ</a>
+        <a href="https://eventslink.diginets.site/vote-nominee.php?slug=olympiade-de-robotique-ucao-2026-69af11ed33d40&candidat=team-novatech" target="_blank">Soutenir NovaTech</a>
+        <div class="nav-tools">
+          <button class="nav-tool-btn" id="themeToggle" aria-label="Changer de thème" title="Mode clair / sombre">
+            <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+            <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+          </button>
+          <button class="nav-tool-btn" id="langToggle" aria-label="Translate" title="English / Français">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+          </button>
+        </div>
+      </div>
+      <button class="hamburger" id="hamburger" aria-label="Menu"><span></span><span></span><span></span></button>
+    </div>
+  </nav>
+  <div class="mobile-menu" id="mobileMenu">
+    <a href="../index.html">Accueil</a>
+    <a href="documentation.html">Documentation</a>
+    <a href="equipe.html">Équipe</a>
+    <a href="../index.html#roadmap">Roadmap</a>
+    <a href="../index.html#faq">FAQ</a>
+    <a href="https://eventslink.diginets.site/vote-nominee.php?slug=olympiade-de-robotique-ucao-2026-69af11ed33d40&candidat=team-novatech" target="_blank">Soutenir NovaTech</a>
+  </div>
+
+  <header class="page-header">
+    <div class="glow"></div>
+    <div class="container">
+      <div class="breadcrumb"><a href="../index.html">Accueil</a><span>/</span><span>Robot</span></div>
+      <h1>Architecture <span style="color:var(--accent2)">Robot</span></h1>
+      <p>Version conforme au cahier de charge : Arduino UNO, suivi de ligne par capteurs IR et évitement d'obstacles.</p>
+    </div>
+  </header>
+
+  <main>
+
+    <!-- ═══ HARDWARE SPECS ═══ -->
+    <section class="fade-in">
+      <div class="container">
+        <div class="section-label">Hardware</div>
+        <h2 class="section-title">Composants principaux</h2>
+        <p class="section-desc">Configuration matérielle validée dans le cahier de charge transmis par l'équipe Nova Tech.</p>
+
+        <div class="specs-grid">
+          <div class="spec-card">
+            <div class="spec-icon" style="background:var(--accent-dim)">🧠</div>
+            <h3>Arduino UNO</h3>
+            <p>Microcontrôleur principal qui exécute le programme de suivi de ligne et de gestion d'obstacles.</p>
+            <div class="spec-detail">
+              <div class="spec-row"><span>Type</span><span>ATmega328P</span></div>
+              <div class="spec-row"><span>Fréquence</span><span>16 MHz</span></div>
+              <div class="spec-row"><span>E/S digitales</span><span>14</span></div>
+              <div class="spec-row"><span>Entrées analogiques</span><span>6</span></div>
+              <div class="spec-row"><span>Alimentation</span><span>5V</span></div>
+            </div>
+          </div>
+
+          <div class="spec-card">
+            <div class="spec-icon" style="background:var(--accent2-dim)">⚙️</div>
+            <h3>Moteurs DC (×2)</h3>
+            <p>Deux moteurs à courant continu assurent la propulsion et les corrections de trajectoire.</p>
+            <div class="spec-detail">
+              <div class="spec-row"><span>Quantité</span><span>2</span></div>
+              <div class="spec-row"><span>Commande</span><span>Driver moteur</span></div>
+              <div class="spec-row"><span>Fonction</span><span>Traction + direction</span></div>
+            </div>
+          </div>
+
+          <div class="spec-card">
+            <div class="spec-icon" style="background:var(--accent3-dim)">🔌</div>
+            <h3>Driver moteur</h3>
+            <p>Interface de puissance entre l'Arduino et les moteurs pour gérer sens et vitesse.</p>
+            <div class="spec-detail">
+              <div class="spec-row"><span>Canaux</span><span>2 sorties moteur</span></div>
+              <div class="spec-row"><span>Entrées</span><span>Signaux Arduino</span></div>
+              <div class="spec-row"><span>Rôle</span><span>Adaptation puissance</span></div>
+            </div>
+          </div>
+
+          <div class="spec-card">
+            <div class="spec-icon" style="background:rgba(245,158,11,.12)">👁️</div>
+            <h3>Capteurs infrarouges (×3)</h3>
+            <p>Détection de la ligne noire pour ajuster automatiquement la trajectoire.</p>
+            <div class="spec-detail">
+              <div class="spec-row"><span>Quantité</span><span>3</span></div>
+              <div class="spec-row"><span>Type</span><span>IR réflectif</span></div>
+              <div class="spec-row"><span>Usage</span><span>Suivi de ligne</span></div>
+            </div>
+          </div>
+
+          <div class="spec-card">
+            <div class="spec-icon" style="background:rgba(244,63,94,.12)">🔋</div>
+            <h3>Alimentation</h3>
+            <p>Deux piles ou batteries avec interrupteur pour une alimentation embarquée autonome.</p>
+            <div class="spec-detail">
+              <div class="spec-row"><span>Source</span><span>Piles / batteries ×2</span></div>
+              <div class="spec-row"><span>Commande</span><span>Interrupteur ON/OFF</span></div>
+              <div class="spec-row"><span>Mobilité</span><span>Sans fil</span></div>
+            </div>
+          </div>
+
+          <div class="spec-card">
+            <div class="spec-icon" style="background:rgba(99,102,241,.12)">🚧</div>
+            <h3>Détection obstacle</h3>
+            <p>Module de détection complémentaire pour contourner les obstacles rencontrés sur le parcours.</p>
+            <div class="spec-detail">
+              <div class="spec-row"><span>Fonction</span><span>Évitement obstacle</span></div>
+              <div class="spec-row"><span>Action</span><span>Changement trajectoire</span></div>
+              <div class="spec-row"><span>Objectif</span><span>Continuité du run</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══ WIRING ═══ -->
+    <section class="fade-in">
+      <div class="container">
+        <div class="section-label">Câblage</div>
+        <h2 class="section-title">Schéma de connexion</h2>
+        <p class="section-desc">Diagramme simplifié des connexions entre l'Arduino UNO, les capteurs de ligne, l'évitement obstacle et le driver moteur.</p>
+
+        <div class="diagram">
+                    ┌──────────────────────────────────────────────┐
+                    │                ARDUINO UNO                   │
+                    │                                              │
+  CAPTEURS IR       │   A0  ←── Capteur IR Gauche                 │
+  (IR ×3)           │   A1  ←── Capteur IR Centre                 │
+                    │   A2  ←── Capteur IR Droit                  │
+                    │                                              │
+  DRIVER MOTEUR     │   D8  ──→ IN1     ┐                        │
+  (Moteur Gauche)   │   D9  ──→ IN2     ├─ Moteur Gauche        │
+                    │   D10 ──→ ENA(PWM)┘                        │
+                    │                                              │
+  DRIVER MOTEUR     │   D11 ──→ IN3     ┐                        │
+  (Moteur Droit)    │   D12 ──→ IN4     ├─ Moteur Droit         │
+                    │   D5  ──→ ENB(PWM)┘                        │
+                    │                                              │
+  OBSTACLE          │   D2  ←── Capteur obstacle (digital)        │
+  (Détection)       │   D3  ←── Reserve détection                 │
+                    │                                              │
+  ALIMENTATION      │   GND ←── Masse commune                     │
+                    │   5V  ←── Circuits logiques                 │
+                    │   VIN ←── Batterie (7-12V)                  │
+                    │                                              │
+  OPTIONNEL         │   TX/RX ← Serial pour debug (9600 baud)     │
+                    └──────────────────────────────────────────────┘
+
+  ALIMENTATION :
+  ┌─────────┐     ┌──────────┐     ┌──────────┐
+  │ Pack x2 │────→│ Switch   │────→│ Arduino  │
+  │ piles   │     │ ON/OFF   │     │ VIN      │
+  └─────────┘     └──────────┘     └──────────┘
+       │
+      └──────────────────────────→ Driver moteur</div>
+      </div>
+    </section>
+
+    <!-- ═══ BOM ═══ -->
+    <section class="fade-in">
+      <div class="container">
+        <div class="section-label">Bill of Materials</div>
+        <h2 class="section-title">Liste des composants</h2>
+        <p class="section-desc">Tous les composants nécessaires pour reproduire le robot à l'identique.</p>
+
+        <table class="bom-table">
+          <thead>
+            <tr><th>Composant</th><th>Réf.</th><th>Qté</th><th>Prix unit.</th><th>Total</th><th>Source</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Carte Arduino UNO</td><td>UNO R3</td><td>1</td><td>8 000 FCFA</td><td>8 000 FCFA</td><td>Local</td></tr>
+            <tr><td>Capteurs infrarouges</td><td>IR Reflective</td><td>3</td><td>1 000 FCFA</td><td>3 000 FCFA</td><td>Local</td></tr>
+            <tr><td>Moteurs à courant continu</td><td>DC Motor</td><td>2</td><td>3 000 FCFA</td><td>6 000 FCFA</td><td>Local</td></tr>
+            <tr><td>Driver moteur</td><td>L298N / équivalent</td><td>1</td><td>4 000 FCFA</td><td>4 000 FCFA</td><td>Local</td></tr>
+            <tr><td>Roues</td><td>Kit 3 roues</td><td>1</td><td>2 500 FCFA</td><td>2 500 FCFA</td><td>Local</td></tr>
+            <tr><td>Châssis</td><td>Châssis mobile</td><td>1</td><td>3 000 FCFA</td><td>3 000 FCFA</td><td>Local</td></tr>
+            <tr><td>Fils jumper + breadboard</td><td>—</td><td>1</td><td>2 000 FCFA</td><td>2 000 FCFA</td><td>Local</td></tr>
+            <tr><td>Interrupteur + vis + écrous</td><td>—</td><td>1</td><td>1 500 FCFA</td><td>1 500 FCFA</td><td>Local</td></tr>
+            <tr><td>Piles / batteries (×2)</td><td>Pack alim</td><td>1</td><td>3 500 FCFA</td><td>3 500 FCFA</td><td>Local</td></tr>
+            <tr style="font-weight:700"><td colspan="4" style="text-align:right">TOTAL MATÉRIEL (estimatif)</td><td style="color:var(--accent)">33 500 FCFA</td><td></td></tr>
+            <tr style="font-weight:700"><td colspan="4" style="text-align:right">INSCRIPTION CONCOURS</td><td style="color:var(--accent2)">20 000 FCFA</td><td>UCAO TECH</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ═══ SOFTWARE ARCHITECTURE ═══ -->
+    <section class="fade-in">
+      <div class="container">
+        <div class="section-label">Logiciel embarqué</div>
+        <h2 class="section-title">Structure du programme Arduino</h2>
+        <p class="section-desc">Organisation simple et efficace du code Arduino pour le robot suiveur de ligne avec obstacle avoidance.</p>
+
+        <div class="arch-grid">
+          <div class="arch-card">
+            <h3><span style="color:var(--accent)">setup()</span> <span class="arch-tag" style="background:var(--accent-dim);color:var(--accent)">Initialisation</span></h3>
+            <p>Configuration initiale : initialiser les broches (INPUT/OUTPUT), configurer la communication série (9600 baud), charger les seuils calibrés.</p>
+          </div>
+          <div class="arch-card">
+            <h3><span style="color:var(--accent2)">readSensors()</span> <span class="arch-tag" style="background:var(--accent2-dim);color:var(--accent2)">Capteurs</span></h3>
+            <p>Lire les 3 capteurs IR (A0, A1, A2) et le module obstacle (D2). Comparer avec seuils pour générer détections booléennes.</p>
+          </div>
+          <div class="arch-card">
+            <h3><span style="color:var(--accent3)">followLine()</span> <span class="arch-tag" style="background:var(--accent3-dim);color:var(--accent3)">Logique</span></h3>
+            <p>Table de vérité sur les 3 capteurs. Sélectionner vitesses moteur (gauche/droite) selon la configuration détectée.</p>
+          </div>
+          <div class="arch-card">
+            <h3><span style="color:#f59e0b">avoidObstacle()</span> <span class="arch-tag" style="background:rgba(245,158,11,.12);color:#f59e0b">Sécurité</span></h3>
+            <p>Si obstacle détecté → arrêter ou contourner. Priorité sur le suivi de ligne pour la sécurité mécanique.</p>
+          </div>
+          <div class="arch-card">
+            <h3><span style="color:#f43f5e">setMotors()</span> <span class="arch-tag" style="background:rgba(244,63,94,.12);color:#f43f5e">Actuation</span></h3>
+            <p>Contrôler les 2 moteurs DC via PWM (pins 5, 10) et direction (pins 8, 9, 11, 12). Convertir vitesses (0-255) en signaux.</p>
+          </div>
+          <div class="arch-card">
+            <h3><span style="color:#6366f1">loop()</span> <span class="arch-tag" style="background:rgba(99,102,241,.12);color:#6366f1">Boucle</span></h3>
+            <p>Répétée continuellement (~100 Hz) : lire capteurs → décider action → commander moteurs → enregistrer événements.</p>
+          </div>
+        </div>
+
+        <h3 style="margin-top:3rem;font-size:1.15rem;font-weight:700;margin-bottom:1rem">Flux d'exécution</h3>
+        <pre>
+<span class="fn">loop</span>() {
+  <span class="cm">// 1. Lire les capteurs IR</span>
+  <span class="fn">readSensors</span>();
+
+  <span class="cm">// 2. Vérifier obstacle (priorité)</span>
+  <span class="kw">if</span> (obstacleDetected) {
+    <span class="fn">avoidObstacle</span>();
+    <span class="kw">return</span>;
+  }
+
+  <span class="cm">// 3. Suivre la ligne avec les 3 capteurs</span>
+  <span class="fn">followLine</span>();
+
+  <span class="cm">// 4. Enregistrer état pour diagnostic</span>
+  <span class="fn">logSensorState</span>();
+  
+  <span class="cm">// ~10ms entre cycles</span>
+  <span class="fn">delay</span>(<span class="nb">10</span>);
+}</pre>
+      </div>
+    </section>
+
+    <!-- ═══ GALLERY / PHASES ═══ -->
+    <section class="fade-in">
+      <div class="container">
+        <div class="section-label">Galerie</div>
+        <h2 class="section-title">Phases de construction</h2>
+        <p class="section-desc">Évolution visuelle du robot à travers les différentes itérations.</p>
+
+        <div class="gallery">
+          <div class="gallery-item">
+            <div class="gallery-placeholder">📐 CAO v1</div>
+            <h4>Conception initiale</h4>
+            <p>Modélisation Fusion 360 du châssis</p>
+          </div>
+          <div class="gallery-item">
+            <div class="gallery-placeholder">🖨️ Impression</div>
+            <h4>Châssis imprimé</h4>
+            <p>PLA noir, remplissage 30%</p>
+          </div>
+          <div class="gallery-item">
+            <div class="gallery-placeholder">🔧 Assemblage</div>
+            <h4>Proto v1 assemblé</h4>
+            <p>Premiers tests moteurs</p>
+          </div>
+          <div class="gallery-item">
+            <div class="gallery-placeholder">🔌 PCB</div>
+            <h4>PCB soudé</h4>
+            <p>Circuit custom JLCPCB</p>
+          </div>
+          <div class="gallery-item">
+            <div class="gallery-placeholder">🏁 Tests piste</div>
+            <h4>Session calibration</h4>
+            <p>Réglage PID sur 3 tracés</p>
+          </div>
+          <div class="gallery-item">
+            <div class="gallery-placeholder">🏆 Final</div>
+            <h4>Robot compétition</h4>
+            <p>Version finale optimisée</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══ MECHANICAL ═══ -->
+    <section class="fade-in">
+      <div class="container">
+        <div class="section-label">Mécanique</div>
+        <h2 class="section-title">Spécifications du châssis</h2>
+        <p class="section-desc">Dimensions, matériaux et choix de conception pour un maximum de performance.</p>
+
+        <div class="specs-grid" style="grid-template-columns:1fr 1fr">
+          <div class="spec-card">
+            <h3>Dimensions &amp; Poids</h3>
+            <div class="spec-detail">
+              <div class="spec-row"><span>Longueur</span><span>160 mm</span></div>
+              <div class="spec-row"><span>Largeur</span><span>120 mm</span></div>
+              <div class="spec-row"><span>Hauteur</span><span>45 mm</span></div>
+              <div class="spec-row"><span>Empattement</span><span>95 mm</span></div>
+              <div class="spec-row"><span>Poids total</span><span>347g</span></div>
+              <div class="spec-row"><span>CdG (hauteur)</span><span>18 mm</span></div>
+            </div>
+          </div>
+          <div class="spec-card">
+            <h3>Matériaux &amp; Fabrication</h3>
+            <div class="spec-detail">
+              <div class="spec-row"><span>Châssis</span><span>PLA imprimé 3D</span></div>
+              <div class="spec-row"><span>Épaisseur parois</span><span>2 mm</span></div>
+              <div class="spec-row"><span>Remplissage</span><span>30% gyroïde</span></div>
+              <div class="spec-row"><span>Roues</span><span>Silicone Ø 32mm</span></div>
+              <div class="spec-row"><span>Roulement arrière</span><span>Bille folle laiton</span></div>
+              <div class="spec-row"><span>Fixations</span><span>M2 × 8mm inox</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <footer>
+    <div class="container footer-inner">
+      <div class="footer-copy">© 2026 Nova Tech Engineering</div>
+      <div class="footer-links">
+        <a href="../index.html">Accueil</a><a href="documentation.html">Documentation</a><a href="equipe.html">Équipe</a><a href="../index.html#soutenir">Soutenir</a>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    /* Theme toggle */
+    const themeToggle=document.getElementById('themeToggle');
+    const savedTheme=localStorage.getItem('nt-theme')||'dark';
+    if(savedTheme==='light')document.documentElement.setAttribute('data-theme','light');
+    themeToggle.addEventListener('click',()=>{const isL=document.documentElement.getAttribute('data-theme')==='light';document.documentElement.setAttribute('data-theme',isL?'dark':'light');localStorage.setItem('nt-theme',isL?'dark':'light')});
+    /* Language toggle */
+    const langToggle=document.getElementById('langToggle');
+    langToggle.addEventListener('click',()=>{const c=localStorage.getItem('nt-lang')||'fr';const n=c==='fr'?'en':'fr';localStorage.setItem('nt-lang',n);langToggle.title=n==='en'?'Français':'English'});
+
+    const hamburger=document.getElementById('hamburger'),mobileMenu=document.getElementById('mobileMenu');
+    hamburger.addEventListener('click',()=>{hamburger.classList.toggle('open');mobileMenu.classList.toggle('open')});
+    mobileMenu.querySelectorAll('a').forEach(a=>a.addEventListener('click',()=>{hamburger.classList.remove('open');mobileMenu.classList.remove('open')}));
+    const fadeEls=document.querySelectorAll('.fade-in');
+    const fadeObs=new IntersectionObserver(entries=>{entries.forEach(e=>{if(e.isIntersecting){e.target.classList.add('visible');fadeObs.unobserve(e.target)}})},{threshold:.1});
+    fadeEls.forEach(el=>fadeObs.observe(el));
+  </script>
+</body>
+</html>
