@@ -1,0 +1,2163 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Robot Suiveur de Lignes — Guide Olympiade Robotique</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0c10;
+    --bg2: #111520;
+    --bg3: #161b26;
+    --line: rgba(255,255,255,0.07);
+    --accent: #00e5a0;
+    --accent2: #ff6b35;
+    --accent3: #7b61ff;
+    --accent4: #ffd166;
+    --accent5: #06b6d4;
+    --text: #e8eaf0;
+    --muted: #6b7280;
+    --card: #13182080;
+    --mono: 'Space Mono', monospace;
+    --sans: 'Syne', sans-serif;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--sans);
+    font-size: 16px;
+    line-height: 1.7;
+    overflow-x: hidden;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(var(--line) 1px, transparent 1px),
+      linear-gradient(90deg, var(--line) 1px, transparent 1px);
+    background-size: 60px 60px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  body::after {
+    content: '';
+    position: fixed;
+    top: -200px; left: -200px;
+    width: 700px; height: 700px;
+    background: radial-gradient(circle, rgba(0,229,160,0.06) 0%, transparent 70%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .orb2 {
+    position: fixed;
+    bottom: -200px; right: -200px;
+    width: 600px; height: 600px;
+    background: radial-gradient(circle, rgba(123,97,255,0.07) 0%, transparent 70%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* ─── HEADER ─── */
+  header {
+    position: relative; z-index: 10;
+    text-align: center;
+    padding: 80px 24px 60px;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .badge {
+    display: inline-block;
+    font-family: var(--mono); font-size: 11px;
+    letter-spacing: 3px; text-transform: uppercase;
+    color: var(--accent);
+    border: 1px solid rgba(0,229,160,0.3);
+    padding: 5px 14px; border-radius: 100px;
+    margin-bottom: 28px;
+    background: rgba(0,229,160,0.05);
+  }
+
+  header h1 {
+    font-size: clamp(2.4rem, 6vw, 4.2rem);
+    font-weight: 800; letter-spacing: -1px;
+    line-height: 1.1; margin-bottom: 20px;
+  }
+  header h1 span { color: var(--accent); }
+
+  .sub {
+    font-family: var(--mono); font-size: 14px;
+    color: var(--muted); max-width: 540px;
+    margin: 0 auto 36px; line-height: 1.8;
+  }
+
+  .team-badge {
+    display: inline-flex; align-items: center; gap: 10px;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 100px; padding: 8px 20px;
+    font-family: var(--mono); font-size: 12px; color: var(--muted);
+  }
+
+  .dot {
+    width: 8px; height: 8px; border-radius: 50%;
+    background: var(--accent);
+    animation: pulse 1.8s ease-in-out infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.5; transform: scale(0.8); }
+  }
+
+  /* ─── NAV ─── */
+  .nav-pills {
+    position: sticky; top: 0; z-index: 100;
+    display: flex; gap: 6px;
+    padding: 14px 24px;
+    background: rgba(10,12,16,0.9);
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid var(--line);
+    overflow-x: auto; scrollbar-width: none;
+  }
+  .nav-pills::-webkit-scrollbar { display: none; }
+
+  .pill {
+    flex-shrink: 0;
+    font-family: var(--mono); font-size: 11px; letter-spacing: 1px;
+    padding: 6px 14px; border-radius: 100px;
+    border: 1px solid rgba(255,255,255,0.1);
+    color: var(--muted); text-decoration: none;
+    transition: all 0.2s; white-space: nowrap;
+  }
+  .pill:hover { color: var(--text); border-color: rgba(255,255,255,0.3); }
+  .pill.active { background: var(--accent); color: #000; border-color: var(--accent); }
+
+  /* ─── SECTIONS ─── */
+  section {
+    position: relative; z-index: 10;
+    padding: 80px 24px;
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+
+  .section-label {
+    font-family: var(--mono); font-size: 11px;
+    letter-spacing: 3px; text-transform: uppercase;
+    margin-bottom: 12px;
+  }
+
+  .section-title {
+    font-size: clamp(1.8rem, 4vw, 2.6rem);
+    font-weight: 800; letter-spacing: -0.5px;
+    margin-bottom: 40px; line-height: 1.15;
+  }
+  .section-title em { font-style: normal; }
+
+  /* ─── CARDS ─── */
+  .cards-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 20px; margin-bottom: 60px;
+  }
+
+  .card {
+    background: var(--card);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 16px; padding: 28px;
+    transition: border-color 0.3s, transform 0.2s;
+    backdrop-filter: blur(10px); cursor: pointer;
+  }
+  .card:hover { transform: translateY(-3px); border-color: rgba(255,255,255,0.2); }
+  .card-icon { font-size: 28px; margin-bottom: 14px; display: block; }
+  .card-tag {
+    display: inline-block; font-family: var(--mono); font-size: 10px;
+    letter-spacing: 2px; text-transform: uppercase;
+    padding: 3px 10px; border-radius: 100px; margin-bottom: 12px;
+  }
+  .card h3 { font-size: 18px; font-weight: 700; margin-bottom: 10px; }
+  .card p { font-size: 14px; color: var(--muted); line-height: 1.7; }
+
+  .divider { border: none; border-top: 1px solid var(--line); margin: 0; }
+
+  /* ─── MODULE HEADER ─── */
+  .module-header {
+    display: flex; align-items: center; gap: 16px;
+    margin-bottom: 32px; padding-bottom: 20px;
+    border-bottom: 1px solid var(--line);
+  }
+  .module-num { font-family: var(--mono); font-size: 12px; color: var(--muted); letter-spacing: 2px; }
+  .module-icon-big {
+    width: 52px; height: 52px; border-radius: 14px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 26px; flex-shrink: 0;
+  }
+  .module h2 { font-size: clamp(1.4rem, 3vw, 1.9rem); font-weight: 800; }
+  .module-desc { font-size: 15px; color: var(--muted); max-width: 700px; margin-bottom: 28px; line-height: 1.8; }
+
+  /* ═══════════════════════════════════════════════════════════
+     SYSTÈME D'ANNOTATION INTERACTIVE — NOUVEAU
+  ═══════════════════════════════════════════════════════════ */
+
+  .code-annotated {
+    background: #0d1117;
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 12px;
+    overflow: hidden;
+    margin: 20px 0;
+    position: relative;
+  }
+
+  .code-header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 10px 16px;
+    background: rgba(255,255,255,0.04);
+    border-bottom: 1px solid rgba(255,255,255,0.07);
+  }
+
+  .code-title { font-family: var(--mono); font-size: 12px; color: var(--muted); letter-spacing: 1px; }
+  .code-dots { display: flex; gap: 6px; }
+  .code-dots span { width: 10px; height: 10px; border-radius: 50%; }
+  .code-dots span:nth-child(1) { background: #ff5f57; }
+  .code-dots span:nth-child(2) { background: #ffbd2e; }
+  .code-dots span:nth-child(3) { background: #28c840; }
+
+  .explain-toggle {
+    display: flex; align-items: center; gap: 6px;
+    font-family: var(--mono); font-size: 11px;
+    color: var(--accent); cursor: pointer;
+    padding: 4px 10px; border-radius: 100px;
+    border: 1px solid rgba(0,229,160,0.3);
+    background: rgba(0,229,160,0.07);
+    transition: all 0.2s; user-select: none;
+    white-space: nowrap;
+  }
+  .explain-toggle:hover { background: rgba(0,229,160,0.15); }
+  .explain-toggle .tog-icon { font-size: 13px; }
+
+  .code-lines-wrap {
+    font-family: var(--mono);
+    font-size: 13px;
+    line-height: 1.7;
+  }
+
+  /* Chaque ligne de code */
+  .cl {
+    display: flex;
+    position: relative;
+    transition: background 0.15s;
+  }
+  .cl:hover { background: rgba(255,255,255,0.025); }
+
+  .cl-num {
+    flex-shrink: 0;
+    width: 42px;
+    text-align: right;
+    padding: 0 12px 0 0;
+    color: rgba(255,255,255,0.18);
+    font-size: 11px;
+    line-height: inherit;
+    padding-top: 3px;
+    user-select: none;
+  }
+
+  .cl-code {
+    flex: 1;
+    padding: 3px 16px 3px 0;
+    white-space: pre;
+    overflow-x: auto;
+  }
+
+  /* Bulle d'explication */
+  .cl-explain {
+    display: none;
+    background: rgba(0,229,160,0.06);
+    border-left: 3px solid var(--accent);
+    padding: 10px 16px 10px 52px;
+    font-family: var(--sans);
+    font-size: 13px;
+    color: #a8c5b5;
+    line-height: 1.7;
+    white-space: normal;
+  }
+
+  .cl-explain strong {
+    color: var(--accent);
+    font-weight: 700;
+  }
+
+  .cl-explain .tag-what {
+    display: inline-block;
+    background: rgba(0,229,160,0.12);
+    color: var(--accent);
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    padding: 1px 7px;
+    border-radius: 4px;
+    margin-right: 6px;
+  }
+
+  .cl-explain .tag-why {
+    display: inline-block;
+    background: rgba(123,97,255,0.12);
+    color: #a78bfa;
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    padding: 1px 7px;
+    border-radius: 4px;
+    margin-right: 6px;
+  }
+
+  .cl-explain .tag-warn {
+    display: inline-block;
+    background: rgba(255,107,53,0.12);
+    color: #fb8c5b;
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    padding: 1px 7px;
+    border-radius: 4px;
+    margin-right: 6px;
+  }
+
+  .cl-explain .tag-astuce {
+    display: inline-block;
+    background: rgba(255,209,102,0.12);
+    color: #fbbf24;
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    padding: 1px 7px;
+    border-radius: 4px;
+    margin-right: 6px;
+  }
+
+  /* Mode explications activé */
+  .code-annotated.show-explains .cl-explain { display: block; }
+  .code-annotated.show-explains .cl { border-bottom: 1px solid rgba(255,255,255,0.04); }
+  .code-annotated.show-explains .cl:last-of-type { border-bottom: none; }
+
+  /* Ligne vide (espacement) */
+  .cl-empty { height: 8px; }
+
+  /* Syntaxe highlighting */
+  .kw { color: #ff7b72; }
+  .fn { color: #d2a8ff; }
+  .cm { color: #8b949e; font-style: italic; }
+  .st { color: #a5d6ff; }
+  .nm { color: #ffa657; }
+  .tp { color: #7ee787; }
+  .op { color: #79c0ff; }
+
+  /* ─── CONCEPT BOXES ─── */
+  .concept-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 16px; margin: 24px 0;
+  }
+  .concept {
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.07);
+    border-radius: 12px; padding: 20px;
+  }
+  .concept-name { font-family: var(--mono); font-size: 13px; font-weight: 700; margin-bottom: 8px; }
+  .concept p { font-size: 13px; color: var(--muted); line-height: 1.65; }
+
+  /* ─── FORMULE ─── */
+  .formula-box {
+    background: rgba(123,97,255,0.08);
+    border: 1px solid rgba(123,97,255,0.3);
+    border-radius: 12px; padding: 24px; margin: 20px 0; text-align: center;
+  }
+  .formula { font-family: var(--mono); font-size: 16px; color: var(--accent3); margin-bottom: 12px; word-break: break-word; }
+  .formula-desc { font-size: 13px; color: var(--muted); }
+
+  /* ─── TIPS ─── */
+  .tip {
+    display: flex; gap: 14px; padding: 16px 20px;
+    border-radius: 10px; margin: 16px 0;
+    font-size: 14px; line-height: 1.65;
+  }
+  .tip-icon { font-size: 18px; flex-shrink: 0; margin-top: 1px; }
+  .tip-success { background: rgba(0,229,160,0.07); border: 1px solid rgba(0,229,160,0.2); }
+  .tip-warn    { background: rgba(255,209,102,0.07); border: 1px solid rgba(255,209,102,0.2); }
+  .tip-info    { background: rgba(6,182,212,0.07); border: 1px solid rgba(6,182,212,0.2); }
+  .tip-danger  { background: rgba(255,107,53,0.07); border: 1px solid rgba(255,107,53,0.2); }
+
+  /* ─── TABLE ─── */
+  .table-wrap { overflow-x: auto; margin: 20px 0; }
+  table { width: 100%; border-collapse: collapse; font-size: 14px; }
+  th {
+    font-family: var(--mono); font-size: 11px; letter-spacing: 1.5px;
+    text-transform: uppercase; color: var(--muted);
+    padding: 10px 16px; text-align: left;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+  }
+  td { padding: 12px 16px; border-bottom: 1px solid rgba(255,255,255,0.05); vertical-align: top; }
+  tr:hover td { background: rgba(255,255,255,0.02); }
+  td:first-child { font-family: var(--mono); color: var(--accent); font-size: 13px; }
+
+  /* ─── ACCORDION ─── */
+  details { border: 1px solid rgba(255,255,255,0.07); border-radius: 10px; margin: 10px 0; overflow: hidden; }
+  summary {
+    padding: 16px 20px; cursor: pointer; font-weight: 600; font-size: 15px;
+    list-style: none; display: flex; align-items: center; justify-content: space-between;
+    gap: 12px; user-select: none; transition: background 0.2s;
+  }
+  summary:hover { background: rgba(255,255,255,0.03); }
+  summary::after { content: '+'; font-size: 20px; color: var(--muted); font-family: var(--mono); flex-shrink: 0; }
+  details[open] summary::after { content: '–'; }
+  details > div { padding: 0 20px 20px; font-size: 14px; color: var(--muted); line-height: 1.75; }
+
+  /* ─── STATES MACHINE ─── */
+  .states-flow { display: flex; flex-wrap: wrap; gap: 12px; margin: 24px 0; align-items: center; }
+  .state-box {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 10px; padding: 12px 20px;
+    font-family: var(--mono); font-size: 13px;
+    text-align: center; min-width: 120px;
+  }
+  .state-box small { display: block; font-size: 10px; color: var(--muted); margin-top: 4px; letter-spacing: 1px; }
+  .arrow-flow { font-size: 20px; color: var(--muted); }
+
+  /* ─── FOOTER ─── */
+  footer {
+    position: relative; z-index: 10;
+    text-align: center; padding: 60px 24px;
+    border-top: 1px solid var(--line);
+    font-family: var(--mono); font-size: 12px; color: var(--muted); line-height: 2;
+  }
+  footer strong { color: var(--accent); }
+
+  /* ─── COLOR UTILS ─── */
+  .c-green  { color: var(--accent); }
+  .c-orange { color: var(--accent2); }
+  .c-purple { color: var(--accent3); }
+  .c-yellow { color: var(--accent4); }
+  .c-blue   { color: var(--accent5); }
+  .c-pink   { color: #f472b6; }
+
+  .bg-green  { background: rgba(0,229,160,0.12); border-color: rgba(0,229,160,0.3) !important; }
+  .bg-orange { background: rgba(255,107,53,0.12); border-color: rgba(255,107,53,0.3) !important; }
+  .bg-purple { background: rgba(123,97,255,0.12); border-color: rgba(123,97,255,0.3) !important; }
+  .bg-yellow { background: rgba(255,209,102,0.12); border-color: rgba(255,209,102,0.3) !important; }
+  .bg-blue   { background: rgba(6,182,212,0.12); border-color: rgba(6,182,212,0.3) !important; }
+  .bg-pink   { background: rgba(244,114,182,0.12); border-color: rgba(244,114,182,0.3) !important; }
+  .bg-gray   { background: rgba(255,255,255,0.06); border-color: rgba(255,255,255,0.15) !important; }
+
+  /* ─── CHECKLIST ─── */
+  .checklist { list-style: none; margin: 16px 0; }
+  .checklist li {
+    display: flex; align-items: flex-start; gap: 10px;
+    padding: 8px 0; font-size: 14px;
+    border-bottom: 1px solid rgba(255,255,255,0.04); color: var(--muted);
+  }
+  .checklist li::before { content: '▸'; color: var(--accent); flex-shrink: 0; margin-top: 2px; }
+
+  /* ─── MEDAL ─── */
+  .medal-section {
+    background: rgba(255,209,102,0.05);
+    border: 1px solid rgba(255,209,102,0.2);
+    border-radius: 20px; padding: 48px;
+    text-align: center; position: relative; overflow: hidden;
+  }
+  .medal-section::before {
+    content: '🏆'; position: absolute;
+    font-size: 200px; opacity: 0.04;
+    top: -30px; right: -20px; pointer-events: none;
+  }
+  .medal-title { font-size: clamp(1.4rem, 3vw, 2rem); font-weight: 800; color: var(--accent4); margin-bottom: 16px; }
+  .medal-desc { font-size: 15px; color: var(--muted); max-width: 600px; margin: 0 auto; line-height: 1.8; }
+
+  /* ─── LEGENDE DES TAGS ─── */
+  .legend-tags {
+    display: flex; flex-wrap: wrap; gap: 10px;
+    padding: 16px 20px;
+    background: rgba(255,255,255,0.02);
+    border-top: 1px solid rgba(255,255,255,0.07);
+    font-size: 12px; color: var(--muted);
+    align-items: center;
+  }
+  .legend-tags span { font-family: var(--sans); }
+
+  /* ─── SCROLL REVEAL ─── */
+  .reveal { opacity: 0; transform: translateY(24px); transition: opacity 0.6s ease, transform 0.6s ease; }
+  .reveal.visible { opacity: 1; transform: none; }
+
+  @media (max-width: 600px) {
+    section { padding: 60px 16px; }
+    .medal-section { padding: 32px 20px; }
+    .cards-grid { grid-template-columns: 1fr; }
+    .concept-grid { grid-template-columns: 1fr; }
+    .cl-num { width: 28px; }
+  }
+</style>
+</head>
+<body>
+<div class="orb2"></div>
+
+<!-- ═══════════════ HEADER ═══════════════ -->
+<header>
+  <div class="badge">Olympiade de Robotique 2025</div>
+  <h1>Robot Suiveur<br><span>de Lignes</span></h1>
+  <p class="sub">Guide complet Arduino pour toute l'équipe — avec explications ligne par ligne pour les débutants.</p>
+  <div class="team-badge">
+    <span class="dot"></span>
+    Guide partagé · Équipe Robotique
+  </div>
+</header>
+
+<!-- ═══════════════ NAV ═══════════════ -->
+<nav class="nav-pills">
+  <a href="#intro"     class="pill active">Vue d'ensemble</a>
+  <a href="#capteurs"  class="pill">📡 Capteurs IR</a>
+  <a href="#structure" class="pill">⚙️ Structure Arduino</a>
+  <a href="#pid"       class="pill">🎯 Régulation PID</a>
+  <a href="#moteurs"   class="pill">🔌 Moteurs & PWM</a>
+  <a href="#calib"     class="pill">🔬 Calibration</a>
+  <a href="#intersect" class="pill">🔀 Intersections</a>
+  <a href="#etats"     class="pill">🔄 Machine à états</a>
+  <a href="#debug"     class="pill">🐛 Débogage</a>
+  <a href="#projet"    class="pill">🚀 Aller plus loin</a>
+</nav>
+
+<!-- ═══════════════ INTRO ═══════════════ -->
+<section id="intro">
+  <p class="section-label c-green">// 00 — Introduction</p>
+  <h2 class="section-title">8 domaines à maîtriser<br><em class="c-green">pour gagner</em></h2>
+
+  <p style="color:var(--muted);max-width:700px;margin-bottom:20px;font-size:15px;line-height:1.8;">
+    Un robot suiveur de lignes, c'est l'alliance de l'électronique, de l'algorithmique et du contrôle automatique.
+    Ce guide couvre chaque brique fondamentale avec le code, les formules et les pièges à éviter.
+  </p>
+
+  <div class="tip tip-success">
+    <span class="tip-icon">💡</span>
+    <span><strong>Nouveauté :</strong> Chaque bloc de code a un bouton <span style="color:var(--accent);font-family:var(--mono);font-size:12px;border:1px solid rgba(0,229,160,0.3);padding:1px 7px;border-radius:4px">👁 Expliquer chaque ligne</span> — clique dessus pour voir une explication détaillée de chaque ligne, parfaite pour les débutants !</span>
+  </div>
+
+  <div class="cards-grid" style="margin-top:32px">
+    <a href="#capteurs" class="card bg-green" style="text-decoration:none;color:inherit">
+      <span class="card-icon">📡</span>
+      <span class="card-tag c-green" style="background:rgba(0,229,160,0.1)">Module 01</span>
+      <h3>Capteurs IR</h3>
+      <p>Lire le blanc et le noir avec analogRead / digitalRead. Comprendre le seuil de détection.</p>
+    </a>
+    <a href="#structure" class="card bg-blue" style="text-decoration:none;color:inherit">
+      <span class="card-icon">⚙️</span>
+      <span class="card-tag c-blue" style="background:rgba(6,182,212,0.1)">Module 02</span>
+      <h3>Structure Arduino</h3>
+      <p>setup(), loop(), variables globales. Boucle principale de contrôle.</p>
+    </a>
+    <a href="#pid" class="card bg-purple" style="text-decoration:none;color:inherit">
+      <span class="card-icon">🎯</span>
+      <span class="card-tag c-purple" style="background:rgba(123,97,255,0.1)">Module 03</span>
+      <h3>Régulation PID</h3>
+      <p>Le cœur de l'algorithme. Proportionnel, Intégral, Dérivé. Réglage des gains Kp, Ki, Kd.</p>
+    </a>
+    <a href="#moteurs" class="card bg-orange" style="text-decoration:none;color:inherit">
+      <span class="card-icon">🔌</span>
+      <span class="card-tag c-orange" style="background:rgba(255,107,53,0.1)">Module 04</span>
+      <h3>Moteurs & PWM</h3>
+      <p>Pont en H (L298N), analogWrite, contrôle de vitesse et direction des roues.</p>
+    </a>
+    <a href="#calib" class="card bg-yellow" style="text-decoration:none;color:inherit">
+      <span class="card-icon">🔬</span>
+      <span class="card-tag c-yellow" style="background:rgba(255,209,102,0.1)">Module 05</span>
+      <h3>Calibration</h3>
+      <p>Seuil adaptatif, normalisation des valeurs, lecture au démarrage.</p>
+    </a>
+    <a href="#intersect" class="card bg-pink" style="text-decoration:none;color:inherit">
+      <span class="card-icon">🔀</span>
+      <span class="card-tag c-pink" style="background:rgba(244,114,182,0.1)">Module 06</span>
+      <h3>Intersections</h3>
+      <p>Logique décisionnelle : virages serrés, carrefours, perte de ligne.</p>
+    </a>
+    <a href="#etats" class="card bg-gray" style="text-decoration:none;color:inherit">
+      <span class="card-icon">🔄</span>
+      <span class="card-tag" style="color:var(--muted);background:rgba(255,255,255,0.06)">Module 07</span>
+      <h3>Machine à états</h3>
+      <p>Structurer le comportement du robot en états bien définis.</p>
+    </a>
+    <a href="#debug" class="card bg-gray" style="text-decoration:none;color:inherit">
+      <span class="card-icon">🐛</span>
+      <span class="card-tag" style="color:var(--muted);background:rgba(255,255,255,0.06)">Module 08</span>
+      <h3>Débogage</h3>
+      <p>Serial.print, Serial Plotter, LED indicateurs, analyse du timing.</p>
+    </a>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- ═══════════════ MODULE 1 : CAPTEURS IR ═══════════════ -->
+<section id="capteurs" class="reveal">
+  <p class="section-label c-green">// 01 — Module</p>
+  <div class="module-header">
+    <div class="module-icon-big" style="background:rgba(0,229,160,0.12)">📡</div>
+    <div>
+      <span class="module-num c-green">MODULE 01</span>
+      <h2>Capteurs Infrarouges (IR)</h2>
+    </div>
+  </div>
+
+  <p class="module-desc">
+    Les capteurs IR émettent de la lumière infrarouge et mesurent le niveau de réflexion.
+    Une surface <strong style="color:var(--text)">blanche réfléchit beaucoup</strong> (valeur haute),
+    une surface <strong style="color:var(--text)">noire absorbe</strong> (valeur basse).
+    C'est comme ça que le robot "voit" la ligne.
+  </p>
+
+  <div class="concept-grid">
+    <div class="concept">
+      <p class="concept-name c-green">analogRead(pin)</p>
+      <p>Retourne une valeur entre <strong>0 et 1023</strong>. Parfait pour lire l'intensité de réflexion de façon précise. Utilisé pour le PID.</p>
+    </div>
+    <div class="concept">
+      <p class="concept-name c-green">digitalRead(pin)</p>
+      <p>Retourne <strong>0 ou 1</strong> selon un seuil matériel. Plus simple, mais moins précis pour le PID.</p>
+    </div>
+    <div class="concept">
+      <p class="concept-name c-green">Nombre de capteurs</p>
+      <p>3 capteurs : simple. 5 capteurs : idéal pour le PID. 7+ capteurs : très précis pour les courbes serrées.</p>
+    </div>
+    <div class="concept">
+      <p class="concept-name c-green">Disposition</p>
+      <p>Alignés perpendiculairement à la ligne, espacés de 8 à 15 mm. Hauteur sol : 3 à 8 mm.</p>
+    </div>
+  </div>
+
+  <!-- CODE AVEC ANNOTATIONS -->
+  <div class="code-annotated" id="code-capteurs">
+    <div class="code-header">
+      <div class="code-dots"><span></span><span></span><span></span></div>
+      <span class="code-title">capteurs_ir.ino — Lecture de 5 capteurs</span>
+      <button class="explain-toggle" onclick="toggleExplain('code-capteurs', this)">
+        <span class="tog-icon">👁</span> Expliquer chaque ligne
+      </button>
+    </div>
+    <div class="code-lines-wrap">
+
+      <div class="cl">
+        <span class="cl-num">1</span>
+        <span class="cl-code"><span class="cm">// ─── Définition des pins des capteurs (de gauche à droite) ───</span></span>
+      </div>
+      <div class="cl-explain"><span class="tag-what">commentaire</span> Les <strong>// double slash</strong> servent à écrire des commentaires. Arduino ignore tout ce qui suit les //. C'est pour TOI et ton équipe, pas pour la machine. Ici on explique ce que font les lignes suivantes.</div>
+
+      <div class="cl">
+        <span class="cl-num">2</span>
+        <span class="cl-code"><span class="kw">const int</span> NB_CAPTEURS = <span class="nm">5</span>;</span>
+      </div>
+      <div class="cl-explain"><span class="tag-what">constante</span> <strong>const int</strong> crée un nombre entier (<em>int</em>) qui ne changera jamais (<em>const</em>). On lui donne le nom <strong>NB_CAPTEURS</strong> et la valeur <strong>5</strong>. Chaque fois qu'on écrira NB_CAPTEURS dans le code, Arduino lira "5". C'est pratique : si demain tu passes à 7 capteurs, tu changes juste ce 5 ici, et tout le code se met à jour automatiquement.</div>
+
+      <div class="cl">
+        <span class="cl-num">3</span>
+        <span class="cl-code"><span class="kw">const int</span> PIN_CAPTEURS[NB_CAPTEURS] = {<span class="nm">A0, A1, A2, A3, A4</span>};</span>
+      </div>
+      <div class="cl-explain"><span class="tag-what">tableau</span> Les crochets <strong>[ ]</strong> créent un <em>tableau</em> — une liste de valeurs. Ici, c'est la liste des 5 numéros de pins Arduino où sont branchés les capteurs. <strong>A0, A1, A2, A3, A4</strong> sont les pins analogiques de l'Arduino (ceux qui peuvent lire des valeurs entre 0 et 1023, pas juste 0 ou 1). Ton capteur le plus à gauche = A0, le plus à droite = A4.</div>
+
+      <div class="cl-empty"></div>
+
+      <div class="cl">
+        <span class="cl-num">4</span>
+        <span class="cl-code"><span class="kw">int</span> valeurs[NB_CAPTEURS];</span>
+      </div>
+      <div class="cl-explain"><span class="tag-what">variable</span> On crée un tableau de 5 cases vides pour stocker ce que lisent les capteurs. <strong>int</strong> signifie "entier" (integer). On n'écrit pas de valeur initiale — les cases sont à 0 par défaut. Ce tableau sera rempli à chaque tour de boucle quand on lira les capteurs.</div>
+
+      <div class="cl">
+        <span class="cl-num">5</span>
+        <span class="cl-code"><span class="kw">int</span> SEUIL = <span class="nm">500</span>;  <span class="cm">// Valeur entre blanc et noir (à calibrer !)</span></span>
+      </div>
+      <div class="cl-explain"><span class="tag-what">seuil</span> <span class="tag-warn">important</span> Le seuil est la frontière entre "blanc" et "noir". Si un capteur lit une valeur <strong>en dessous de 500</strong> → noir (ligne). <strong>Au dessus de 500</strong> → blanc (sol). La valeur 500 est au milieu de la plage 0-1023. Tu devras l'ajuster en fonction de ton éclairage et de tes capteurs — c'est pour ça qu'il y a "à calibrer !" dans le commentaire.</div>
+
+      <div class="cl-empty"></div>
+
+      <div class="cl">
+        <span class="cl-num">6</span>
+        <span class="cl-code"><span class="kw">void</span> <span class="fn">lireCapteurs</span>() {</span>
+      </div>
+      <div class="cl-explain"><span class="tag-what">fonction</span> On crée une <strong>fonction</strong> appelée lireCapteurs. Une fonction, c'est comme une recette : tu lui donnes un nom, et ensuite tu peux appeler ce nom n'importe où dans le code pour exécuter tout ce qui est entre les accolades { }. <strong>void</strong> signifie que cette fonction ne retourne pas de valeur — elle fait juste une action.</div>
+
+      <div class="cl">
+        <span class="cl-num">7</span>
+        <span class="cl-code">  <span class="kw">for</span> (<span class="kw">int</span> i = <span class="nm">0</span>; i &lt; NB_CAPTEURS; i++) {</span>
+      </div>
+      <div class="cl-explain"><span class="tag-what">boucle for</span> La boucle <strong>for</strong> répète une action plusieurs fois. Elle a 3 parties : 1) <em>int i = 0</em> → on commence à 0 · 2) <em>i &lt; NB_CAPTEURS</em> → on continue tant que i est inférieur à 5 · 3) <em>i++</em> → on ajoute 1 à i après chaque tour. Résultat : le bloc s'exécute 5 fois, avec i valant 0, 1, 2, 3, puis 4. Parfait pour parcourir les 5 capteurs !</div>
+
+      <div class="cl">
+        <span class="cl-num">8</span>
+        <span class="cl-code">    valeurs[i] = <span class="fn">analogRead</span>(PIN_CAPTEURS[i]);</span>
+      </div>
+      <div class="cl-explain"><span class="tag-what">lecture</span> <strong>analogRead()</strong> lit la tension sur une pin et la convertit en nombre entre 0 et 1023. On lui passe <em>PIN_CAPTEURS[i]</em> — par exemple au premier tour (i=0), ce sera PIN_CAPTEURS[0] = A0. Le résultat est stocké dans <em>valeurs[i]</em>. Donc valeurs[0] = lecture du capteur gauche, valeurs[4] = lecture du capteur droit.</div>
+
+      <div class="cl">
+        <span class="cl-num">9</span>
+        <span class="cl-code">  }</span>
+      </div>
+      <div class="cl-explain"><span class="tag-what">fermeture</span> L'accolade fermante <strong>}</strong> marque la fin du bloc <em>for</em>. Arduino retourne au début de la boucle, incrémente i, et recommence — jusqu'à ce que la condition i &lt; 5 soit fausse.</div>
+
+      <div class="cl">
+        <span class="cl-num">10</span>
+        <span class="cl-code">}</span>
+      </div>
+      <div class="cl-explain"><span class="tag-what">fermeture</span> Fin de la fonction lireCapteurs. Tout ce qui était entre ces accolades { } s'exécutera à chaque fois qu'on appelle lireCapteurs() dans le code.</div>
+
+      <div class="cl-empty"></div>
+
+      <div class="cl">
+        <span class="cl-num">11</span>
+        <span class="cl-code"><span class="kw">bool</span> <span class="fn">surLigne</span>(<span class="kw">int</span> index) {</span>
+      </div>
+      <div class="cl-explain"><span class="tag-what">fonction booléenne</span> <strong>bool</strong> (boolean) = une valeur qui est soit <em>true</em> (vrai) soit <em>false</em> (faux). Cette fonction reçoit un numéro de capteur (<em>index</em>) et répond : "est-ce que ce capteur est sur la ligne ?" — Oui ou Non, vrai ou faux. C'est beaucoup plus lisible dans le code que de réécrire la comparaison partout.</div>
+
+      <div class="cl">
+        <span class="cl-num">12</span>
+        <span class="cl-code">  <span class="kw">return</span> valeurs[index] &lt; SEUIL;</span>
+      </div>
+      <div class="cl-explain"><span class="tag-what">retour</span> <strong>return</strong> envoie le résultat de la fonction. Ici, <em>valeurs[index] &lt; SEUIL</em> est une comparaison qui donne <em>true</em> si la valeur est inférieure au seuil (= surface noire = ligne) ou <em>false</em> sinon (= surface blanche = sol). En une seule ligne, on répond à la question "suis-je sur la ligne ?"</div>
+
+      <div class="cl">
+        <span class="cl-num">13</span>
+        <span class="cl-code">}</span>
+      </div>
+      <div class="cl-explain"><span class="tag-what">fermeture</span> Fin de la fonction surLigne. On pourra maintenant écrire <em>if (surLigne(2))</em> pour savoir si le capteur du milieu est sur la ligne — bien plus lisible que <em>if (valeurs[2] &lt; SEUIL)</em> !</div>
+
+      <div class="cl-empty"></div>
+
+      <div class="cl">
+        <span class="cl-num">14</span>
+        <span class="cl-code"><span class="kw">void</span> <span class="fn">setup</span>() {</span>
+      </div>
+      <div class="cl-explain"><span class="tag-what">setup arduino</span> <strong>setup()</strong> est une fonction spéciale d'Arduino. Elle s'exécute <em>une seule fois</em> quand l'Arduino s'allume ou est réinitialisé. C'est là qu'on configure tout : les pins, la communication série, etc. Après, Arduino passe à loop().</div>
+
+      <div class="cl">
+        <span class="cl-num">15</span>
+        <span class="cl-code">  <span class="fn">Serial.begin</span>(<span class="nm">9600</span>);</span>
+      </div>
+      <div class="cl-explain"><span class="tag-what">communication série</span> <strong>Serial.begin()</strong> ouvre la communication entre l'Arduino et ton ordinateur via le câble USB. Le nombre <strong>9600</strong> est la vitesse de communication en bauds (bits par seconde). Tu verras les messages dans le Moniteur Série du logiciel Arduino IDE. Indispensable pour le debug !</div>
+
+      <div class="cl">
+        <span class="cl-num">16</span>
+        <span class="cl-code">  <span class="kw">for</span> (<span class="kw">int</span> i = <span class="nm">0</span>; i &lt; NB_CAPTEURS; i++) {</span>
+      </div>
+      <div class="cl-explain"><span class="tag-what">boucle for</span> Encore une boucle for pour parcourir les 5 capteurs. On va configurer chaque pin une par une. i va de 0 à 4.</div>
+
+      <div class="cl">
+        <span class="cl-num">17</span>
+        <span class="cl-code">    <span class="fn">pinMode</span>(PIN_CAPTEURS[i], INPUT);</span>
+      </div>
+      <div class="cl-explain"><span class="tag-what">pinMode</span> <strong>pinMode()</strong> dit à Arduino comment utiliser une pin. <strong>INPUT</strong> = en entrée (on lit une valeur depuis cette pin). L'opposé serait OUTPUT (on envoie une valeur). Les capteurs envoient des données vers l'Arduino, donc les pins des capteurs doivent être en INPUT.</div>
+
+      <div class="cl">
+        <span class="cl-num">18</span>
+        <span class="cl-code">  }</span>
+      </div>
+      <div class="cl-explain"><span class="tag-what">fermeture</span> Fin de la boucle for. Toutes les 5 pins de capteurs sont maintenant configurées en INPUT.</div>
+
+      <div class="cl">
+        <span class="cl-num">19</span>
+        <span class="cl-code">}</span>
+      </div>
+      <div class="cl-explain"><span class="tag-what">fermeture</span> Fin de setup(). Cette configuration ne se fait qu'une seule fois au démarrage. Maintenant Arduino va entrer dans loop() et y rester pour toujours.</div>
+
+      <div class="cl-empty"></div>
+
+      <div class="cl">
+        <span class="cl-num">20</span>
+        <span class="cl-code"><span class="kw">void</span> <span class="fn">loop</span>() {</span>
+      </div>
+      <div class="cl-explain"><span class="tag-what">loop arduino</span> <strong>loop()</strong> est l'autre fonction spéciale d'Arduino. Elle tourne <em>en boucle infinie</em> — Arduino la répète des milliers de fois par seconde. C'est le cœur battant du robot. Tout ce qui doit se passer en continu (lire les capteurs, calculer, commander) doit être ici.</div>
+
+      <div class="cl">
+        <span class="cl-num">21</span>
+        <span class="cl-code">  <span class="fn">lireCapteurs</span>();</span>
+      </div>
+      <div class="cl-explain"><span class="tag-what">appel de fonction</span> On <em>appelle</em> la fonction lireCapteurs() qu'on a définie plus haut. Les parenthèses () après le nom = "exécute cette fonction maintenant". Arduino va lire les 5 capteurs et stocker les valeurs dans le tableau <em>valeurs[]</em>.</div>
+
+      <div class="cl">
+        <span class="cl-num">22</span>
+        <span class="cl-code">  <span class="kw">for</span> (<span class="kw">int</span> i = <span class="nm">0</span>; i &lt; NB_CAPTEURS; i++) {</span>
+      </div>
+      <div class="cl-explain"><span class="tag-what">boucle for</span> On parcourt les 5 capteurs pour les afficher dans le moniteur série. Utile pendant le développement pour voir en temps réel ce que lisent les capteurs.</div>
+
+      <div class="cl">
+        <span class="cl-num">23</span>
+        <span class="cl-code">    <span class="fn">Serial.print</span>(valeurs[i]);</span>
+      </div>
+      <div class="cl-explain"><span class="tag-what">affichage</span> <strong>Serial.print()</strong> envoie une valeur vers ton ordinateur, visible dans le Moniteur Série. Contrairement à <em>Serial.println()</em>, il n'ajoute pas de retour à la ligne — les valeurs s'affichent côte à côte.</div>
+
+      <div class="cl">
+        <span class="cl-num">24</span>
+        <span class="cl-code">    <span class="fn">Serial.print</span>(<span class="st">"  "</span>);</span>
+      </div>
+      <div class="cl-explain"><span class="tag-what">espacement</span> On affiche deux espaces entre chaque valeur pour rendre la lecture plus facile. Le texte entre guillemets "  " est une chaîne de caractères (<em>string</em>). Sans ces espaces, toutes les valeurs seraient collées ensemble : "10234765..." illisible !</div>
+
+      <div class="cl">
+        <span class="cl-num">25</span>
+        <span class="cl-code">  }</span>
+      </div>
+      <div class="cl-explain"><span class="tag-what">fermeture</span> Fin de la boucle for d'affichage.</div>
+
+      <div class="cl">
+        <span class="cl-num">26</span>
+        <span class="cl-code">  <span class="fn">Serial.println</span>();</span>
+      </div>
+      <div class="cl-explain"><span class="tag-what">retour à la ligne</span> <strong>Serial.println()</strong> sans argument envoie juste un retour à la ligne. Après avoir affiché les 5 valeurs côte à côte, on saute une ligne pour que la prochaine lecture commence sur une nouvelle ligne — sinon tout s'accumule sur une seule ligne interminable.</div>
+
+      <div class="cl">
+        <span class="cl-num">27</span>
+        <span class="cl-code">}</span>
+      </div>
+      <div class="cl-explain"><span class="tag-what">fermeture loop</span> Fin de loop(). Arduino revient immédiatement au début de loop() et recommence — lire les capteurs, afficher, lire, afficher... des milliers de fois par seconde. C'est la boucle infinie du robot !</div>
+
+    </div>
+    <div class="legend-tags">
+      <span>Légende :</span>
+      <span class="tag-what" style="display:inline-block;background:rgba(0,229,160,0.12);color:var(--accent);font-family:var(--mono);font-size:10px;padding:2px 8px;border-radius:4px">CE QUE C'EST</span>
+      <span class="tag-why" style="display:inline-block;background:rgba(123,97,255,0.12);color:#a78bfa;font-family:var(--mono);font-size:10px;padding:2px 8px;border-radius:4px">POURQUOI</span>
+      <span class="tag-warn" style="display:inline-block;background:rgba(255,107,53,0.12);color:#fb8c5b;font-family:var(--mono);font-size:10px;padding:2px 8px;border-radius:4px">ATTENTION</span>
+      <span class="tag-astuce" style="display:inline-block;background:rgba(255,209,102,0.12);color:#fbbf24;font-family:var(--mono);font-size:10px;padding:2px 8px;border-radius:4px">ASTUCE</span>
+    </div>
+  </div>
+
+  <div class="tip tip-success"><span class="tip-icon">💡</span> Place tes 5 capteurs en arc très léger (pas complètement droit) pour mieux capter les virages avant de les entamer.</div>
+  <div class="tip tip-warn"><span class="tip-icon">⚠️</span> La lumière ambiante change la réponse des capteurs IR. Toujours calibrer dans les conditions réelles de la compétition.</div>
+</section>
+
+<hr class="divider">
+
+<!-- ═══════════════ MODULE 2 : STRUCTURE ═══════════════ -->
+<section id="structure" class="reveal">
+  <p class="section-label c-blue">// 02 — Module</p>
+  <div class="module-header">
+    <div class="module-icon-big" style="background:rgba(6,182,212,0.12)">⚙️</div>
+    <div>
+      <span class="module-num c-blue">MODULE 02</span>
+      <h2>Structure du Code Arduino</h2>
+    </div>
+  </div>
+
+  <p class="module-desc">
+    Tout code Arduino tourne autour de deux fonctions. <strong style="color:var(--text)">setup()</strong> s'exécute une seule fois au démarrage. <strong style="color:var(--text)">loop()</strong> tourne en boucle infinie. La vitesse de cette boucle est cruciale pour le contrôle d'un robot.
+  </p>
+
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Élément</th><th>Rôle</th><th>Exemple</th></tr></thead>
+      <tbody>
+        <tr><td>setup()</td><td>Initialisation : pins, serial, calibration — une seule fois</td><td>pinMode(A0, INPUT);</td></tr>
+        <tr><td>loop()</td><td>Boucle principale : lire → calculer → agir — en continu</td><td>lireCapteurs(); calculerPID();</td></tr>
+        <tr><td>Variables globales</td><td>Partagées entre toutes les fonctions</td><td>float erreur, correction;</td></tr>
+        <tr><td>#define / const</td><td>Constantes de configuration, jamais modifiées</td><td>#define VITESSE_BASE 150</td></tr>
+        <tr><td>millis()</td><td>Temps écoulé en ms depuis le démarrage, non-bloquant</td><td>if (millis() - t > 100) {...}</td></tr>
+        <tr><td>delay()</td><td>Pause BLOQUANTE — à éviter dans la boucle principale</td><td>delay(500); ← dangereux !</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="code-annotated" id="code-structure">
+    <div class="code-header">
+      <div class="code-dots"><span></span><span></span><span></span></div>
+      <span class="code-title">structure_base.ino — Architecture recommandée</span>
+      <button class="explain-toggle" onclick="toggleExplain('code-structure', this)">
+        <span class="tog-icon">👁</span> Expliquer chaque ligne
+      </button>
+    </div>
+    <div class="code-lines-wrap">
+
+      <div class="cl">
+        <span class="cl-num">1</span>
+        <span class="cl-code"><span class="cm">// ═══ ROBOT SUIVEUR DE LIGNES — Structure de base ═══</span></span>
+      </div>
+      <div class="cl-explain"><span class="tag-what">commentaire titre</span> Un grand commentaire décoratif pour marquer le début du fichier. Bonne pratique : toujours identifier son fichier avec un titre, pour s'y retrouver quand on a plusieurs fichiers ouverts.</div>
+
+      <div class="cl-empty"></div>
+
+      <div class="cl">
+        <span class="cl-num">2</span>
+        <span class="cl-code"><span class="cm">// ─── 1. Constantes de configuration ─────</span></span>
+      </div>
+      <div class="cl-explain"><span class="tag-what">section</span> Les commentaires de section organisent le code en parties logiques. Quand le code fait 200 lignes, ces marqueurs permettent de trouver rapidement ce qu'on cherche.</div>
+
+      <div class="cl">
+        <span class="cl-num">3</span>
+        <span class="cl-code"><span class="kw">#define</span> VITESSE_BASE   <span class="nm">150</span></span>
+      </div>
+      <div class="cl-explain"><span class="tag-what">#define</span> <strong>#define</strong> est une directive de préprocesseur — avant de compiler, Arduino remplace chaque occurrence de VITESSE_BASE par 150. Contrairement à <em>const int</em>, il ne prend pas de place en mémoire. Pratique pour les constantes qu'on ajuste souvent (vitesse, seuils...). Pas de = ni de ; ici !</div>
+
+      <div class="cl">
+        <span class="cl-num">4</span>
+        <span class="cl-code"><span class="kw">#define</span> VITESSE_MAX    <span class="nm">200</span></span>
+      </div>
+      <div class="cl-explain"><span class="tag-what">#define</span> La vitesse maximale autorisée pour les moteurs. Les moteurs acceptent des valeurs de 0 à 255 via analogWrite, mais on se limite à 200 pour garder de la marge de contrôle dans les virages.</div>
+
+      <div class="cl">
+        <span class="cl-num">5</span>
+        <span class="cl-code"><span class="kw">#define</span> NB_CAPTEURS    <span class="nm">5</span></span>
+      </div>
+      <div class="cl-explain"><span class="tag-astuce">astuce</span> Même si on a déjà défini NB_CAPTEURS dans l'autre fichier, on le répète ici. Dans un vrai projet, on mettrait toutes ces constantes dans un seul fichier <em>config.h</em>. Pour l'olympiade, un seul fichier .ino suffit.</div>
+
+      <div class="cl-empty"></div>
+
+      <div class="cl">
+        <span class="cl-num">6</span>
+        <span class="cl-code"><span class="cm">// ─── 2. Variables globales ───────────────</span></span>
+      </div>
+      <div class="cl-explain"><span class="tag-what">section</span> Les variables globales sont déclarées EN DEHORS de toutes les fonctions. Ça signifie que n'importe quelle fonction (setup, loop, lireCapteurs...) peut les lire et les modifier. C'est essentiel pour partager des données entre fonctions.</div>
+
+      <div class="cl">
+        <span class="cl-num">7</span>
+        <span class="cl-code"><span class="kw">float</span> Kp = <span class="nm">0.4</span>;</span>
+      </div>
+      <div class="cl-explain"><span class="tag-what">float</span> <strong>float</strong> = nombre à virgule flottante. Contrairement à <em>int</em> qui ne peut stocker que des entiers (0, 1, 2...), <em>float</em> peut stocker des décimales (0.4, 1.25, -0.007...). Kp est le gain proportionnel du PID — on verra ça en détail dans le module 3.</div>
+
+      <div class="cl">
+        <span class="cl-num">8</span>
+        <span class="cl-code"><span class="kw">float</span> Ki = <span class="nm">0.0</span>;</span>
+      </div>
+      <div class="cl-explain"><span class="tag-what">float</span> Ki = gain intégral. On le démarre à 0.0 (désactivé). On n'active Ki qu'après avoir réglé Kp et Kd. Commencer avec Ki non nul rend le débogage beaucoup plus difficile.</div>
+
+      <div class="cl">
+        <span class="cl-num">9</span>
+        <span class="cl-code"><span class="kw">float</span> Kd = <span class="nm">1.2</span>;</span>
+      </div>
+      <div class="cl-explain"><span class="tag-what">float</span> Kd = gain dérivé. Il est souvent plus grand que Kp car son rôle est de freiner les oscillations. Un bon point de départ : Kd ≈ 2 à 5 fois Kp. Ces valeurs (Kp=0.4, Kd=1.2) sont des exemples — tu devras les ajuster pour ton robot.</div>
+
+      <div class="cl-empty"></div>
+
+      <div class="cl">
+        <span class="cl-num">10</span>
+        <span class="cl-code"><span class="kw">float</span> erreurPrecedente = <span class="nm">0</span>;</span>
+      </div>
+      <div class="cl-explain"><span class="tag-what">mémoire PID</span> Le PID a besoin de se souvenir de l'erreur du tour précédent pour calculer la dérivée (vitesse de changement). On l'initialise à 0 — au premier tour, on considère qu'on était bien centré.</div>
+
+      <div class="cl">
+        <span class="cl-num">11</span>
+        <span class="cl-code"><span class="kw">float</span> integrale = <span class="nm">0</span>;</span>
+      </div>
+      <div class="cl-explain"><span class="tag-what">mémoire PID</span> L'intégrale est la somme de toutes les erreurs depuis le début. Elle s'accumule à chaque tour de boucle. Elle représente "l'erreur totale accumulée dans le temps". On l'initialise à 0 au démarrage.</div>
+
+      <div class="cl-empty"></div>
+
+      <div class="cl">
+        <span class="cl-num">12</span>
+        <span class="cl-code"><span class="kw">void</span> <span class="fn">setup</span>() {</span>
+      </div>
+      <div class="cl-explain"><span class="tag-what">setup</span> La fonction magique d'Arduino : s'exécute une seule fois au démarrage. Pense-y comme le "réveil matin" du robot — il se prépare avant de commencer à travailler.</div>
+
+      <div class="cl">
+        <span class="cl-num">13</span>
+        <span class="cl-code">  <span class="fn">Serial.begin</span>(<span class="nm">9600</span>);</span>
+      </div>
+      <div class="cl-explain"><span class="tag-what">communication</span> Ouvre la connexion avec l'ordinateur. Le 9600 doit correspondre au réglage dans le Moniteur Série d'Arduino IDE (menu déroulant en bas à droite). Si les valeurs affichées sont des caractères bizarres, c'est que les vitesses ne correspondent pas.</div>
+
+      <div class="cl">
+        <span class="cl-num">14</span>
+        <span class="cl-code">  <span class="fn">initialiserMoteurs</span>();</span>
+      </div>
+      <div class="cl-explain"><span class="tag-what">appel</span> On appelle une fonction qu'on aura écrite dans le module Moteurs. Elle configure les pins des moteurs en OUTPUT et les arrête. On sépare les initialisations dans des fonctions propres pour ne pas avoir un setup() de 50 lignes illisible.</div>
+
+      <div class="cl">
+        <span class="cl-num">15</span>
+        <span class="cl-code">  <span class="fn">calibrerCapteurs</span>();</span>
+      </div>
+      <div class="cl-explain"><span class="tag-what">appel</span> Lance la procédure de calibration des capteurs (module 5). Le robot bougera pendant 2 secondes pour apprendre les valeurs blanc/noir de l'environnement. C'est la raison pour laquelle tu dois attendre que le robot ait fini de se préparer avant de le poser sur la piste !</div>
+
+      <div class="cl">
+        <span class="cl-num">16</span>
+        <span class="cl-code">  <span class="fn">delay</span>(<span class="nm">1000</span>);</span>
+      </div>
+      <div class="cl-explain"><span class="tag-what">pause</span> <span class="tag-warn">exception</span> <strong>delay(1000)</strong> = pause de 1000 millisecondes = 1 seconde. Dans setup(), delay() est acceptable car le robot ne fait rien encore. C'est une pause pour permettre à l'opérateur de reposer le robot sur la piste après la calibration. Dans loop() en revanche, delay() est à éviter absolument !</div>
+
+      <div class="cl">
+        <span class="cl-num">17</span>
+        <span class="cl-code">}</span>
+      </div>
+      <div class="cl-explain"><span class="tag-what">fermeture</span> Fin de setup(). Arduino passe maintenant à loop() et n'en reviendra jamais (sauf si on réinitialise l'Arduino).</div>
+
+      <div class="cl-empty"></div>
+
+      <div class="cl">
+        <span class="cl-num">18</span>
+        <span class="cl-code"><span class="kw">void</span> <span class="fn">loop</span>() {</span>
+      </div>
+      <div class="cl-explain"><span class="tag-what">loop</span> La boucle infinie. Sur un Arduino Uno, cette boucle peut s'exécuter jusqu'à 10 000 fois par seconde si elle est légère. Pour notre robot, on vise 500-2000 tours/seconde — plus c'est rapide, plus le robot réagit vite.</div>
+
+      <div class="cl">
+        <span class="cl-num">19</span>
+        <span class="cl-code">  <span class="fn">lireCapteurs</span>();</span>
+      </div>
+      <div class="cl-explain"><span class="tag-what">étape 1</span> <strong>Lire</strong> — Première étape de chaque cycle : prendre les mesures. On ne peut rien décider sans savoir où est la ligne. Cette fonction remplit le tableau valeurs[] avec les nouvelles lectures fraîches.</div>
+
+      <div class="cl">
+        <span class="cl-num">20</span>
+        <span class="cl-code">  <span class="kw">float</span> erreur = <span class="fn">calculerErreur</span>();</span>
+      </div>
+      <div class="cl-explain"><span class="tag-what">étape 2</span> <strong>Analyser</strong> — On calcule l'erreur : à quel point le robot est-il décalé par rapport au centre de la ligne ? Positif = ligne à droite, négatif = ligne à gauche, zéro = parfaitement centré. La variable <em>erreur</em> est locale à loop() — elle est recréée à chaque tour.</div>
+
+      <div class="cl">
+        <span class="cl-num">21</span>
+        <span class="cl-code">  <span class="kw">float</span> correction = <span class="fn">calculerPID</span>(erreur);</span>
+      </div>
+      <div class="cl-explain"><span class="tag-what">étape 3</span> <strong>Calculer</strong> — L'algorithme PID prend l'erreur et calcule une correction. Positive = accélérer à droite, négative = accélérer à gauche. On passe <em>erreur</em> entre parenthèses car la fonction en a besoin pour travailler — c'est un <em>argument</em>.</div>
+
+      <div class="cl">
+        <span class="cl-num">22</span>
+        <span class="cl-code">  <span class="fn">commanderMoteurs</span>(correction);</span>
+      </div>
+      <div class="cl-explain"><span class="tag-what">étape 4</span> <strong>Agir</strong> — On applique la correction aux moteurs. Moteur gauche accélère ou ralentit, moteur droit fait le contraire, pour que le robot se recentre sur la ligne. C'est le cycle complet : Lire → Analyser → Calculer → Agir.</div>
+
+      <div class="cl">
+        <span class="cl-num">23</span>
+        <span class="cl-code">}</span>
+      </div>
+      <div class="cl-explain"><span class="tag-what">fin de cycle</span> Fin de loop(). Arduino revient immédiatement à la ligne 18 et recommence. En quelques millisecondes, le robot a relu les capteurs, recalculé la correction, et renvoyé de nouvelles commandes aux moteurs. C'est cette répétition ultra-rapide qui rend le suivi de ligne possible !</div>
+
+    </div>
+    <div class="legend-tags">
+      <span>Légende :</span>
+      <span class="tag-what" style="display:inline-block;background:rgba(0,229,160,0.12);color:var(--accent);font-family:var(--mono);font-size:10px;padding:2px 8px;border-radius:4px">CE QUE C'EST</span>
+      <span class="tag-why" style="display:inline-block;background:rgba(123,97,255,0.12);color:#a78bfa;font-family:var(--mono);font-size:10px;padding:2px 8px;border-radius:4px">POURQUOI</span>
+      <span class="tag-warn" style="display:inline-block;background:rgba(255,107,53,0.12);color:#fb8c5b;font-family:var(--mono);font-size:10px;padding:2px 8px;border-radius:4px">ATTENTION</span>
+      <span class="tag-astuce" style="display:inline-block;background:rgba(255,209,102,0.12);color:#fbbf24;font-family:var(--mono);font-size:10px;padding:2px 8px;border-radius:4px">ASTUCE</span>
+    </div>
+  </div>
+
+  <div class="tip tip-info"><span class="tip-icon">ℹ️</span> <strong>Règle d'or :</strong> Ne JAMAIS utiliser <code style="color:var(--accent);font-family:var(--mono)">delay()</code> dans la boucle principale. Utilise <code style="color:var(--accent);font-family:var(--mono)">millis()</code> pour mesurer le temps sans bloquer le robot.</div>
+</section>
+
+<hr class="divider">
+
+<!-- ═══════════════ MODULE 3 : PID ═══════════════ -->
+<section id="pid" class="reveal">
+  <p class="section-label c-purple">// 03 — Module</p>
+  <div class="module-header">
+    <div class="module-icon-big" style="background:rgba(123,97,255,0.12)">🎯</div>
+    <div>
+      <span class="module-num c-purple">MODULE 03</span>
+      <h2>Régulation PID</h2>
+    </div>
+  </div>
+
+  <p class="module-desc">
+    Le PID est l'algorithme qui rend ton robot fluide et précis. Il calcule une erreur (écart de la ligne par rapport au centre), puis applique une correction aux moteurs. C'est le module le plus important à maîtriser.
+  </p>
+
+  <div class="formula-box">
+    <div class="formula">Correction = Kp × erreur + Ki × Σerreur + Kd × Δerreur</div>
+    <p class="formula-desc">Kp = gain proportionnel &nbsp;·&nbsp; Ki = gain intégral &nbsp;·&nbsp; Kd = gain dérivé &nbsp;·&nbsp; Σ = somme &nbsp;·&nbsp; Δ = variation</p>
+  </div>
+
+  <div class="concept-grid">
+    <div class="concept">
+      <p class="concept-name c-purple">P — Proportionnel</p>
+      <p>Correction proportionnelle à l'erreur actuelle. <strong>Trop élevé</strong> → robot oscillant comme un pendule. <strong>Trop faible</strong> → robot lent à corriger sa trajectoire.</p>
+    </div>
+    <div class="concept">
+      <p class="concept-name c-purple">I — Intégral</p>
+      <p>Somme des erreurs passées. Corrige les erreurs persistantes. Commencer avec Ki=0, augmenter très doucement si le robot dérive continuellement d'un côté.</p>
+    </div>
+    <div class="concept">
+      <p class="concept-name c-purple">D — Dérivé</p>
+      <p>Anticipation sur la variation de l'erreur. Amortit les oscillations du P. Souvent le plus important après Kp pour les robots rapides.</p>
+    </div>
+    <div class="concept">
+      <p class="concept-name c-purple">Calcul de l'erreur</p>
+      <p>Avec 5 capteurs (numérotés -2,-1,0,1,2), l'erreur = position moyenne pondérée. Erreur = 0 → centré. Erreur négative → ligne à gauche. Positive → ligne à droite.</p>
+    </div>
+  </div>
+
+  <div class="code-annotated" id="code-pid">
+    <div class="code-header">
+      <div class="code-dots"><span></span><span></span><span></span></div>
+      <span class="code-title">pid_complet.ino — Calcul PID avec 5 capteurs</span>
+      <button class="explain-toggle" onclick="toggleExplain('code-pid', this)">
+        <span class="tog-icon">👁</span> Expliquer chaque ligne
+      </button>
+    </div>
+    <div class="code-lines-wrap">
+
+      <div class="cl">
+        <span class="cl-num">1</span>
+        <span class="cl-code"><span class="cm">// Poids de chaque capteur (gauche = négatif, droite = positif)</span></span>
+      </div>
+      <div class="cl-explain"><span class="tag-what">commentaire</span> Ce commentaire explique la logique des poids. Le capteur le plus à gauche a le poids le plus négatif (-2), le plus à droite le plus positif (+2). C'est la base du calcul d'erreur : si la ligne est à gauche, les capteurs gauches s'activent et l'erreur devient négative.</div>
+
+      <div class="cl">
+        <span class="cl-num">2</span>
+        <span class="cl-code"><span class="kw">const int</span> POIDS[<span class="nm">5</span>] = {<span class="nm">-2, -1, 0, 1, 2</span>};</span>
+      </div>
+      <div class="cl-explain"><span class="tag-what">tableau poids</span> Un tableau de 5 poids, un par capteur. Le capteur 0 (extrême gauche) a le poids -2, le capteur 2 (milieu) a 0, le capteur 4 (extrême droite) a +2. Plus un capteur est loin du centre, plus son poids est grand — il a plus "d'influence" sur le calcul de position de la ligne.</div>
+
+      <div class="cl-empty"></div>
+
+      <div class="cl">
+        <span class="cl-num">3</span>
+        <span class="cl-code"><span class="kw">float</span> erreurPrecedente = <span class="nm">0</span>;</span>
+      </div>
+      <div class="cl-explain"><span class="tag-what">mémoire</span> Le PID a besoin de comparer l'erreur actuelle avec celle du tour précédent (pour la dérivée). On stocke l'ancienne erreur dans cette variable globale qui persiste entre les appels de la fonction.</div>
+
+      <div class="cl">
+        <span class="cl-num">4</span>
+        <span class="cl-code"><span class="kw">float</span> integrale = <span class="nm">0</span>;</span>
+      </div>
+      <div class="cl-explain"><span class="tag-what">mémoire</span> L'intégrale accumule toutes les erreurs. Si le robot est constamment 0.1 trop à droite, l'intégrale grossit au fil du temps et finit par pousser assez fort pour corriger ce décalage persistant.</div>
+
+      <div class="cl-empty"></div>
+
+      <div class="cl">
+        <span class="cl-num">5</span>
+        <span class="cl-code"><span class="kw">float</span> <span class="fn">calculerErreur</span>() {</span>
+      </div>
+      <div class="cl-explain"><span class="tag-what">fonction</span> Cette fonction retourne un <em>float</em> (nombre décimal) — c'est la position de la ligne. Elle ne prend pas d'argument car elle lit directement les variables globales <em>valeursCapteurs</em> et <em>SEUIL</em>.</div>
+
+      <div class="cl">
+        <span class="cl-num">6</span>
+        <span class="cl-code">  <span class="kw">int</span> somme = <span class="nm">0</span>, total = <span class="nm">0</span>;</span>
+      </div>
+      <div class="cl-explain"><span class="tag-what">variables locales</span> On crée deux compteurs locaux (ils n'existent que dans cette fonction). <strong>somme</strong> = poids × capteur sur ligne (pour calculer la position). <strong>total</strong> = combien de capteurs voient la ligne (pour faire une moyenne). On initialise les deux à 0.</div>
+
+      <div class="cl-empty"></div>
+
+      <div class="cl">
+        <span class="cl-num">7</span>
+        <span class="cl-code">  <span class="kw">for</span> (<span class="kw">int</span> i = <span class="nm">0</span>; i &lt; NB_CAPTEURS; i++) {</span>
+      </div>
+      <div class="cl-explain"><span class="tag-what">boucle</span> On parcourt les 5 capteurs pour calculer la position de la ligne. i va de 0 à 4.</div>
+
+      <div class="cl">
+        <span class="cl-num">8</span>
+        <span class="cl-code">    <span class="kw">bool</span> surNoir = valeursCapteurs[i] &lt; SEUIL;</span>
+      </div>
+      <div class="cl-explain"><span class="tag-what">détection</span> Pour chaque capteur, on vérifie s'il voit du noir. <em>surNoir</em> sera <em>true</em> (1) si la valeur est sous le seuil (surface noire = ligne) ou <em>false</em> (0) sinon. Stocker dans une variable booléenne rend la ligne suivante plus lisible.</div>
+
+      <div class="cl">
+        <span class="cl-num">9</span>
+        <span class="cl-code">    somme  += POIDS[i] * (<span class="kw">int</span>)surNoir;</span>
+      </div>
+      <div class="cl-explain"><span class="tag-what">calcul pondéré</span> <strong>+=</strong> signifie "ajouter à". On ajoute le poids du capteur si celui-ci voit du noir. <em>(int)surNoir</em> convertit true→1 et false→0. Donc si le capteur gauche (-2) voit du noir : somme += -2×1 = -2. Si le capteur droit (+2) voit du noir : somme += 2×1 = +2.</div>
+
+      <div class="cl">
+        <span class="cl-num">10</span>
+        <span class="cl-code">    total  += (<span class="kw">int</span>)surNoir;</span>
+      </div>
+      <div class="cl-explain"><span class="tag-what">compteur</span> On compte simplement combien de capteurs voient du noir (true=1, false=0). Ça servira de diviseur pour faire une moyenne. Sans ça, si 2 capteurs voient du noir vs 1 seul, l'erreur serait fausse.</div>
+
+      <div class="cl">
+        <span class="cl-num">11</span>
+        <span class="cl-code">  }</span>
+      </div>
+      <div class="cl-explain"><span class="tag-what">fin boucle</span> Fin de la boucle. À ce stade, <em>somme</em> contient la somme pondérée des capteurs actifs, et <em>total</em> le nombre de capteurs actifs.</div>
+
+      <div class="cl-empty"></div>
+
+      <div class="cl">
+        <span class="cl-num">12</span>
+        <span class="cl-code">  <span class="kw">if</span> (total == <span class="nm">0</span>) <span class="kw">return</span> erreurPrecedente;</span>
+      </div>
+      <div class="cl-explain"><span class="tag-what">cas particulier</span> <span class="tag-warn">important</span> Si aucun capteur ne voit la ligne (total = 0), on ne peut pas diviser par zéro — ce serait une erreur mathématique qui planterait le programme ! À la place, on retourne la dernière erreur connue : le robot continua de chercher la ligne dans la direction où elle a disparu.</div>
+
+      <div class="cl">
+        <span class="cl-num">13</span>
+        <span class="cl-code">  <span class="kw">return</span> (<span class="kw">float</span>)somme / total;</span>
+      </div>
+      <div class="cl-explain"><span class="tag-what">résultat</span> On retourne la moyenne pondérée. <em>(float)somme</em> convertit somme en décimal avant la division pour ne pas perdre de précision (sans ça, 3÷2 = 1 et non 1.5 en arithmétique entière). Exemple : capteur 0 et 1 actifs → somme = -2 + -1 = -3, total = 2 → erreur = -1.5 → ligne fortement à gauche.</div>
+
+      <div class="cl">
+        <span class="cl-num">14</span>
+        <span class="cl-code">}</span>
+      </div>
+      <div class="cl-explain"><span class="tag-what">fin fonction</span> Fin de calculerErreur(). Elle retourne un nombre entre -2 et +2 : -2 = ligne tout à gauche, 0 = ligne au centre, +2 = ligne tout à droite.</div>
+
+      <div class="cl-empty"></div>
+
+      <div class="cl">
+        <span class="cl-num">15</span>
+        <span class="cl-code"><span class="kw">float</span> <span class="fn">calculerPID</span>(<span class="kw">float</span> erreur) {</span>
+      </div>
+      <div class="cl-explain"><span class="tag-what">fonction PID</span> La fonction prend l'erreur en entrée et retourne une correction. Elle reçoit <em>float erreur</em> comme paramètre — la valeur calculée juste avant par calculerErreur().</div>
+
+      <div class="cl">
+        <span class="cl-num">16</span>
+        <span class="cl-code">  <span class="kw">float</span> P = erreur;</span>
+      </div>
+      <div class="cl-explain"><span class="tag-what">proportionnel</span> La partie P (Proportionnelle) est simplement l'erreur elle-même. Si l'erreur est grande, P est grand → grosse correction. Si l'erreur est petite, P est petit → petite correction. Simple et direct.</div>
+
+      <div class="cl-empty"></div>
+
+      <div class="cl">
+        <span class="cl-num">17</span>
+        <span class="cl-code">  integrale += erreur;</span>
+      </div>
+      <div class="cl-explain"><span class="tag-what">intégral</span> On ajoute l'erreur actuelle à l'intégrale. Elle grossit si le robot reste longtemps d'un côté. C'est une variable globale qui persiste entre les appels — elle "accumule" la mémoire des erreurs passées.</div>
+
+      <div class="cl">
+        <span class="cl-num">18</span>
+        <span class="cl-code">  integrale = <span class="fn">constrain</span>(integrale, <span class="nm">-100</span>, <span class="nm">100</span>);</span>
+      </div>
+      <div class="cl-explain"><span class="tag-what">anti-windup</span> <span class="tag-warn">critique !</span> <strong>constrain(valeur, min, max)</strong> empêche la valeur de dépasser les bornes. Sans ça, l'intégrale peut grossir à l'infini (on appelle ça "windup") et rendre le robot impossible à contrôler. On la limite entre -100 et +100 — si on dépasse, l'intégrale reste bloquée à la limite.</div>
+
+      <div class="cl">
+        <span class="cl-num">19</span>
+        <span class="cl-code">  <span class="kw">float</span> I = integrale;</span>
+      </div>
+      <div class="cl-explain"><span class="tag-what">intégral</span> On copie l'intégrale dans une variable locale I pour la clarté du calcul final. Ce n'est pas obligatoire techniquement, mais rend le code plus lisible.</div>
+
+      <div class="cl-empty"></div>
+
+      <div class="cl">
+        <span class="cl-num">20</span>
+        <span class="cl-code">  <span class="kw">float</span> D = erreur - erreurPrecedente;</span>
+      </div>
+      <div class="cl-explain"><span class="tag-what">dérivé</span> La dérivée = vitesse de changement de l'erreur. Si l'erreur était -1 et est maintenant -0.5, D = -0.5 - (-1) = +0.5 → l'erreur diminue → bonne tendance. Si l'erreur empire vite, D sera grand et ajoutera une correction préventive pour anticiper. C'est ce qui rend le robot fluide !</div>
+
+      <div class="cl">
+        <span class="cl-num">21</span>
+        <span class="cl-code">  erreurPrecedente = erreur;</span>
+      </div>
+      <div class="cl-explain"><span class="tag-what">mémorisation</span> On sauvegarde l'erreur actuelle pour le prochain tour de boucle. Sans ça, on ne pourrait pas calculer D au prochain tour. Cette ligne doit être APRÈS le calcul de D — si on la met avant, D serait toujours 0 !</div>
+
+      <div class="cl-empty"></div>
+
+      <div class="cl">
+        <span class="cl-num">22</span>
+        <span class="cl-code">  <span class="kw">return</span> Kp*P + Ki*I + Kd*D;</span>
+      </div>
+      <div class="cl-explain"><span class="tag-what">formule PID</span> C'est LA formule du PID. On multiplie chaque composante par son gain et on additionne. En pratique avec Ki=0 : Correction = 0.4×P + 1.2×D. Si l'erreur est +1 et ne change pas (D=0) : Correction = 0.4×1 = 0.4 → petite correction. Si l'erreur change vite (D=0.5) : Correction += 1.2×0.5 = +0.6 → correction plus forte.</div>
+
+      <div class="cl">
+        <span class="cl-num">23</span>
+        <span class="cl-code">}</span>
+      </div>
+      <div class="cl-explain"><span class="tag-what">fin PID</span> Fin de calculerPID(). La valeur retournée sera positive si le robot doit corriger vers la droite, négative vers la gauche. Elle sera ensuite appliquée aux moteurs dans commanderMoteurs().</div>
+
+      <div class="cl-empty"></div>
+
+      <div class="cl">
+        <span class="cl-num">24</span>
+        <span class="cl-code"><span class="kw">void</span> <span class="fn">commanderMoteurs</span>(<span class="kw">float</span> correction) {</span>
+      </div>
+      <div class="cl-explain"><span class="tag-what">fonction moteurs</span> On applique la correction aux deux moteurs. Si correction > 0 (ligne à droite) : moteur gauche accélère, moteur droit ralentit → robot tourne à droite. Si correction < 0 : l'inverse.</div>
+
+      <div class="cl">
+        <span class="cl-num">25</span>
+        <span class="cl-code">  <span class="kw">int</span> vitGauche  = VITESSE_BASE + correction;</span>
+      </div>
+      <div class="cl-explain"><span class="tag-what">calcul vitesse</span> La vitesse du moteur gauche = vitesse de base + correction. Si correction = +20 (ligne à droite) : moteur gauche va à 150+20 = 170 (plus vite) pour faire pivoter le robot vers la droite. La correction s'ajoute à gauche et se soustrait à droite.</div>
+
+      <div class="cl">
+        <span class="cl-num">26</span>
+        <span class="cl-code">  <span class="kw">int</span> vitDroite  = VITESSE_BASE - correction;</span>
+      </div>
+      <div class="cl-explain"><span class="tag-what">calcul vitesse</span> La vitesse du moteur droit = vitesse de base - correction. Si correction = +20 : moteur droit va à 150-20 = 130 (plus lent). Le robot accélère à gauche ET ralentit à droite → il pivote vers la droite pour retrouver la ligne. Symétrique parfait !</div>
+
+      <div class="cl-empty"></div>
+
+      <div class="cl">
+        <span class="cl-num">27</span>
+        <span class="cl-code">  vitGauche = <span class="fn">constrain</span>(vitGauche, <span class="nm">0</span>, VITESSE_MAX);</span>
+      </div>
+      <div class="cl-explain"><span class="tag-what">sécurité</span> On s'assure que la vitesse reste entre 0 et VITESSE_MAX. Sans ça, si la correction est très grande, vitGauche pourrait dépasser 255 (la limite d'analogWrite) ou devenir négatif — ce qui causerait un comportement bizarre des moteurs.</div>
+
+      <div class="cl">
+        <span class="cl-num">28</span>
+        <span class="cl-code">  vitDroite = <span class="fn">constrain</span>(vitDroite, <span class="nm">0</span>, VITESSE_MAX);</span>
+      </div>
+      <div class="cl-explain"><span class="tag-what">sécurité</span> Même chose pour le moteur droit. Toujours limiter les valeurs envoyées aux moteurs — les valeurs hors plage peuvent endommager le matériel ou causer des comportements imprévisibles.</div>
+
+      <div class="cl-empty"></div>
+
+      <div class="cl">
+        <span class="cl-num">29</span>
+        <span class="cl-code">  <span class="fn">setMoteurs</span>(vitGauche, vitDroite);</span>
+      </div>
+      <div class="cl-explain"><span class="tag-what">application</span> On appelle la fonction setMoteurs() (définie dans le module 4) avec les deux vitesses calculées. Elle s'occupera de convertir ces valeurs en signaux PWM pour le pont en H L298N qui alimente les moteurs.</div>
+
+      <div class="cl">
+        <span class="cl-num">30</span>
+        <span class="cl-code">}</span>
+      </div>
+      <div class="cl-explain"><span class="tag-what">fin</span> Fin de commanderMoteurs(). Le cycle complet est bouclé : Lire → Calculer erreur → Calculer PID → Commander moteurs. Ce cycle recommence des centaines de fois par seconde !</div>
+
+    </div>
+    <div class="legend-tags">
+      <span>Légende :</span>
+      <span class="tag-what" style="display:inline-block;background:rgba(0,229,160,0.12);color:var(--accent);font-family:var(--mono);font-size:10px;padding:2px 8px;border-radius:4px">CE QUE C'EST</span>
+      <span class="tag-why" style="display:inline-block;background:rgba(123,97,255,0.12);color:#a78bfa;font-family:var(--mono);font-size:10px;padding:2px 8px;border-radius:4px">POURQUOI</span>
+      <span class="tag-warn" style="display:inline-block;background:rgba(255,107,53,0.12);color:#fb8c5b;font-family:var(--mono);font-size:10px;padding:2px 8px;border-radius:4px">ATTENTION</span>
+      <span class="tag-astuce" style="display:inline-block;background:rgba(255,209,102,0.12);color:#fbbf24;font-family:var(--mono);font-size:10px;padding:2px 8px;border-radius:4px">ASTUCE</span>
+    </div>
+  </div>
+
+  <p style="color:var(--muted);font-size:14px;margin:20px 0 12px;font-weight:600;">🎮 Méthode de réglage des gains (dans cet ordre) :</p>
+  <ul class="checklist">
+    <li>Mettre Ki=0 et Kd=0. Augmenter Kp jusqu'à ce que le robot suive la ligne mais oscille.</li>
+    <li>Augmenter Kd pour réduire les oscillations. Le robot doit devenir stable.</li>
+    <li>Si le robot dérive légèrement sur les lignes droites, augmenter Ki très doucement.</li>
+    <li>Toujours tester sur le même circuit que la compétition !</li>
+  </ul>
+
+  <div class="tip tip-danger"><span class="tip-icon">🚨</span> <strong>Anti-windup :</strong> Sans la ligne <code style="color:var(--accent);font-family:var(--mono)">constrain(integrale, -100, 100)</code>, l'intégrale peut exploser et rendre le robot incontrôlable. Ne jamais l'oublier !</div>
+</section>
+
+<hr class="divider">
+
+<!-- ═══════════════ MODULE 4 : MOTEURS ═══════════════ -->
+<section id="moteurs" class="reveal">
+  <p class="section-label c-orange">// 04 — Module</p>
+  <div class="module-header">
+    <div class="module-icon-big" style="background:rgba(255,107,53,0.12)">🔌</div>
+    <div>
+      <span class="module-num c-orange">MODULE 04</span>
+      <h2>Moteurs & PWM</h2>
+    </div>
+  </div>
+  <p class="module-desc">Les moteurs DC ont besoin d'un pont en H (L298N) pour être contrôlés. Le PWM via <code style="color:var(--accent2);font-family:var(--mono)">analogWrite()</code> règle la vitesse entre 0 et 255.</p>
+
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Composant / Fonction</th><th>Rôle</th><th>Exemple d'usage</th></tr></thead>
+      <tbody>
+        <tr><td>L298N</td><td>Pont en H : amplifie les signaux Arduino pour alimenter les moteurs DC</td><td>Composant externe à brancher</td></tr>
+        <tr><td>ENA / ENB</td><td>Pins PWM pour régler la vitesse moteur A / B</td><td>analogWrite(ENA, 150)</td></tr>
+        <tr><td>IN1 / IN2</td><td>Direction moteur gauche</td><td>HIGH/LOW = avant/arrière</td></tr>
+        <tr><td>analogWrite()</td><td>Signal PWM : valeur 0 (arrêt) à 255 (pleine vitesse)</td><td>analogWrite(5, 200)</td></tr>
+        <tr><td>digitalWrite()</td><td>Mettre une pin à HIGH (+5V) ou LOW (0V)</td><td>digitalWrite(IN1, HIGH)</td></tr>
+        <tr><td>constrain()</td><td>Limite une valeur entre min et max</td><td>constrain(val, 0, 255)</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="code-annotated" id="code-moteurs">
+    <div class="code-header">
+      <div class="code-dots"><span></span><span></span><span></span></div>
+      <span class="code-title">moteurs_l298n.ino — Contrôle complet des moteurs</span>
+      <button class="explain-toggle" onclick="toggleExplain('code-moteurs', this)">
+        <span class="tog-icon">👁</span> Expliquer chaque ligne
+      </button>
+    </div>
+    <div class="code-lines-wrap">
+
+      <div class="cl"><span class="cl-num">1</span><span class="cl-code"><span class="cm">// ─── Pins du L298N ──────────────────────</span></span></div>
+      <div class="cl-explain"><span class="tag-what">commentaire</span> On identifie la section de définition des pins. Il est très important de bien documenter quel fil est branché sur quelle pin Arduino.</div>
+
+      <div class="cl"><span class="cl-num">2</span><span class="cl-code"><span class="kw">#define</span> ENA   <span class="nm">5</span></span></div>
+      <div class="cl-explain"><span class="tag-what">pin PWM</span> ENA = Enable A = la pin qui contrôle la VITESSE du moteur gauche. Elle doit être une pin PWM de l'Arduino (celles avec le symbole ~ : 3, 5, 6, 9, 10, 11). La pin 5 est une pin PWM — parfait. Si tu utilises une pin non-PWM, tu ne pourras que faire tourner le moteur à fond ou l'arrêter, sans réglage de vitesse.</div>
+
+      <div class="cl"><span class="cl-num">3</span><span class="cl-code"><span class="kw">#define</span> IN1   <span class="nm">6</span></span></div>
+      <div class="cl-explain"><span class="tag-what">pin direction</span> IN1 et IN2 ensemble contrôlent la DIRECTION du moteur gauche. IN1=HIGH et IN2=LOW → moteur tourne dans un sens. IN1=LOW et IN2=HIGH → sens inverse. IN1=IN2 → moteur bloqué (frein).</div>
+
+      <div class="cl"><span class="cl-num">4</span><span class="cl-code"><span class="kw">#define</span> IN2   <span class="nm">7</span></span></div>
+      <div class="cl-explain"><span class="tag-what">pin direction</span> La deuxième pin de direction du moteur gauche. La pin 7 n'est pas PWM — c'est normal, elle n'a besoin que d'un signal binaire HIGH/LOW pour indiquer la direction.</div>
+
+      <div class="cl"><span class="cl-num">5</span><span class="cl-code"><span class="kw">#define</span> ENB   <span class="nm">10</span></span></div>
+      <div class="cl-explain"><span class="tag-what">pin PWM</span> ENB = Enable B = vitesse du moteur droit. Pin 10 = pin PWM ✓.</div>
+
+      <div class="cl"><span class="cl-num">6</span><span class="cl-code"><span class="kw">#define</span> IN3   <span class="nm">8</span></span></div>
+      <div class="cl-explain"><span class="tag-what">pin direction</span> Direction moteur droit. Même principe que IN1/IN2 pour le moteur gauche.</div>
+
+      <div class="cl"><span class="cl-num">7</span><span class="cl-code"><span class="kw">#define</span> IN4   <span class="nm">9</span></span></div>
+      <div class="cl-explain"><span class="tag-what">pin direction</span> Deuxième pin direction moteur droit. Note : la pin 9 est aussi une pin PWM, mais on l'utilise ici en digital seulement. Aucun problème.</div>
+
+      <div class="cl-empty"></div>
+
+      <div class="cl"><span class="cl-num">8</span><span class="cl-code"><span class="kw">void</span> <span class="fn">initialiserMoteurs</span>() {</span></div>
+      <div class="cl-explain"><span class="tag-what">fonction init</span> Appelée une fois dans setup(). Elle configure toutes les pins moteurs en OUTPUT (l'Arduino envoie des signaux vers le L298N, donc c'est en sortie).</div>
+
+      <div class="cl"><span class="cl-num">9</span><span class="cl-code">  <span class="fn">pinMode</span>(ENA, OUTPUT); <span class="fn">pinMode</span>(IN1, OUTPUT); <span class="fn">pinMode</span>(IN2, OUTPUT);</span></div>
+      <div class="cl-explain"><span class="tag-what">configuration</span> Trois appels pinMode sur la même ligne. C'est du code compressé — on aurait pu les écrire sur 3 lignes séparées, mais ça économise de l'espace. OUTPUT = cette pin envoie un signal. L'Arduino contrôle le L298N, donc toutes les pins du L298N sont en OUTPUT.</div>
+
+      <div class="cl"><span class="cl-num">10</span><span class="cl-code">  <span class="fn">pinMode</span>(ENB, OUTPUT); <span class="fn">pinMode</span>(IN3, OUTPUT); <span class="fn">pinMode</span>(IN4, OUTPUT);</span></div>
+      <div class="cl-explain"><span class="tag-what">configuration</span> Même chose pour les pins du moteur droit (ENB, IN3, IN4). Il faut configurer TOUTES les pins utilisées, sinon elles restent en INPUT par défaut et les moteurs ne répondront pas correctement.</div>
+
+      <div class="cl"><span class="cl-num">11</span><span class="cl-code">}</span></div>
+      <div class="cl-explain"><span class="tag-what">fin</span> Fin de l'initialisation. Après cette fonction, les pins sont prêtes à recevoir des commandes.</div>
+
+      <div class="cl-empty"></div>
+
+      <div class="cl"><span class="cl-num">12</span><span class="cl-code"><span class="kw">void</span> <span class="fn">setMoteurs</span>(<span class="kw">int</span> vitG, <span class="kw">int</span> vitD) {</span></div>
+      <div class="cl-explain"><span class="tag-what">fonction principale</span> La fonction centrale de contrôle des moteurs. Elle reçoit deux entiers : vitesse gauche et vitesse droite. Positif = avant, négatif = arrière. Valeurs entre -255 et +255.</div>
+
+      <div class="cl"><span class="cl-num">13</span><span class="cl-code">  <span class="kw">if</span> (vitG >= <span class="nm">0</span>) {</span></div>
+      <div class="cl-explain"><span class="tag-what">condition</span> Si la vitesse gauche est positive (ou nulle), le moteur doit tourner en marche avant. On configure la direction avec IN1 et IN2, puis on applique la vitesse avec analogWrite sur ENA.</div>
+
+      <div class="cl"><span class="cl-num">14</span><span class="cl-code">    <span class="fn">digitalWrite</span>(IN1, HIGH); <span class="fn">digitalWrite</span>(IN2, LOW);</span></div>
+      <div class="cl-explain"><span class="tag-what">direction avant</span> <strong>digitalWrite(IN1, HIGH)</strong> met la pin IN1 à +5V. <strong>digitalWrite(IN2, LOW)</strong> met IN2 à 0V. Le L298N interprète HIGH/LOW → sens de rotation avant. Si les deux sont à HIGH ou les deux à LOW → freinage électrique. Si on inverse (IN1=LOW, IN2=HIGH) → marche arrière.</div>
+
+      <div class="cl"><span class="cl-num">15</span><span class="cl-code">  } <span class="kw">else</span> {</span></div>
+      <div class="cl-explain"><span class="tag-what">sinon</span> Si vitG est négatif → marche arrière. Le <em>else</em> gère le cas opposé au <em>if</em> précédent. En Arduino, if/else fonctionne exactement comme en français : "si condition → faire A, sinon → faire B".</div>
+
+      <div class="cl"><span class="cl-num">16</span><span class="cl-code">    <span class="fn">digitalWrite</span>(IN1, LOW);  <span class="fn">digitalWrite</span>(IN2, HIGH);</span></div>
+      <div class="cl-explain"><span class="tag-what">direction arrière</span> On inverse IN1 et IN2 : IN1=LOW, IN2=HIGH → sens de rotation inversé = marche arrière. Le L298N est un pont en H : il peut inverser le courant dans le moteur pour changer son sens de rotation.</div>
+
+      <div class="cl"><span class="cl-num">17</span><span class="cl-code">    vitG = -vitG;</span></div>
+      <div class="cl-explain"><span class="tag-what">valeur absolue</span> La direction est maintenant gérée par IN1/IN2. Pour la vitesse, analogWrite n'accepte que des valeurs positives (0-255). On inverse le signe de vitG (ex: -80 devient 80) pour obtenir la valeur absolue à envoyer à ENA. <em>-(-80) = 80</em>.</div>
+
+      <div class="cl"><span class="cl-num">18</span><span class="cl-code">  }</span></div>
+      <div class="cl-explain"><span class="tag-what">fin if/else</span> Fin du bloc de gestion de direction. Que le moteur aille en avant ou en arrière, vitG est maintenant positif et prêt pour analogWrite.</div>
+
+      <div class="cl"><span class="cl-num">19</span><span class="cl-code">  <span class="fn">analogWrite</span>(ENA, <span class="fn">constrain</span>(vitG, <span class="nm">0</span>, <span class="nm">255</span>));</span></div>
+      <div class="cl-explain"><span class="tag-what">PWM vitesse</span> <strong>analogWrite(pin, valeur)</strong> génère un signal PWM (Pulse Width Modulation) sur la pin ENA. La valeur 0 = moteur arrêté, 255 = moteur à fond. Le constrain(vitG, 0, 255) s'assure qu'on ne dépasse jamais les limites même si le PID envoie une valeur trop grande.</div>
+
+      <div class="cl-empty"></div>
+
+      <div class="cl"><span class="cl-num">20</span><span class="cl-code">  <span class="kw">if</span> (vitD >= <span class="nm">0</span>) {</span></div>
+      <div class="cl-explain"><span class="tag-what">moteur droit</span> Exactement le même raisonnement que pour le moteur gauche, mais avec les pins IN3, IN4 et ENB.</div>
+
+      <div class="cl"><span class="cl-num">21</span><span class="cl-code">    <span class="fn">digitalWrite</span>(IN3, HIGH); <span class="fn">digitalWrite</span>(IN4, LOW);</span></div>
+      <div class="cl-explain"><span class="tag-what">direction avant</span> Direction avant moteur droit. <strong>Attention :</strong> "avant" peut signifier une rotation physiquement opposée selon le sens de montage du moteur droit. Si ton robot tourne en rond, essaie d'inverser IN3 et IN4 pour le moteur droit.</div>
+
+      <div class="cl"><span class="cl-num">22</span><span class="cl-code">  } <span class="kw">else</span> {</span></div>
+      <div class="cl-explain"><span class="tag-what">sinon</span> Si vitD est négatif → marche arrière moteur droit.</div>
+
+      <div class="cl"><span class="cl-num">23</span><span class="cl-code">    <span class="fn">digitalWrite</span>(IN3, LOW);  <span class="fn">digitalWrite</span>(IN4, HIGH);</span></div>
+      <div class="cl-explain"><span class="tag-what">direction arrière</span> Direction arrière moteur droit.</div>
+
+      <div class="cl"><span class="cl-num">24</span><span class="cl-code">    vitD = -vitD;</span></div>
+      <div class="cl-explain"><span class="tag-what">valeur absolue</span> Même chose que pour vitG : on rend la valeur positive avant de l'envoyer à analogWrite.</div>
+
+      <div class="cl"><span class="cl-num">25</span><span class="cl-code">  }</span></div>
+      <div class="cl-explain"><span class="tag-what">fin if/else</span> Fin du bloc direction moteur droit.</div>
+
+      <div class="cl"><span class="cl-num">26</span><span class="cl-code">  <span class="fn">analogWrite</span>(ENB, <span class="fn">constrain</span>(vitD, <span class="nm">0</span>, <span class="nm">255</span>));</span></div>
+      <div class="cl-explain"><span class="tag-what">PWM vitesse</span> On applique la vitesse au moteur droit via ENB. Avec ces deux analogWrite (lignes 19 et 26), les deux moteurs ont reçu leur vitesse et leur direction. Le robot se déplace !</div>
+
+      <div class="cl"><span class="cl-num">27</span><span class="cl-code">}</span></div>
+      <div class="cl-explain"><span class="tag-what">fin fonction</span> Fin de setMoteurs(). En appelant setMoteurs(180, 120), le moteur gauche tourne à 180/255 de sa puissance max vers l'avant, et le droit à 120/255 → le robot tourne légèrement vers la droite.</div>
+
+      <div class="cl-empty"></div>
+
+      <div class="cl"><span class="cl-num">28</span><span class="cl-code"><span class="kw">void</span> <span class="fn">avancer</span>()  { <span class="fn">setMoteurs</span>(VITESSE_BASE, VITESSE_BASE); }</span></div>
+      <div class="cl-explain"><span class="tag-astuce">raccourci</span> Une fonction helper d'une seule ligne. Appeler avancer() est plus lisible que setMoteurs(150, 150) partout dans le code. Si on change VITESSE_BASE, tout le code se met à jour automatiquement.</div>
+
+      <div class="cl"><span class="cl-num">29</span><span class="cl-code"><span class="kw">void</span> <span class="fn">stopper</span>()  { <span class="fn">setMoteurs</span>(<span class="nm">0</span>, <span class="nm">0</span>); }</span></div>
+      <div class="cl-explain"><span class="tag-what">arrêt</span> Envoie 0 aux deux moteurs → arrêt immédiat. En compétition, stopper() est appelé quand le robot détecte la ligne d'arrivée ou un obstacle.</div>
+
+      <div class="cl"><span class="cl-num">30</span><span class="cl-code"><span class="kw">void</span> <span class="fn">pivoterGauche</span>(<span class="kw">int</span> v) { <span class="fn">setMoteurs</span>(-v, v); }</span></div>
+      <div class="cl-explain"><span class="tag-what">pivot</span> Le moteur gauche tourne en ARRIÈRE (-v) et le droit en AVANT (+v) → le robot pivote sur place vers la gauche. Très utile pour retrouver la ligne quand elle est perdue. Exemple : pivoterGauche(100) fait pivoter à vitesse modérée.</div>
+
+      <div class="cl"><span class="cl-num">31</span><span class="cl-code"><span class="kw">void</span> <span class="fn">pivoterDroite</span>(<span class="kw">int</span> v) { <span class="fn">setMoteurs</span>(v, -v); }</span></div>
+      <div class="cl-explain"><span class="tag-what">pivot</span> Inverse : moteur gauche en AVANT, moteur droit en ARRIÈRE → pivot vers la droite. Ces deux fonctions de pivot sont essentielles pour gérer la perte de ligne dans le module 6.</div>
+
+    </div>
+    <div class="legend-tags">
+      <span>Légende :</span>
+      <span class="tag-what" style="display:inline-block;background:rgba(0,229,160,0.12);color:var(--accent);font-family:var(--mono);font-size:10px;padding:2px 8px;border-radius:4px">CE QUE C'EST</span>
+      <span class="tag-why" style="display:inline-block;background:rgba(123,97,255,0.12);color:#a78bfa;font-family:var(--mono);font-size:10px;padding:2px 8px;border-radius:4px">POURQUOI</span>
+      <span class="tag-warn" style="display:inline-block;background:rgba(255,107,53,0.12);color:#fb8c5b;font-family:var(--mono);font-size:10px;padding:2px 8px;border-radius:4px">ATTENTION</span>
+      <span class="tag-astuce" style="display:inline-block;background:rgba(255,209,102,0.12);color:#fbbf24;font-family:var(--mono);font-size:10px;padding:2px 8px;border-radius:4px">ASTUCE</span>
+    </div>
+  </div>
+
+  <div class="tip tip-warn"><span class="tip-icon">⚠️</span> <strong>Alimentation séparée :</strong> Les moteurs doivent avoir leur propre batterie. Ne pas alimenter les moteurs depuis le 5V de l'Arduino — les moteurs consomment beaucoup et feront redémarrer l'Arduino à chaque accélération.</div>
+</section>
+
+<hr class="divider">
+
+<!-- ═══════════════ MODULE 5 : CALIBRATION ═══════════════ -->
+<section id="calib" class="reveal">
+  <p class="section-label c-yellow">// 05 — Module</p>
+  <div class="module-header">
+    <div class="module-icon-big" style="background:rgba(255,209,102,0.12)">🔬</div>
+    <div><span class="module-num c-yellow">MODULE 05</span><h2>Calibration des Capteurs</h2></div>
+  </div>
+  <p class="module-desc">La calibration adapte dynamiquement le seuil blanc/noir à l'environnement. Au démarrage, le robot balaie la piste pendant 2 secondes et mémorise les valeurs min et max de chaque capteur.</p>
+
+  <div class="code-annotated" id="code-calib">
+    <div class="code-header">
+      <div class="code-dots"><span></span><span></span><span></span></div>
+      <span class="code-title">calibration.ino — Calibration automatique au démarrage</span>
+      <button class="explain-toggle" onclick="toggleExplain('code-calib', this)">
+        <span class="tog-icon">👁</span> Expliquer chaque ligne
+      </button>
+    </div>
+    <div class="code-lines-wrap">
+
+      <div class="cl"><span class="cl-num">1</span><span class="cl-code"><span class="kw">int</span> minVals[NB_CAPTEURS];  <span class="cm">// Minimum vu = NOIR</span></span></div>
+      <div class="cl-explain"><span class="tag-what">tableau min</span> Un tableau pour stocker la valeur MINIMALE vue par chaque capteur pendant la calibration. Le minimum correspond à la surface la plus sombre = la ligne noire. On a un minimum différent pour chaque capteur car ils peuvent avoir des sensibilités légèrement différentes.</div>
+
+      <div class="cl"><span class="cl-num">2</span><span class="cl-code"><span class="kw">int</span> maxVals[NB_CAPTEURS];  <span class="cm">// Maximum vu = BLANC</span></span></div>
+      <div class="cl-explain"><span class="tag-what">tableau max</span> Tableau pour la valeur MAXIMALE = surface blanche. En connaissant le min et le max de chaque capteur, on peut calculer un seuil précis au milieu et normaliser les valeurs.</div>
+
+      <div class="cl"><span class="cl-num">3</span><span class="cl-code"><span class="kw">int</span> seuilCalib[NB_CAPTEURS]; <span class="cm">// Seuil adaptatif par capteur</span></span></div>
+      <div class="cl-explain"><span class="tag-astuce">avancé</span> Au lieu d'un seul seuil global, on a un seuil différent PAR capteur. Capteur 0 peut avoir un seuil de 450, capteur 2 de 510, etc. C'est beaucoup plus précis qu'un seuil unique pour tous.</div>
+
+      <div class="cl-empty"></div>
+
+      <div class="cl"><span class="cl-num">4</span><span class="cl-code"><span class="kw">void</span> <span class="fn">calibrerCapteurs</span>() {</span></div>
+      <div class="cl-explain"><span class="tag-what">fonction</span> La procédure de calibration. Elle sera appelée dans setup() une seule fois. Elle fait tourner le robot sur la piste pendant 2 secondes pour "voir" le blanc et le noir.</div>
+
+      <div class="cl"><span class="cl-num">5</span><span class="cl-code">  <span class="kw">for</span> (<span class="kw">int</span> i = <span class="nm">0</span>; i &lt; NB_CAPTEURS; i++) {</span></div>
+      <div class="cl-explain"><span class="tag-what">initialisation</span> On initialise les tableaux min et max avec des valeurs extrêmes pour qu'ils soient correctement mis à jour dès la première lecture.</div>
+
+      <div class="cl"><span class="cl-num">6</span><span class="cl-code">    minVals[i] = <span class="nm">1023</span>;</span></div>
+      <div class="cl-explain"><span class="tag-what">initialisation</span> On met le min à la valeur MAXIMALE possible (1023). Ainsi, la première vraie lecture sera forcément inférieure et remplacera 1023. Si on mettait 0, le minimum resterait à 0 même si les capteurs ne lisent jamais si bas.</div>
+
+      <div class="cl"><span class="cl-num">7</span><span class="cl-code">    maxVals[i] = <span class="nm">0</span>;</span></div>
+      <div class="cl-explain"><span class="tag-what">initialisation</span> On met le max à 0 (valeur MINIMALE possible). La première vraie lecture sera supérieure à 0 et remplacera cette valeur initiale. Technique classique d'initialisation pour chercher des min/max.</div>
+
+      <div class="cl"><span class="cl-num">8</span><span class="cl-code">  }</span></div>
+      <div class="cl-explain"><span class="tag-what">fin init</span> Fin de l'initialisation. Tous les capteurs ont leur min=1023 et max=0 comme point de départ.</div>
+
+      <div class="cl-empty"></div>
+
+      <div class="cl"><span class="cl-num">9</span><span class="cl-code">  <span class="fn">Serial.println</span>(<span class="st">"Calibration... Bougez le robot sur la ligne"</span>);</span></div>
+      <div class="cl-explain"><span class="tag-what">message</span> On affiche un message dans le Moniteur Série pour informer l'opérateur que la calibration commence. Il doit maintenant faire passer tous les capteurs sur la ligne noire ET sur le sol blanc pendant 2 secondes.</div>
+
+      <div class="cl-empty"></div>
+
+      <div class="cl"><span class="cl-num">10</span><span class="cl-code">  <span class="kw">unsigned long</span> debut = <span class="fn">millis</span>();</span></div>
+      <div class="cl-explain"><span class="tag-what">chronomètre</span> <strong>millis()</strong> retourne le nombre de millisecondes depuis que l'Arduino s'est allumé. On capture ce moment de départ dans <em>debut</em>. <strong>unsigned long</strong> est un grand entier positif — nécessaire car millis() peut retourner de grandes valeurs (après 50 jours, il dépasse la capacité d'un int !)</div>
+
+      <div class="cl"><span class="cl-num">11</span><span class="cl-code">  <span class="kw">int</span> sens = <span class="nm">1</span>;</span></div>
+      <div class="cl-explain"><span class="tag-what">variable sens</span> On alternera le sens de pivot (1 = droite, -1 = gauche) pour que le robot balaie la piste dans les deux directions et voit à la fois le blanc et le noir.</div>
+
+      <div class="cl-empty"></div>
+
+      <div class="cl"><span class="cl-num">12</span><span class="cl-code">  <span class="kw">while</span> (<span class="fn">millis</span>() - debut &lt; <span class="nm">2000</span>) {</span></div>
+      <div class="cl-explain"><span class="tag-what">boucle while</span> <strong>while(condition)</strong> répète le bloc tant que la condition est vraie. Ici : tant que le temps écoulé (millis() - debut) est inférieur à 2000ms (2 secondes). C'est l'alternative non-bloquante à delay(2000) — le robot peut faire des choses (lire les capteurs, se déplacer) pendant ces 2 secondes.</div>
+
+      <div class="cl"><span class="cl-num">13</span><span class="cl-code">    <span class="fn">setMoteurs</span>(<span class="nm">80</span> * sens, -<span class="nm">80</span> * sens);</span></div>
+      <div class="cl-explain"><span class="tag-what">pivot lent</span> Le robot pivote lentement (vitesse 80, bien en dessous de VITESSE_MAX). Si sens=1 : setMoteurs(80, -80) → pivote à droite. Si sens=-1 : setMoteurs(-80, 80) → pivote à gauche. Les capteurs balayent de gauche à droite et vice-versa.</div>
+
+      <div class="cl-empty"></div>
+
+      <div class="cl"><span class="cl-num">14</span><span class="cl-code">    <span class="kw">for</span> (<span class="kw">int</span> i = <span class="nm">0</span>; i &lt; NB_CAPTEURS; i++) {</span></div>
+      <div class="cl-explain"><span class="tag-what">lecture</span> À chaque tour de la boucle while, on lit les 5 capteurs et on met à jour les min et max. Comme le robot pivote continuellement, chaque capteur passera au-dessus de la ligne et du sol.</div>
+
+      <div class="cl"><span class="cl-num">15</span><span class="cl-code">      <span class="kw">int</span> v = <span class="fn">analogRead</span>(PIN_CAPTEURS[i]);</span></div>
+      <div class="cl-explain"><span class="tag-what">lecture capteur</span> On lit la valeur brute du capteur i. Cette valeur est stockée temporairement dans <em>v</em> (variable locale à cette boucle for) pour éviter de lire deux fois la même pin.</div>
+
+      <div class="cl"><span class="cl-num">16</span><span class="cl-code">      <span class="kw">if</span> (v &lt; minVals[i]) minVals[i] = v;</span></div>
+      <div class="cl-explain"><span class="tag-what">mise à jour min</span> Si la valeur actuelle est INFÉRIEURE au minimum enregistré → elle devient le nouveau minimum. C'est l'algorithme classique de recherche de minimum : on compare et on garde la plus petite valeur vue jusqu'ici.</div>
+
+      <div class="cl"><span class="cl-num">17</span><span class="cl-code">      <span class="kw">if</span> (v &gt; maxVals[i]) maxVals[i] = v;</span></div>
+      <div class="cl-explain"><span class="tag-what">mise à jour max</span> Même chose pour le maximum : si la valeur est plus grande que le max actuel, elle devient le nouveau max. Après 2 secondes de balayage, minVals[i] contiendra la valeur la plus basse vue (noir) et maxVals[i] la plus haute (blanc).</div>
+
+      <div class="cl"><span class="cl-num">18</span><span class="cl-code">    }</span></div>
+      <div class="cl-explain"><span class="tag-what">fin for</span> Fin de la boucle sur les 5 capteurs. On revient à la boucle while pour vérifier si les 2 secondes sont écoulées.</div>
+
+      <div class="cl-empty"></div>
+
+      <div class="cl"><span class="cl-num">19</span><span class="cl-code">    <span class="kw">if</span> (<span class="fn">millis</span>() - debut > <span class="nm">1000</span> && sens == <span class="nm">1</span>) sens = -<span class="nm">1</span>;</span></div>
+      <div class="cl-explain"><span class="tag-what">changement de sens</span> Après 1 seconde (la moitié du temps), on inverse le sens de pivot. <strong>&&</strong> signifie "ET" — les deux conditions doivent être vraies. <em>sens == 1</em> empêche d'inverser plusieurs fois. Résultat : le robot pivote à droite pendant 1s, puis à gauche pendant 1s.</div>
+
+      <div class="cl"><span class="cl-num">20</span><span class="cl-code">  }</span></div>
+      <div class="cl-explain"><span class="tag-what">fin while</span> Fin de la boucle while. Les 2 secondes sont écoulées, tous les capteurs ont vu le blanc et le noir. On a maintenant des valeurs min et max fiables dans les tableaux.</div>
+
+      <div class="cl-empty"></div>
+
+      <div class="cl"><span class="cl-num">21</span><span class="cl-code">  <span class="fn">stopper</span>();</span></div>
+      <div class="cl-explain"><span class="tag-what">arrêt</span> On arrête les moteurs. La calibration physique est terminée. Maintenant on calcule les seuils.</div>
+
+      <div class="cl-empty"></div>
+
+      <div class="cl"><span class="cl-num">22</span><span class="cl-code">  <span class="kw">for</span> (<span class="kw">int</span> i = <span class="nm">0</span>; i &lt; NB_CAPTEURS; i++) {</span></div>
+      <div class="cl-explain"><span class="tag-what">calcul seuils</span> On parcourt les 5 capteurs pour calculer le seuil de chacun et l'afficher dans le Moniteur Série.</div>
+
+      <div class="cl"><span class="cl-num">23</span><span class="cl-code">    seuilCalib[i] = (minVals[i] + maxVals[i]) / <span class="nm">2</span>;</span></div>
+      <div class="cl-explain"><span class="tag-what">milieu de plage</span> Le seuil optimal = exactement au milieu entre le minimum (noir) et le maximum (blanc). Si noir = 200 et blanc = 800 → seuil = (200+800)/2 = 500. Tout ce qui est en dessous de 500 = noir, au dessus = blanc. C'est le seuil le plus robuste possible.</div>
+
+      <div class="cl"><span class="cl-num">24</span><span class="cl-code">    <span class="fn">Serial.print</span>(<span class="st">"Capteur "</span>); <span class="fn">Serial.print</span>(i); <span class="fn">Serial.print</span>(<span class="st">" → seuil: "</span>); <span class="fn">Serial.println</span>(seuilCalib[i]);</span></div>
+      <div class="cl-explain"><span class="tag-what">affichage</span> On affiche le résultat pour chaque capteur dans le Moniteur Série. Exemple d'affichage : "Capteur 2 → seuil: 487". Si les valeurs sont très proches (ex: seuil 490-510), la calibration est excellente. Si elles sont très dispersées, les capteurs ne sont peut-être pas à la bonne hauteur.</div>
+
+      <div class="cl"><span class="cl-num">25</span><span class="cl-code">  }</span></div>
+      <div class="cl-explain"><span class="tag-what">fin</span> Fin de la boucle de calcul. La calibration est complète ! Ces seuils seront utilisés à la place de la constante SEUIL globale pour des lectures plus précises.</div>
+
+      <div class="cl"><span class="cl-num">26</span><span class="cl-code">}</span></div>
+      <div class="cl-explain"><span class="tag-what">fin fonction</span> Fin de calibrerCapteurs(). Après cette fonction, le robot connaît parfaitement son environnement et est prêt à suivre la ligne avec une précision maximale.</div>
+
+    </div>
+    <div class="legend-tags">
+      <span>Légende :</span>
+      <span class="tag-what" style="display:inline-block;background:rgba(0,229,160,0.12);color:var(--accent);font-family:var(--mono);font-size:10px;padding:2px 8px;border-radius:4px">CE QUE C'EST</span>
+      <span class="tag-astuce" style="display:inline-block;background:rgba(255,209,102,0.12);color:#fbbf24;font-family:var(--mono);font-size:10px;padding:2px 8px;border-radius:4px">ASTUCE</span>
+    </div>
+  </div>
+  <div class="tip tip-success"><span class="tip-icon">✅</span> Brancher une LED qui s'allume pendant la calibration et s'éteint quand c'est fini. L'équipe saura exactement quand le robot est prêt.</div>
+</section>
+
+<hr class="divider">
+
+<!-- ═══════════════ MODULE 6 : INTERSECTIONS ═══════════════ -->
+<section id="intersect" class="reveal">
+  <p class="section-label c-pink">// 06 — Module</p>
+  <div class="module-header">
+    <div class="module-icon-big" style="background:rgba(244,114,182,0.12)">🔀</div>
+    <div><span class="module-num c-pink">MODULE 06</span><h2>Intersections & Virages</h2></div>
+  </div>
+  <p class="module-desc">Les intersections et virages serrés nécessitent une logique spéciale. Quand tous les capteurs voient du noir → intersection. Quand tous voient du blanc → perte de ligne.</p>
+
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Situation détectée</th><th>Pattern capteurs [G→D]</th><th>Action</th></tr></thead>
+      <tbody>
+        <tr><td>Ligne droite</td><td>□ □ ■ □ □</td><td>PID normal</td></tr>
+        <tr><td>Légèrement à gauche</td><td>□ ■ ■ □ □</td><td>PID corrige doucement</td></tr>
+        <tr><td>Virage gauche serré</td><td>■ ■ □ □ □</td><td>Tourner à gauche fort</td></tr>
+        <tr><td>Intersection / croisement</td><td>■ ■ ■ ■ ■</td><td>Décision selon stratégie</td></tr>
+        <tr><td>Ligne perdue</td><td>□ □ □ □ □</td><td>Rotation vers dernier côté connu</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="code-annotated" id="code-intersect">
+    <div class="code-header">
+      <div class="code-dots"><span></span><span></span><span></span></div>
+      <span class="code-title">intersections.ino — Détection et gestion des cas spéciaux</span>
+      <button class="explain-toggle" onclick="toggleExplain('code-intersect', this)">
+        <span class="tog-icon">👁</span> Expliquer chaque ligne
+      </button>
+    </div>
+    <div class="code-lines-wrap">
+
+      <div class="cl"><span class="cl-num">1</span><span class="cl-code"><span class="kw">int</span> <span class="fn">compterNoir</span>() {</span></div>
+      <div class="cl-explain"><span class="tag-what">fonction</span> Une fonction qui retourne un entier : le nombre de capteurs qui voient du noir en ce moment. Ce nombre nous dit si on est sur une ligne normale (1-2 capteurs), une intersection (4-5) ou une perte de ligne (0).</div>
+
+      <div class="cl"><span class="cl-num">2</span><span class="cl-code">  <span class="kw">int</span> count = <span class="nm">0</span>;</span></div>
+      <div class="cl-explain"><span class="tag-what">compteur</span> On initialise un compteur à zéro. On va l'incrémenter (+1) pour chaque capteur qui voit du noir.</div>
+
+      <div class="cl"><span class="cl-num">3</span><span class="cl-code">  <span class="kw">for</span> (<span class="kw">int</span> i = <span class="nm">0</span>; i &lt; NB_CAPTEURS; i++)</span></div>
+      <div class="cl-explain"><span class="tag-what">boucle</span> On parcourt les 5 capteurs. Nota : quand la boucle for n'a qu'une seule instruction, les accolades {} sont optionnelles — la ligne qui suit directement est l'action répétée.</div>
+
+      <div class="cl"><span class="cl-num">4</span><span class="cl-code">    <span class="kw">if</span> (<span class="fn">surLigne</span>(i)) count++;</span></div>
+      <div class="cl-explain"><span class="tag-what">incrémentation</span> Si le capteur i voit la ligne (surLigne retourne true), on ajoute 1 au compteur. <strong>count++</strong> est un raccourci pour <em>count = count + 1</em>. Après la boucle, count contient le nombre total de capteurs actifs.</div>
+
+      <div class="cl"><span class="cl-num">5</span><span class="cl-code">  <span class="kw">return</span> count;</span></div>
+      <div class="cl-explain"><span class="tag-what">résultat</span> On retourne le nombre de capteurs qui voient du noir. Valeur de 0 (rien vu) à 5 (tous les capteurs sur la ligne = intersection).</div>
+
+      <div class="cl"><span class="cl-num">6</span><span class="cl-code">}</span></div>
+      <div class="cl-explain"><span class="tag-what">fin</span> Fin de compterNoir().</div>
+
+      <div class="cl-empty"></div>
+
+      <div class="cl"><span class="cl-num">7</span><span class="cl-code"><span class="kw">bool</span> <span class="fn">estIntersection</span>() { <span class="kw">return</span> <span class="fn">compterNoir</span>() >= <span class="nm">4</span>; }</span></div>
+      <div class="cl-explain"><span class="tag-what">détection intersection</span> Si 4 capteurs ou plus voient du noir → on est sur une intersection (ligne large ou croisement). <strong>>=</strong> signifie "supérieur ou égal à". Retourne true ou false. On met le seuil à 4 (et non 5) pour plus de robustesse — même si un capteur est légèrement décalé.</div>
+
+      <div class="cl"><span class="cl-num">8</span><span class="cl-code"><span class="kw">bool</span> <span class="fn">estPerteLigne</span>()   { <span class="kw">return</span> <span class="fn">compterNoir</span>() == <span class="nm">0</span>; }</span></div>
+      <div class="cl-explain"><span class="tag-what">perte de ligne</span> Si AUCUN capteur ne voit de noir → la ligne est perdue. <strong>==</strong> (double égal) est la comparaison d'égalité. À ne pas confondre avec <em>=</em> (simple égal) qui est l'assignation !</div>
+
+      <div class="cl"><span class="cl-num">9</span><span class="cl-code"><span class="kw">bool</span> <span class="fn">virageGauche</span>()   { <span class="kw">return</span> <span class="fn">surLigne</span>(<span class="nm">0</span>) && !<span class="fn">surLigne</span>(<span class="nm">4</span>); }</span></div>
+      <div class="cl-explain"><span class="tag-what">détection virage</span> Le capteur gauche (0) voit du noir ET le capteur droit (4) ne voit PAS de noir → la ligne est tout à gauche = virage gauche serré. <strong>&&</strong> = ET. <strong>!</strong> = NON (inversion). Donc : "capteur gauche actif ET capteur droit inactif".</div>
+
+      <div class="cl"><span class="cl-num">10</span><span class="cl-code"><span class="kw">bool</span> <span class="fn">virageDroite</span>()   { <span class="kw">return</span> !<span class="fn">surLigne</span>(<span class="nm">0</span>) && <span class="fn">surLigne</span>(<span class="nm">4</span>); }</span></div>
+      <div class="cl-explain"><span class="tag-what">détection virage</span> Symétrique : capteur gauche INACTIF et capteur droit ACTIF → virage droite. Ces 4 fonctions booléennes forment un kit de détection complet. On les utilise dans la machine à états (module 7).</div>
+
+      <div class="cl-empty"></div>
+
+      <div class="cl"><span class="cl-num">11</span><span class="cl-code"><span class="kw">void</span> <span class="fn">gererIntersection</span>() {</span></div>
+      <div class="cl-explain"><span class="tag-what">stratégie intersection</span> Quand on détecte une intersection, que faire ? Cette stratégie dépend du circuit de la compétition. On peut toujours aller tout droit, toujours tourner à gauche, ou mémoriser les intersections...</div>
+
+      <div class="cl"><span class="cl-num">12</span><span class="cl-code">  <span class="fn">avancer</span>();</span></div>
+      <div class="cl-explain"><span class="tag-what">stratégie</span> Stratégie simple : on continue tout droit à l'intersection. Le robot avance à vitesse normale pour traverser l'intersection sans s'arrêter.</div>
+
+      <div class="cl"><span class="cl-num">13</span><span class="cl-code">  <span class="fn">delay</span>(<span class="nm">200</span>);</span></div>
+      <div class="cl-explain"><span class="tag-what">attente</span> <span class="tag-warn">exception</span> On avance pendant 200ms avant de reprendre le PID. Cela permet de traverser complètement l'intersection avant que le PID ne reprenne le contrôle. C'est un des rares cas où delay() est acceptable — la durée est courte et on a déjà pris la décision.</div>
+
+      <div class="cl"><span class="cl-num">14</span><span class="cl-code">}</span></div>
+      <div class="cl-explain"><span class="tag-what">fin</span> Fin de gererIntersection(). À adapter selon le circuit : si le circuit a toujours une intersection qui nécessite de tourner à gauche, remplacer avancer() par pivoterGauche().</div>
+
+      <div class="cl-empty"></div>
+
+      <div class="cl"><span class="cl-num">15</span><span class="cl-code"><span class="kw">float</span> derniereCorrectionConnue = <span class="nm">0</span>;</span></div>
+      <div class="cl-explain"><span class="tag-what">mémoire direction</span> On mémorise la dernière correction PID connue. Si le robot perd la ligne, cette valeur indique de quel côté elle était — positive = ligne était à droite, négative = ligne était à gauche.</div>
+
+      <div class="cl-empty"></div>
+
+      <div class="cl"><span class="cl-num">16</span><span class="cl-code"><span class="kw">void</span> <span class="fn">gererPerteLigne</span>() {</span></div>
+      <div class="cl-explain"><span class="tag-what">récupération</span> Quand la ligne est perdue, le robot doit la retrouver. Il tourne dans la direction où elle s'est perdue — si la dernière erreur était positive (ligne à droite), il cherche à droite.</div>
+
+      <div class="cl"><span class="cl-num">17</span><span class="cl-code">  <span class="kw">if</span> (derniereCorrectionConnue > <span class="nm">0</span>) {</span></div>
+      <div class="cl-explain"><span class="tag-what">condition</span> Si la dernière correction était positive → la ligne était à droite → on cherche à droite.</div>
+
+      <div class="cl"><span class="cl-num">18</span><span class="cl-code">    <span class="fn">pivoterDroite</span>(<span class="nm">100</span>);</span></div>
+      <div class="cl-explain"><span class="tag-what">recherche</span> On pivote vers la droite à vitesse modérée (100). Le robot tourne sur place jusqu'à ce qu'un capteur détecte à nouveau la ligne. La machine à états reviendra en SUIVI_LIGNE dès qu'un capteur voit du noir.</div>
+
+      <div class="cl"><span class="cl-num">19</span><span class="cl-code">  } <span class="kw">else</span> {</span></div>
+      <div class="cl-explain"><span class="tag-what">sinon</span> Dernière correction négative → ligne était à gauche → on cherche à gauche.</div>
+
+      <div class="cl"><span class="cl-num">20</span><span class="cl-code">    <span class="fn">pivoterGauche</span>(<span class="nm">100</span>);</span></div>
+      <div class="cl-explain"><span class="tag-what">recherche</span> Pivot vers la gauche à vitesse modérée. Le robot cherchera la ligne dans la direction logique.</div>
+
+      <div class="cl"><span class="cl-num">21</span><span class="cl-code">  }</span></div>
+      <div class="cl-explain"><span class="tag-what">fin if/else</span> Fin de la logique de récupération. Si la correction était exactement 0, le robot pivotera à gauche — cas rare en pratique.</div>
+
+      <div class="cl"><span class="cl-num">22</span><span class="cl-code">}</span></div>
+      <div class="cl-explain"><span class="tag-what">fin</span> Fin de gererPerteLigne(). Cette fonction est appelée en boucle tant que la ligne est perdue. Dès qu'un capteur détecte du noir, la machine à états repasse en SUIVI_LIGNE et le PID reprend.</div>
+
+    </div>
+    <div class="legend-tags">
+      <span>Légende :</span>
+      <span class="tag-what" style="display:inline-block;background:rgba(0,229,160,0.12);color:var(--accent);font-family:var(--mono);font-size:10px;padding:2px 8px;border-radius:4px">CE QUE C'EST</span>
+      <span class="tag-warn" style="display:inline-block;background:rgba(255,107,53,0.12);color:#fb8c5b;font-family:var(--mono);font-size:10px;padding:2px 8px;border-radius:4px">ATTENTION</span>
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- ═══════════════ MODULE 7 : ÉTATS ═══════════════ -->
+<section id="etats" class="reveal">
+  <p class="section-label">// 07 — Module</p>
+  <div class="module-header">
+    <div class="module-icon-big" style="background:rgba(255,255,255,0.07)">🔄</div>
+    <div><span class="module-num" style="color:var(--muted)">MODULE 07</span><h2>Machine à États Finis</h2></div>
+  </div>
+  <p class="module-desc">Une machine à états (FSM) structure le comportement du robot en états discrets. Le robot n'est jamais dans deux états à la fois — c'est la bonne pratique pour éviter des if/else impossibles à maintenir.</p>
+
+  <div class="states-flow">
+    <div class="state-box" style="border-color:rgba(0,229,160,0.4);color:var(--accent)">SUIVI<small>PID actif</small></div>
+    <span class="arrow-flow">→</span>
+    <div class="state-box" style="border-color:rgba(244,114,182,0.4);color:#f472b6">VIRAGE<small>Correction forte</small></div>
+    <span class="arrow-flow">→</span>
+    <div class="state-box" style="border-color:rgba(255,107,53,0.4);color:var(--accent2)">RECHERCHE<small>Ligne perdue</small></div>
+    <span class="arrow-flow">→</span>
+    <div class="state-box" style="border-color:rgba(123,97,255,0.4);color:var(--accent3)">INTERSECTION<small>Décision</small></div>
+    <span class="arrow-flow">→</span>
+    <div class="state-box" style="border-color:rgba(255,255,255,0.2);color:var(--muted)">ARRET<small>Fin de course</small></div>
+  </div>
+
+  <div class="code-annotated" id="code-etats">
+    <div class="code-header">
+      <div class="code-dots"><span></span><span></span><span></span></div>
+      <span class="code-title">machine_etats.ino — FSM complète</span>
+      <button class="explain-toggle" onclick="toggleExplain('code-etats', this)">
+        <span class="tog-icon">👁</span> Expliquer chaque ligne
+      </button>
+    </div>
+    <div class="code-lines-wrap">
+
+      <div class="cl"><span class="cl-num">1</span><span class="cl-code"><span class="cm">// ─── Définition des états ────────────────</span></span></div>
+      <div class="cl-explain"><span class="tag-what">commentaire</span> On va définir tous les états possibles du robot comme une liste de noms. Au lieu d'utiliser des nombres (0, 1, 2...) cryptiques, on utilisera des noms parlants comme SUIVI_LIGNE, ce qui rend le code lisible.</div>
+
+      <div class="cl"><span class="cl-num">2</span><span class="cl-code"><span class="kw">enum</span> <span class="tp">Etat</span> {</span></div>
+      <div class="cl-explain"><span class="tag-what">enum</span> <strong>enum</strong> (énumération) crée un nouveau type de données — une liste de noms. Arduino les convertira automatiquement en entiers (0, 1, 2...) mais on peut utiliser les noms lisibles dans le code. C'est beaucoup plus propre qu'écrire des chiffres partout !</div>
+
+      <div class="cl"><span class="cl-num">3</span><span class="cl-code">  SUIVI_LIGNE,</span></div>
+      <div class="cl-explain"><span class="tag-what">état 0</span> Premier état = valeur 0. Le robot suit la ligne normalement avec le PID. C'est l'état par défaut, dans lequel le robot passe la plupart du temps.</div>
+
+      <div class="cl"><span class="cl-num">4</span><span class="cl-code">  VIRAGE_SERRÉ,</span></div>
+      <div class="cl-explain"><span class="tag-what">état 1</span> Valeur 1. Le robot est en train de prendre un virage serré. Le PID est toujours actif mais les capteurs extrêmes sont activés. On pourrait augmenter Kp temporairement dans cet état.</div>
+
+      <div class="cl"><span class="cl-num">5</span><span class="cl-code">  LIGNE_PERDUE,</span></div>
+      <div class="cl-explain"><span class="tag-what">état 2</span> Valeur 2. Aucun capteur ne voit la ligne. Le robot cherche activement. On applique gererPerteLigne() dans cet état.</div>
+
+      <div class="cl"><span class="cl-num">6</span><span class="cl-code">  INTERSECTION,</span></div>
+      <div class="cl-explain"><span class="tag-what">état 3</span> Valeur 3. Tous les capteurs voient du noir = croisement de lignes. On prend une décision (tout droit, gauche, droite) et on traverse.</div>
+
+      <div class="cl"><span class="cl-num">7</span><span class="cl-code">  ARRET</span></div>
+      <div class="cl-explain"><span class="tag-what">état 4</span> Valeur 4. Le robot s'arrête. Déclenché à la fin du circuit ou après un obstacle. Pas de virgule après le dernier élément de l'enum.</div>
+
+      <div class="cl"><span class="cl-num">8</span><span class="cl-code">};</span></div>
+      <div class="cl-explain"><span class="tag-what">fin enum</span> Fin de la liste des états. Le point-virgule ; est obligatoire après l'accolade fermante d'un enum. Maintenant on peut déclarer des variables de type <em>Etat</em>.</div>
+
+      <div class="cl-empty"></div>
+
+      <div class="cl"><span class="cl-num">9</span><span class="cl-code"><span class="tp">Etat</span> etatActuel = SUIVI_LIGNE;</span></div>
+      <div class="cl-explain"><span class="tag-what">variable d'état</span> On crée une variable de type Etat appelée <em>etatActuel</em> et on la commence à SUIVI_LIGNE. Le robot démarre toujours en mode suivi de ligne. Cette variable sera modifiée tout au long du programme selon ce que détectent les capteurs.</div>
+
+      <div class="cl-empty"></div>
+
+      <div class="cl"><span class="cl-num">10</span><span class="cl-code"><span class="kw">void</span> <span class="fn">loop</span>() {</span></div>
+      <div class="cl-explain"><span class="tag-what">loop</span> La boucle principale. Avec la machine à états, elle est divisée en deux parties : 1) Mettre à jour l'état selon les capteurs 2) Exécuter l'action correspondante à l'état.</div>
+
+      <div class="cl"><span class="cl-num">11</span><span class="cl-code">  <span class="fn">lireCapteurs</span>();</span></div>
+      <div class="cl-explain"><span class="tag-what">lecture</span> Toujours lire les capteurs en premier, avant de prendre toute décision. Les états sont mis à jour en fonction des lectures fraîches.</div>
+
+      <div class="cl-empty"></div>
+
+      <div class="cl"><span class="cl-num">12</span><span class="cl-code">  <span class="kw">switch</span> (etatActuel) {</span></div>
+      <div class="cl-explain"><span class="tag-what">switch transitions</span> <strong>switch</strong> est comme une série de if/else mais plus lisible quand il y a beaucoup de cas. Il regarde la valeur d'etatActuel et saute directement au bon bloc <em>case</em>. Ce premier switch gère les TRANSITIONS (changements d'état).</div>
+
+      <div class="cl-empty"></div>
+
+      <div class="cl"><span class="cl-num">13</span><span class="cl-code">    <span class="kw">case</span> SUIVI_LIGNE:</span></div>
+      <div class="cl-explain"><span class="tag-what">cas</span> Quand etatActuel vaut SUIVI_LIGNE, Arduino exécute ce qui suit jusqu'au <em>break</em>. C'est la routine de transitions pour l'état de suivi normal.</div>
+
+      <div class="cl"><span class="cl-num">14</span><span class="cl-code">      <span class="kw">if</span>      (<span class="fn">estIntersection</span>()) etatActuel = INTERSECTION;</span></div>
+      <div class="cl-explain"><span class="tag-what">transition</span> En mode SUIVI_LIGNE, si on détecte une intersection → on passe à l'état INTERSECTION. La priorité est: intersection d'abord, puis perte de ligne, puis virage. C'est pour ça qu'on teste dans cet ordre.</div>
+
+      <div class="cl"><span class="cl-num">15</span><span class="cl-code">      <span class="kw">else if</span> (<span class="fn">estPerteLigne</span>())   etatActuel = LIGNE_PERDUE;</span></div>
+      <div class="cl-explain"><span class="tag-what">transition</span> <strong>else if</strong> = "sinon si". Ce bloc ne s'exécute que si le test précédent était faux. Si ce n'est pas une intersection mais qu'on perd la ligne → état LIGNE_PERDUE.</div>
+
+      <div class="cl"><span class="cl-num">16</span><span class="cl-code">      <span class="kw">else if</span> (<span class="fn">virageGauche</span>() || <span class="fn">virageDroite</span>()) etatActuel = VIRAGE_SERRÉ;</span></div>
+      <div class="cl-explain"><span class="tag-what">transition</span> <strong>||</strong> signifie "OU". Si c'est un virage gauche OU un virage droite → état VIRAGE_SERRÉ. On n'a pas besoin de distinguer gauche/droite ici car le PID gèrera la correction automatiquement.</div>
+
+      <div class="cl"><span class="cl-num">17</span><span class="cl-code">      <span class="kw">break</span>;</span></div>
+      <div class="cl-explain"><span class="tag-what">break</span> <strong>break</strong> est OBLIGATOIRE après chaque case dans un switch. Sans lui, Arduino continuerait d'exécuter les cases suivants (comportement "fall-through"). Avec break, on sort du switch et on passe à la suite.</div>
+
+      <div class="cl-empty"></div>
+
+      <div class="cl"><span class="cl-num">18</span><span class="cl-code">    <span class="kw">case</span> VIRAGE_SERRÉ:</span></div>
+      <div class="cl-explain"><span class="tag-what">cas virage</span> Transitions depuis l'état VIRAGE_SERRÉ. On vérifie si la situation a changé.</div>
+
+      <div class="cl"><span class="cl-num">19</span><span class="cl-code">      <span class="kw">if</span>      (<span class="fn">estPerteLigne</span>())   etatActuel = LIGNE_PERDUE;</span></div>
+      <div class="cl-explain"><span class="tag-what">transition</span> Si on perd la ligne pendant un virage → LIGNE_PERDUE. Le virage était trop serré ou trop rapide.</div>
+
+      <div class="cl"><span class="cl-num">20</span><span class="cl-code">      <span class="kw">else if</span> (<span class="fn">estIntersection</span>()) etatActuel = INTERSECTION;</span></div>
+      <div class="cl-explain"><span class="tag-what">transition</span> Si on tombe sur une intersection pendant un virage (ça arrive) → INTERSECTION.</div>
+
+      <div class="cl"><span class="cl-num">21</span><span class="cl-code">      <span class="kw">else if</span> (!<span class="fn">virageGauche</span>() && !<span class="fn">virageDroite</span>()) etatActuel = SUIVI_LIGNE;</span></div>
+      <div class="cl-explain"><span class="tag-what">transition</span> Si le virage est terminé (plus de capteur extrême actif) → on revient à SUIVI_LIGNE. Le <strong>!</strong> inverse : "pas de virage gauche ET pas de virage droite" = ligne redevenue droite.</div>
+
+      <div class="cl"><span class="cl-num">22</span><span class="cl-code">      <span class="kw">break</span>;</span></div>
+      <div class="cl-explain"><span class="tag-what">break</span> Fin du case VIRAGE_SERRÉ. Obligatoire pour ne pas tomber dans le case suivant.</div>
+
+      <div class="cl-empty"></div>
+
+      <div class="cl"><span class="cl-num">23</span><span class="cl-code">    <span class="kw">case</span> LIGNE_PERDUE:</span></div>
+      <div class="cl-explain"><span class="tag-what">cas perte</span> Transitions depuis LIGNE_PERDUE. La seule façon d'en sortir : retrouver la ligne.</div>
+
+      <div class="cl"><span class="cl-num">24</span><span class="cl-code">      <span class="kw">if</span> (!<span class="fn">estPerteLigne</span>()) etatActuel = SUIVI_LIGNE;</span></div>
+      <div class="cl-explain"><span class="tag-what">transition</span> Si la ligne n'est PLUS perdue (un capteur voit du noir) → on revient directement à SUIVI_LIGNE. Simple et efficace.</div>
+
+      <div class="cl"><span class="cl-num">25</span><span class="cl-code">      <span class="kw">break</span>;</span></div>
+      <div class="cl-explain"><span class="tag-what">break</span> Fin du case.</div>
+
+      <div class="cl-empty"></div>
+
+      <div class="cl"><span class="cl-num">26</span><span class="cl-code">    <span class="kw">case</span> INTERSECTION:</span></div>
+      <div class="cl-explain"><span class="tag-what">cas intersection</span> Après une intersection, on repart automatiquement en suivi. La gestion réelle (aller tout droit, tourner...) est dans la partie ACTIONS plus bas.</div>
+
+      <div class="cl"><span class="cl-num">27</span><span class="cl-code">      etatActuel = SUIVI_LIGNE;</span></div>
+      <div class="cl-explain"><span class="tag-what">transition auto</span> On repasse directement en SUIVI_LIGNE. gererIntersection() aura déjà fait l'action (avancer 200ms). Cette transition instantanée signifie que le switch Actions s'exécutera d'abord en INTERSECTION, puis au tour suivant en SUIVI_LIGNE.</div>
+
+      <div class="cl"><span class="cl-num">28</span><span class="cl-code">      <span class="kw">break</span>;</span></div>
+      <div class="cl-explain"><span class="tag-what">break</span> Fin du case INTERSECTION.</div>
+
+      <div class="cl"><span class="cl-num">29</span><span class="cl-code">  }</span></div>
+      <div class="cl-explain"><span class="tag-what">fin switch 1</span> Fin du premier switch (transitions). L'état a été mis à jour. Maintenant le deuxième switch va exécuter l'action correspondante.</div>
+
+      <div class="cl-empty"></div>
+
+      <div class="cl"><span class="cl-num">30</span><span class="cl-code">  <span class="kw">switch</span> (etatActuel) {</span></div>
+      <div class="cl-explain"><span class="tag-what">switch actions</span> Le deuxième switch gère les ACTIONS : que fait le robot dans chaque état ? On lit à nouveau etatActuel (qui vient peut-être d'être modifié par le premier switch).</div>
+
+      <div class="cl"><span class="cl-num">31</span><span class="cl-code">    <span class="kw">case</span> SUIVI_LIGNE:</span></div>
+      <div class="cl-explain"><span class="tag-what">action suivi</span> En mode suivi, on applique le PID complet.</div>
+
+      <div class="cl"><span class="cl-num">32</span><span class="cl-code">    <span class="kw">case</span> VIRAGE_SERRÉ: {</span></div>
+      <div class="cl-explain"><span class="tag-what">fall-through intentionnel</span> <span class="tag-astuce">technique avancée</span> Ici, SUIVI_LIGNE n'a pas de break avant VIRAGE_SERRÉ → les deux états partagent la même action. Le PID gère les deux cas. L'accolade { après le case permet de déclarer des variables locales à ce bloc.</div>
+
+      <div class="cl"><span class="cl-num">33</span><span class="cl-code">      <span class="kw">float</span> err = <span class="fn">calculerErreur</span>();</span></div>
+      <div class="cl-explain"><span class="tag-what">calcul erreur</span> On calcule l'erreur actuelle avec les capteurs frais. Variable locale err (existe seulement dans ce bloc { }).</div>
+
+      <div class="cl"><span class="cl-num">34</span><span class="cl-code">      <span class="fn">commanderMoteurs</span>(<span class="fn">calculerPID</span>(err));</span></div>
+      <div class="cl-explain"><span class="tag-what">PID imbriqué</span> On peut imbriquer les appels de fonctions. calculerPID(err) est calculé en premier, son résultat est passé directement à commanderMoteurs(). Équivalent à : float correction = calculerPID(err); commanderMoteurs(correction); — mais en une seule ligne.</div>
+
+      <div class="cl"><span class="cl-num">35</span><span class="cl-code">      <span class="kw">break</span>;</span></div>
+      <div class="cl-explain"><span class="tag-what">break</span> Fin du bloc SUIVI/VIRAGE.</div>
+
+      <div class="cl"><span class="cl-num">36</span><span class="cl-code">    }</span></div>
+      <div class="cl-explain"><span class="tag-what">fin bloc</span> Fermeture de l'accolade du bloc case.</div>
+
+      <div class="cl"><span class="cl-num">37</span><span class="cl-code">    <span class="kw">case</span> LIGNE_PERDUE:   <span class="fn">gererPerteLigne</span>(); <span class="kw">break</span>;</span></div>
+      <div class="cl-explain"><span class="tag-what">action perte</span> En mode LIGNE_PERDUE, on appelle gererPerteLigne() qui fait pivoter le robot pour retrouver la ligne. On peut tout mettre sur une ligne quand c'est court et lisible.</div>
+
+      <div class="cl"><span class="cl-num">38</span><span class="cl-code">    <span class="kw">case</span> INTERSECTION:   <span class="fn">gererIntersection</span>(); <span class="kw">break</span>;</span></div>
+      <div class="cl-explain"><span class="tag-what">action intersection</span> En mode INTERSECTION, on appelle gererIntersection() qui fait avancer le robot pendant 200ms pour traverser.</div>
+
+      <div class="cl"><span class="cl-num">39</span><span class="cl-code">    <span class="kw">case</span> ARRET:          <span class="fn">stopper</span>(); <span class="kw">break</span>;</span></div>
+      <div class="cl-explain"><span class="tag-what">action arrêt</span> En mode ARRET, on appelle stopper() à chaque tour de boucle. Le robot reste immobile. Pour démarrer à nouveau, il faudrait appuyer sur le bouton Reset de l'Arduino.</div>
+
+      <div class="cl"><span class="cl-num">40</span><span class="cl-code">  }</span></div>
+      <div class="cl-explain"><span class="tag-what">fin switch 2</span> Fin du switch des actions. Un cycle complet est terminé : lire → mettre à jour l'état → exécuter l'action. Ce cycle recommence immédiatement dans loop().</div>
+
+      <div class="cl"><span class="cl-num">41</span><span class="cl-code">}</span></div>
+      <div class="cl-explain"><span class="tag-what">fin loop</span> Fin de loop(). La machine à états a structuré tout le comportement du robot de façon claire et maintenable. Ajouter un nouvel état = ajouter un case dans chaque switch. Simple et élégant !</div>
+
+    </div>
+    <div class="legend-tags">
+      <span>Légende :</span>
+      <span class="tag-what" style="display:inline-block;background:rgba(0,229,160,0.12);color:var(--accent);font-family:var(--mono);font-size:10px;padding:2px 8px;border-radius:4px">CE QUE C'EST</span>
+      <span class="tag-astuce" style="display:inline-block;background:rgba(255,209,102,0.12);color:#fbbf24;font-family:var(--mono);font-size:10px;padding:2px 8px;border-radius:4px">ASTUCE</span>
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- ═══════════════ MODULE 8 : DEBUG ═══════════════ -->
+<section id="debug" class="reveal">
+  <p class="section-label" style="color:var(--muted)">// 08 — Module</p>
+  <div class="module-header">
+    <div class="module-icon-big" style="background:rgba(255,255,255,0.06)">🐛</div>
+    <div><span class="module-num" style="color:var(--muted)">MODULE 08</span><h2>Débogage & Diagnostics</h2></div>
+  </div>
+  <p class="module-desc">Un robot qui ne marche pas sans outil de diagnostic, c'est du travail au hasard. Serial.print(), le Serial Plotter et les LED sont tes meilleurs alliés.</p>
+
+  <div class="code-annotated" id="code-debug">
+    <div class="code-header">
+      <div class="code-dots"><span></span><span></span><span></span></div>
+      <span class="code-title">debug.ino — Outils de diagnostic en temps réel</span>
+      <button class="explain-toggle" onclick="toggleExplain('code-debug', this)">
+        <span class="tog-icon">👁</span> Expliquer chaque ligne
+      </button>
+    </div>
+    <div class="code-lines-wrap">
+
+      <div class="cl"><span class="cl-num">1</span><span class="cl-code"><span class="cm">// ─── Affichage Serial Plotter ───────────────────────────────</span></span></div>
+      <div class="cl-explain"><span class="tag-what">commentaire section</span> Le Traceur Série (Serial Plotter) est un outil graphique d'Arduino IDE (menu Outils) qui trace des courbes en temps réel. Parfait pour visualiser comment bougent les valeurs des capteurs et l'erreur PID.</div>
+
+      <div class="cl"><span class="cl-num">2</span><span class="cl-code"><span class="kw">void</span> <span class="fn">afficherDebugPlotter</span>() {</span></div>
+      <div class="cl-explain"><span class="tag-what">fonction debug</span> Une fonction dédiée au debug. En compétition, on la commentera ou on ne l'appellera plus. Avoir une fonction séparée permet d'activer/désactiver le debug en une seule ligne.</div>
+
+      <div class="cl"><span class="cl-num">3</span><span class="cl-code">  <span class="kw">for</span> (<span class="kw">int</span> i = <span class="nm">0</span>; i &lt; NB_CAPTEURS; i++) {</span></div>
+      <div class="cl-explain"><span class="tag-what">boucle</span> On envoie la valeur de chaque capteur. Le Traceur Série dessine une courbe par valeur numérique séparée par des tabulations.</div>
+
+      <div class="cl"><span class="cl-num">4</span><span class="cl-code">    <span class="fn">Serial.print</span>(valeursCapteurs[i]);</span></div>
+      <div class="cl-explain"><span class="tag-what">envoi valeur</span> On envoie la valeur brute du capteur i (entre 0 et 1023). Le Plotter la tracera en courbe. On peut voir en temps réel comment chaque capteur réagit quand le robot passe sur la ligne.</div>
+
+      <div class="cl"><span class="cl-num">5</span><span class="cl-code">    <span class="fn">Serial.print</span>(<span class="st">"\t"</span>);</span></div>
+      <div class="cl-explain"><span class="tag-what">séparateur</span> <strong>\t</strong> = caractère de tabulation (TAB). C'est le séparateur que le Serial Plotter utilise pour distinguer plusieurs courbes. Sans ça, toutes les valeurs seraient collées ensemble et le Plotter ne pourrait pas les séparer.</div>
+
+      <div class="cl"><span class="cl-num">6</span><span class="cl-code">  }</span></div>
+      <div class="cl-explain"><span class="tag-what">fin boucle</span> Les 5 valeurs capteurs ont été envoyées.</div>
+
+      <div class="cl"><span class="cl-num">7</span><span class="cl-code">  <span class="fn">Serial.print</span>(erreurPrecedente * <span class="nm">100</span>);</span></div>
+      <div class="cl-explain"><span class="tag-what">erreur PID</span> On envoie l'erreur PID multipliée par 100. Pourquoi ×100 ? L'erreur varie entre -2 et +2 — sur le graphe avec des capteurs à 0-1023, elle serait invisible ! En la multipliant par 100, elle devient visible entre -200 et +200 et on peut la lire sur le même graphe.</div>
+
+      <div class="cl"><span class="cl-num">8</span><span class="cl-code">  <span class="fn">Serial.print</span>(<span class="st">"\t"</span>);</span></div>
+      <div class="cl-explain"><span class="tag-what">séparateur</span> Tabulation après l'erreur pour qu'elle soit reconnue comme une courbe séparée.</div>
+
+      <div class="cl"><span class="cl-num">9</span><span class="cl-code">  <span class="fn">Serial.println</span>();</span></div>
+      <div class="cl-explain"><span class="tag-what">fin de ligne</span> <strong>println()</strong> sans argument envoie un retour à la ligne. C'est le signal au Serial Plotter que le "paquet" de valeurs est complet — il peut tracer les points sur le graphe et passer au suivant.</div>
+
+      <div class="cl"><span class="cl-num">10</span><span class="cl-code">}</span></div>
+      <div class="cl-explain"><span class="tag-what">fin</span> Fin de afficherDebugPlotter(). Pour l'activer, appelle cette fonction à la fin de loop(). Pour la désactiver en compétition, commente l'appel avec //.</div>
+
+      <div class="cl-empty"></div>
+
+      <div class="cl"><span class="cl-num">11</span><span class="cl-code"><span class="cm">// ─── Mesure du temps de boucle ──────────────────────────────</span></span></div>
+      <div class="cl-explain"><span class="tag-what">commentaire</span> Savoir combien de temps prend chaque tour de boucle est important. Si la boucle prend 50ms, le robot ne réagit qu'à 20Hz — peut-être trop lent pour les virages rapides. Objectif : moins de 5ms par boucle (200Hz+).</div>
+
+      <div class="cl"><span class="cl-num">12</span><span class="cl-code"><span class="kw">unsigned long</span> tDebut;</span></div>
+      <div class="cl-explain"><span class="tag-what">chronomètre</span> Variable globale pour stocker le temps de départ de chaque boucle. <strong>unsigned long</strong> car micros() retourne un grand nombre (microsecondes depuis le démarrage — peut dépasser 4 milliards après 70 minutes).</div>
+
+      <div class="cl-empty"></div>
+
+      <div class="cl"><span class="cl-num">13</span><span class="cl-code"><span class="kw">void</span> <span class="fn">loop</span>() {</span></div>
+      <div class="cl-explain"><span class="tag-what">loop instrumentée</span> Une version de loop() avec mesure de performance. On mesure le temps au début et à la fin pour calculer la durée.</div>
+
+      <div class="cl"><span class="cl-num">14</span><span class="cl-code">  tDebut = <span class="fn">micros</span>();</span></div>
+      <div class="cl-explain"><span class="tag-what">top départ</span> <strong>micros()</strong> retourne les microsecondes (µs) écoulées depuis le démarrage. 1 milliseconde = 1000 microsecondes. On capture le moment au tout début de loop() pour mesurer la durée totale d'un tour.</div>
+
+      <div class="cl"><span class="cl-num">15</span><span class="cl-code">  <span class="cm">// ... code normal ...</span></span></div>
+      <div class="cl-explain"><span class="tag-what">placeholder</span> Ici se trouve tout ton code habituel (lireCapteurs, calculerPID, commanderMoteurs, etc.). Le chronomètre tourne pendant toute cette exécution.</div>
+
+      <div class="cl-empty"></div>
+
+      <div class="cl"><span class="cl-num">16</span><span class="cl-code">  <span class="kw">long</span> duree = <span class="fn">micros</span>() - tDebut;</span></div>
+      <div class="cl-explain"><span class="tag-what">calcul durée</span> On soustrait le temps de départ du temps actuel = durée d'un tour de boucle en microsecondes. Si duree = 3500 → la boucle prend 3.5ms → fréquence = 285Hz. C'est excellent pour un robot suiveur de lignes !</div>
+
+      <div class="cl"><span class="cl-num">17</span><span class="cl-code">  <span class="fn">Serial.print</span>(<span class="st">"Duree boucle: "</span>);</span></div>
+      <div class="cl-explain"><span class="tag-what">label</span> On affiche un label pour identifier la valeur dans le Moniteur Série. Sans label, une série de nombres comme "3245 3198 3301" serait difficile à interpréter.</div>
+
+      <div class="cl"><span class="cl-num">18</span><span class="cl-code">  <span class="fn">Serial.print</span>(duree);</span></div>
+      <div class="cl-explain"><span class="tag-what">valeur</span> On affiche la durée en microsecondes. Surveille cette valeur pendant que tu rajoutes du code — si elle augmente trop, il faut optimiser.</div>
+
+      <div class="cl"><span class="cl-num">19</span><span class="cl-code">  <span class="fn">Serial.println</span>(<span class="st">" µs"</span>);</span></div>
+      <div class="cl-explain"><span class="tag-what">unité</span> On affiche l'unité "µs" (microsecondes) et on passe à la ligne. Exemple d'affichage complet : "Duree boucle: 3421 µs".</div>
+
+      <div class="cl"><span class="cl-num">20</span><span class="cl-code">}</span></div>
+      <div class="cl-explain"><span class="tag-what">fin</span> Fin de la loop() instrumentée. En compétition, retire les appels Serial pour gagner en vitesse — la communication série prend du temps !</div>
+
+      <div class="cl-empty"></div>
+
+      <div class="cl"><span class="cl-num">21</span><span class="cl-code"><span class="kw">#define</span> LED_DEBUG <span class="nm">13</span></span></div>
+      <div class="cl-explain"><span class="tag-what">LED intégrée</span> La pin 13 de l'Arduino Uno est connectée à la LED intégrée sur la carte (la petite LED marquée "L"). On n'a pas besoin de LED externe — pratique pour des signaux d'état simples.</div>
+
+      <div class="cl-empty"></div>
+
+      <div class="cl"><span class="cl-num">22</span><span class="cl-code"><span class="kw">void</span> <span class="fn">clignote</span>(<span class="kw">int</span> n) {</span></div>
+      <div class="cl-explain"><span class="tag-what">fonction utilitaire</span> Une fonction qui fait clignoter la LED n fois. On peut l'utiliser pour communiquer l'état du robot sans regarder le Moniteur Série : 1 clignotement = calibration OK, 2 = erreur, 3 = perte de ligne, etc.</div>
+
+      <div class="cl"><span class="cl-num">23</span><span class="cl-code">  <span class="kw">for</span> (<span class="kw">int</span> i = <span class="nm">0</span>; i &lt; n; i++) {</span></div>
+      <div class="cl-explain"><span class="tag-what">boucle n fois</span> On répète le clignotement n fois. Si on appelle clignote(3), la boucle s'exécute 3 fois (i = 0, 1, 2).</div>
+
+      <div class="cl"><span class="cl-num">24</span><span class="cl-code">    <span class="fn">digitalWrite</span>(LED_DEBUG, HIGH); <span class="fn">delay</span>(<span class="nm">100</span>);</span></div>
+      <div class="cl-explain"><span class="tag-what">allumer + pause</span> On allume la LED (HIGH = +5V) puis on attend 100ms. Le delay(100) ici est dans une fonction de diagnostic utilisée à l'arrêt — pas dans la boucle principale. Acceptable dans ce contexte.</div>
+
+      <div class="cl"><span class="cl-num">25</span><span class="cl-code">    <span class="fn">digitalWrite</span>(LED_DEBUG, LOW);  <span class="fn">delay</span>(<span class="nm">100</span>);</span></div>
+      <div class="cl-explain"><span class="tag-what">éteindre + pause</span> On éteint la LED (LOW = 0V) et on attend encore 100ms. Le cycle allumé/éteint de 100ms+100ms = une fréquence de clignotement de 5Hz, bien visible à l'œil nu.</div>
+
+      <div class="cl"><span class="cl-num">26</span><span class="cl-code">  }</span></div>
+      <div class="cl-explain"><span class="tag-what">fin boucle</span> Fin de la boucle de clignotement.</div>
+
+      <div class="cl"><span class="cl-num">27</span><span class="cl-code">}</span></div>
+      <div class="cl-explain"><span class="tag-what">fin fonction</span> Fin de clignote(). Usage : <em>clignote(1)</em> dans setup() après calibration → LED clignote une fois pour dire "prêt !". <em>clignote(3)</em> quand le robot s'arrête → 3 clignotements = "j'ai terminé le circuit". Pas besoin d'ordinateur branché !</div>
+
+    </div>
+    <div class="legend-tags">
+      <span>Légende :</span>
+      <span class="tag-what" style="display:inline-block;background:rgba(0,229,160,0.12);color:var(--accent);font-family:var(--mono);font-size:10px;padding:2px 8px;border-radius:4px">CE QUE C'EST</span>
+      <span class="tag-astuce" style="display:inline-block;background:rgba(255,209,102,0.12);color:#fbbf24;font-family:var(--mono);font-size:10px;padding:2px 8px;border-radius:4px">ASTUCE</span>
+    </div>
+  </div>
+
+  <div class="concept-grid">
+    <div class="concept">
+      <p class="concept-name">Moniteur Série</p>
+      <p>Outils → Moniteur série (9600 bauds). Voir les valeurs texte en temps réel.</p>
+    </div>
+    <div class="concept">
+      <p class="concept-name">Traceur Série</p>
+      <p>Outils → Traceur série. Visualise les courbes des capteurs et du PID. Régler les gains devient visuel !</p>
+    </div>
+    <div class="concept">
+      <p class="concept-name">micros() vs millis()</p>
+      <p>micros() = précision à la microseconde pour mesurer la durée d'une boucle. millis() = précision à la milliseconde pour les timers généraux.</p>
+    </div>
+    <div class="concept">
+      <p class="concept-name">Buzzer d'état</p>
+      <p>tone(pin, frequence) émet un son. Utilise-le comme les clignotements LED mais avec du son — pratique en compétition bruyante !</p>
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- ═══════════════ ALLER PLUS LOIN ═══════════════ -->
+<section id="projet" class="reveal">
+  <p class="section-label c-yellow">// 09 — Bonus</p>
+  <h2 class="section-title">Aller plus loin<br><em class="c-yellow">& gagner l'olympiade</em></h2>
+
+  <div class="concept-grid" style="margin-bottom:32px">
+    <div class="concept">
+      <p class="concept-name c-green">⚡ Augmenter la vitesse</p>
+      <p>Une fois le PID stable à vitesse lente, augmenter VITESSE_BASE progressivement et réajuster Kd. Le robot le plus rapide est souvent le gagnant.</p>
+    </div>
+    <div class="concept">
+      <p class="concept-name c-blue">🗺️ Cartographie du circuit</p>
+      <p>Mémoriser les intersections avec un compteur. Optimiser la trajectoire selon le circuit connu à l'avance.</p>
+    </div>
+    <div class="concept">
+      <p class="concept-name c-purple">🔁 PID adaptatif</p>
+      <p>Changer les gains Kp/Kd selon la courbure détectée. Moins agressif en ligne droite, plus réactif dans les virages.</p>
+    </div>
+    <div class="concept">
+      <p class="concept-name c-orange">🚧 Capteur obstacles</p>
+      <p>Ajouter un capteur ultrasonique HC-SR04 pour détecter et contourner les obstacles. Nouvelle dimension stratégique !</p>
+    </div>
+    <div class="concept">
+      <p class="concept-name c-pink">📶 Télécommande Bluetooth</p>
+      <p>Module HC-05/06 pour changer les gains PID sans recompiler, ou démarrer/arrêter à distance.</p>
+    </div>
+    <div class="concept">
+      <p class="concept-name c-yellow">⏱️ Chronométrage</p>
+      <p>Enregistrer le temps de chaque tour avec millis(). Afficher sur un écran LCD ou envoyer via Bluetooth.</p>
+    </div>
+  </div>
+
+  <details>
+    <summary>📐 Formules de référence rapide</summary>
+    <div>
+      <div class="formula-box" style="margin-top:16px;text-align:left">
+        <div class="formula" style="font-size:14px;margin-bottom:6px">Erreur = Σ(poids[i] × surNoir[i]) / Σ(surNoir[i])</div>
+        <div class="formula" style="font-size:14px;margin-bottom:6px">Correction = Kp×E + Ki×Σ(E) + Kd×(E - E_prec)</div>
+        <div class="formula" style="font-size:14px;margin-bottom:6px">Vit_gauche = Vit_base + Correction</div>
+        <div class="formula" style="font-size:14px">Vit_droite = Vit_base − Correction</div>
+      </div>
+    </div>
+  </details>
+
+  <details>
+    <summary>🔧 Checklist avant la compétition</summary>
+    <div>
+      <ul class="checklist" style="margin-top:12px">
+        <li>Batterie chargée à 100% (moteurs ET Arduino séparément)</li>
+        <li>Calibration faite sur le circuit de la compétition</li>
+        <li>Gains PID testés à pleine vitesse sur le circuit complet</li>
+        <li>Câbles bien fixés avec du câble-tie (aucun fil libre)</li>
+        <li>Tous les boulons du châssis vérifiés (vibrations = desserrage)</li>
+        <li>Code compilé et téléversé, moniteur série fermé avant compétition</li>
+        <li>Plan B : gains PID de secours moins agressifs notés sur papier</li>
+        <li>Connaître la stratégie aux intersections du circuit</li>
+      </ul>
+    </div>
+  </details>
+
+  <details>
+    <summary>📚 Matériel recommandé</summary>
+    <div>
+      <div class="table-wrap" style="margin-top:12px">
+        <table>
+          <thead><tr><th>Composant</th><th>Usage</th><th>Alternative</th></tr></thead>
+          <tbody>
+            <tr><td>Arduino Uno/Nano</td><td>Cerveau du robot</td><td>STM32 (plus rapide)</td></tr>
+            <tr><td>L298N</td><td>Pont en H moteurs</td><td>TB6612FNG (plus efficace)</td></tr>
+            <tr><td>TCRT5000 ×5</td><td>Capteurs IR de ligne</td><td>QTR-8RC Pololu</td></tr>
+            <tr><td>Moteurs DC N20</td><td>Roues (avec encodeur)</td><td>Moteurs 130 (moins précis)</td></tr>
+            <tr><td>HC-SR04</td><td>Détection d'obstacles</td><td>Capteur IR Sharp GP2Y</td></tr>
+            <tr><td>LiPo 7.4V 1000mAh</td><td>Alimentation puissante</td><td>4×AA (moins puissant)</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </details>
+
+  <div style="margin-top:48px" class="medal-section">
+    <div class="medal-title">🏆 Objectif Olympiade</div>
+    <p class="medal-desc">
+      La victoire en robotique ne vient pas du robot le plus cher, mais de l'équipe qui comprend le mieux son robot.
+      Maîtrisez chaque module de ce guide, testez, mesurez, itérez — et vous serez imbattables.
+      <br><br>
+      <strong style="color:var(--accent4)">Bonne chance à toute l'équipe ! 🚀</strong>
+    </p>
+  </div>
+</section>
+
+<!-- ═══════════════ FOOTER ═══════════════ -->
+<footer>
+  <p>Guide créé pour l'<strong>Olympiade de Robotique</strong> · Robot Suiveur de Lignes Arduino</p>
+  <p style="margin-top:6px">Explications ligne par ligne pour débutants · Partage libre au sein de l'équipe</p>
+</footer>
+
+<script>
+  // ─── Toggle annotations ───
+  function toggleExplain(id, btn) {
+    const block = document.getElementById(id);
+    const isOn = block.classList.toggle('show-explains');
+    btn.innerHTML = isOn
+      ? '<span class="tog-icon">🙈</span> Masquer les explications'
+      : '<span class="tog-icon">👁</span> Expliquer chaque ligne';
+    btn.style.background = isOn ? 'rgba(0,229,160,0.2)' : 'rgba(0,229,160,0.07)';
+  }
+
+  // ─── Scroll reveal ───
+  const reveals = document.querySelectorAll('.reveal');
+  const obs = new IntersectionObserver(entries => {
+    entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); obs.unobserve(e.target); }});
+  }, { threshold: 0.06 });
+  reveals.forEach(r => obs.observe(r));
+
+  // ─── Active nav pill ───
+  const sections = document.querySelectorAll('section[id]');
+  const pills = document.querySelectorAll('.pill');
+  const scrollObs = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        pills.forEach(p => p.classList.remove('active'));
+        const a = document.querySelector('.pill[href="#'+e.target.id+'"]');
+        if (a) { a.classList.add('active'); a.scrollIntoView({block:'nearest',inline:'center',behavior:'smooth'}); }
+      }
+    });
+  }, { threshold: 0.25 });
+  sections.forEach(s => scrollObs.observe(s));
+</script>
+</body>
+</html>

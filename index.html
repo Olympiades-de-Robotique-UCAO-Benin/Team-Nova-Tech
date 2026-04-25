@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="description" content="Nova Tech — Documentation d'équipe pour la compétition robot suiveur de lignes 2026." />
-  <title>Team Nova Tech — ORC 2026</title>
+  <title>Nova Tech • Robot Suiveur de Lignes</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
@@ -333,13 +333,13 @@
   <nav class="navbar" id="navbar">
     <div class="container">
       <a href="index.html" class="logo">
-        <img src="img/logo.jpeg" alt="Nova Tech" style="height:40px; border-radius:6px;">
+        <div class="logo-mark">NT</div>
         NOVA TECH
       </a>
       <div class="nav-links" id="navLinks">
         <a href="index.html">Accueil</a>
-        <a href="docs/documentation.html">Documentation</a>
-        <a href="docs/equipe.html">Équipe</a>
+        <a href="documentation.html">Documentation</a>
+        <a href="equipe.html">Équipe</a>
         <a href="index.html#roadmap">Roadmap</a>
         <a href="index.html#faq">FAQ</a>
         <a href="https://eventslink.diginets.site/vote-nominee.php?slug=olympiade-de-robotique-ucao-2026-69af11ed33d40&candidat=team-novatech" target="_blank">Soutenir NovaTech</a>
@@ -360,8 +360,8 @@
   </nav>
   <div class="mobile-menu" id="mobileMenu">
     <a href="index.html">Accueil</a>
-    <a href="docs/documentation.html">Documentation</a>
-    <a href="docs/equipe.html">Équipe</a>
+    <a href="documentation.html">Documentation</a>
+    <a href="equipe.html">Équipe</a>
     <a href="index.html#roadmap">Roadmap</a>
     <a href="index.html#faq">FAQ</a>
     <a href="https://eventslink.diginets.site/vote-nominee.php?slug=olympiade-de-robotique-ucao-2026-69af11ed33d40&candidat=team-novatech" target="_blank">Soutenir NovaTech</a>
@@ -384,7 +384,7 @@
         </h1>
         <p class="hero-sub">Le projet Nova Tech vise à concevoir un robot autonome performant, précis et réactif, capable de suivre une ligne noire et de contourner les obstacles pour remporter le concours UCAO TECH.</p>
         <div class="hero-btns">
-          <a href="docs/documentation.html" class="btn btn-white">
+          <a href="documentation.html" class="btn btn-white">
             Explorer la documentation
             <svg viewBox="0 0 16 16" fill="currentColor"><path d="M6.22 3.22a.75.75 0 011.06 0l4.25 4.25a.75.75 0 010 1.06l-4.25 4.25a.75.75 0 01-1.06-1.06L9.94 8 6.22 4.28a.75.75 0 010-1.06z"/></svg>
           </a>
@@ -410,7 +410,7 @@
             <div class="metric-label">Objectifs clés (ligne + obstacle)</div>
           </div>
           <div class="metric">
-            <div class="metric-value" data-count="+1000">0</div>
+            <div class="metric-value" data-count="225">0</div>
             <div class="metric-label">votes</div>
           </div>
         </div>
@@ -461,7 +461,6 @@
             <div>
               <h3>Chaîne de traitement</h3>
               <p>Lecture ligne noire, décision de correction, commande moteur, puis ajustement de trajectoire en boucle.</p>
-              <img src="img/logo.jpeg" alt="Processus" style="width:100%; margin-top:1rem; border-radius:8px;">
             </div>
             <div class="code-block" style="display:none;"><span class="cm">// Logique simplifiée Arduino</span>
 <span class="kw">int</span> g = <span class="fn">readIR</span>(<span class="nb">LEFT</span>);
@@ -568,10 +567,10 @@
         <div class="section-header">
           <div class="section-label">L'équipe</div>
           <h2 class="section-title">Membres Nova Tech.</h2>
-          <p class="section-desc">Organisation en trois départements : Mecatro Nova, Nova Net et Nova Môn, dirigée par KPAKPO Loris.</p>
+          <p class="section-desc">Organisation en trois départements : Mecatro Nova, Nova Net et Nova Môn.</p>
         </div>
         <div class="team-grid">
-          <div class="team-card"><div class="avatar" style="background:var(--accent-dim); color:var(--accent)">KL</div><h3>KPAKPO Loris</h3><div class="team-role">Chef d'équipe</div><p>Direction générale du projet, coordination entre départements et communication stratégique.</p></div>
+          <div class="team-card"><div class="avatar" style="background:var(--accent-dim); color:var(--accent)">KL</div><h3>KPAKPO Loris</h3><div class="team-role">Nova Net</div><p>Communication, publication du groupe et appui au design des infrastructures.</p></div>
           <div class="team-card"><div class="avatar" style="background:var(--accent2-dim); color:var(--accent2)">GE</div><h3>GANYE Exauce</h3><div class="team-role">Nova Môn</div><p>Gestion du budget et démarches administratives du projet et du concours.</p></div>
           <div class="team-card"><div class="avatar" style="background:var(--accent3-dim); color:var(--accent3)">MC</div><h3>MESSANGBO Charles</h3><div class="team-role">Mecatro Nova</div><p>Programmation et participation au design/architecture du robot.</p></div>
           <div class="team-card"><div class="avatar" style="background:rgba(245,158,11,.12); color:#f59e0b">ZC</div><h3>ZOUEKPE Chantal</h3><div class="team-role">Mecatro Nova</div><p>Conception mécanique et assemblage matériel.</p></div>
@@ -659,7 +658,7 @@
           </div>
           <div class="faq-item">
             <button class="faq-q">Quel est le budget minimum déjà connu ?<span class="arrow">▼</span></button>
-            <div class="faq-a"><div class="faq-a-inner">Les frais d'inscription au concours sont de <code>20 000 FCFA</code>, auxquels s'ajoutent le matériel et le transport dont les frais sont à déterminer.</div></div>
+            <div class="faq-a"><div class="faq-a-inner">Les frais d'inscription au concours sont de <code>20 000 FCFA</code>, auxquels s'ajoutent le matériel et le transport.</div></div>
           </div>
         </div>
       </div>
@@ -675,8 +674,8 @@
       <div class="footer-copy">© 2026 Nova Tech Engineering — Propulsé par la passion du code.</div>
       <div class="footer-links">
         <a href="index.html">Accueil</a>
-        <a href="docs/documentation.html">Documentation</a>
-        <a href="docs/equipe.html">Équipe</a>
+        <a href="documentation.html">Documentation</a>
+        <a href="equipe.html">Équipe</a>
         <a href="index.html#soutenir">Soutenir</a>
       </div>
     </div>

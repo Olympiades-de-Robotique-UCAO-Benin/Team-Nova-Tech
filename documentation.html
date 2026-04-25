@@ -59,7 +59,7 @@
     .page-header p{color:var(--text-secondary);font-size:1.1rem;max-width:650px}
 
     /* Layout: sidebar + content */
-    .doc-layout{display:grid;grid-template-columns:260px 1fr;gap:3rem;padding:3rem 0 6rem}
+    .doc-layout{display:grid;grid-template-columns:1fr;gap:3rem;padding:3rem 0 6rem;justify-content:center;justify-items:center}
     .sidebar{position:sticky;top:calc(var(--nav-h) + 2rem);height:fit-content}
     .sidebar-nav{display:grid;gap:.15rem}
     .sidebar-nav a{display:block;padding:.5rem .75rem;border-radius:8px;font-size:.88rem;font-weight:500;color:var(--text-secondary);transition:all .2s var(--ease);border-left:2px solid transparent}
@@ -68,10 +68,13 @@
     .sidebar-label{font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--text-muted);padding:.75rem .75rem .3rem;margin-top:.5rem}
 
     /* Content */
-    .doc-content{min-width:0}
-    .doc-section{margin-bottom:4rem}
+    .doc-content{min-width:0;width:100%}
+    .doc-section{margin-bottom:4rem;text-align:center;width:100%;display:flex;flex-direction:column;align-items:center}
     .doc-section h2{font-size:1.6rem;font-weight:800;letter-spacing:-.02em;margin-bottom:.5rem;padding-bottom:.75rem;border-bottom:1px solid var(--border)}
     .doc-section h3{font-size:1.15rem;font-weight:700;margin:1.5rem 0 .5rem;color:var(--text)}
+    .doc-section figure{width:auto;max-width:320px;margin:0 auto;border:1px solid var(--border);border-radius:16px;overflow:hidden;background:var(--surface)}
+    .doc-section figure figcaption{padding:1rem;font-size:.9rem;color:var(--text-secondary);text-align:center}
+    .doc-section .info-box{max-width:760px;margin:1.5rem auto 0;text-align:left}
     .doc-section p{color:var(--text-secondary);font-size:.92rem;line-height:1.8;margin-bottom:1rem}
     .doc-section ul,.doc-section ol{margin:.5rem 0 1rem 1.2rem;display:grid;gap:.3rem}
     .doc-section li{color:var(--text-secondary);font-size:.9rem;line-height:1.7;list-style:disc}
@@ -115,13 +118,13 @@
 
   <nav class="navbar">
     <div class="container">
-      <a href="../index.html" class="logo"><img src="../img/logo.jpeg" alt="Nova Tech" style="height:38px; border-radius:6px;"> NOVA TECH</a>
+      <a href="index.html" class="logo"><div class="logo-mark">NT</div> NOVA TECH</a>
       <div class="nav-links">
-        <a href="../index.html">Accueil</a>
+        <a href="index.html">Accueil</a>
         <a href="documentation.html">Documentation</a>
         <a href="equipe.html">Équipe</a>
-        <a href="../index.html#roadmap">Roadmap</a>
-        <a href="../index.html#faq">FAQ</a>
+        <a href="index.html#roadmap">Roadmap</a>
+        <a href="index.html#faq">FAQ</a>
         <a href="https://eventslink.diginets.site/vote-nominee.php?slug=olympiade-de-robotique-ucao-2026-69af11ed33d40&candidat=team-novatech" target="_blank">Soutenir NovaTech</a>
         <div class="nav-tools">
           <button class="nav-tool-btn" id="themeToggle" aria-label="Changer de thème" title="Mode clair / sombre">
@@ -137,11 +140,11 @@
     </div>
   </nav>
   <div class="mobile-menu" id="mobileMenu">
-    <a href="../index.html">Accueil</a>
+    <a href="index.html">Accueil</a>
     <a href="documentation.html">Documentation</a>
     <a href="equipe.html">Équipe</a>
-    <a href="../index.html#roadmap">Roadmap</a>
-    <a href="../index.html#faq">FAQ</a>
+    <a href="index.html#roadmap">Roadmap</a>
+    <a href="index.html#faq">FAQ</a>
     <a href="https://eventslink.diginets.site/vote-nominee.php?slug=olympiade-de-robotique-ucao-2026-69af11ed33d40&candidat=team-novatech" target="_blank">Soutenir NovaTech</a>
   </div>
 
@@ -149,7 +152,7 @@
     <div class="glow"></div>
     <div class="container">
       <div class="breadcrumb">
-        <a href="../index.html">Accueil</a>
+        <a href="index.html">Accueil</a>
         <span>/</span>
         <span>Documentation</span>
       </div>
@@ -164,9 +167,39 @@
       <!-- Signaler que la doc est en cours -->
       <div style="grid-column:1/-1;background:rgba(255,255,255,.06);border:1px solid var(--border);border-radius:12px;padding:1.5rem;text-align:center;color:var(--text-secondary);font-size:.9rem;margin-bottom:2rem">
         🚧 Documentation en cours de rédaction — Restez connectés pour les mises à jour ! 🚧
+      </div>
+
+      <div class="doc-content">
+        <section class="doc-section fade-in">
+          <h2>Documentation visuelle</h2>
+          <p>Les images suivantes ont été ajoutées au projet et illustrent le robot ainsi que les membres de l'équipe Nova Tech.</p>
+          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:1rem;margin-top:1.5rem;justify-items:center;max-width:1000px;margin-left:auto;margin-right:auto;">
+            <figure>
+              <img src="image/groupe1.jpeg" alt="Photo groupe 1" style="width:100%;display:block;object-fit:cover;height:220px;">
+              <figcaption> – Structure du châssis et position des capteurs.</figcaption>
+            </figure>
+            <figure>
+              <img src="image/groupe2.jpeg" alt="Photo groupe 2" style="width:100%;display:block;object-fit:cover;height:220px;">
+           </figcaption>– Modélisation 3D du robot.</figcaption>
+            </figure>
+            <figure>
+              <img src="image/groupe3.jpeg" alt="Photo groupe 3" style="width:100%;display:block;object-fit:cover;height:220px;">
+              <figcaption> – Assemblage des composants électroniques.</figcaption>
+            </figure>
+            <figure>
+              <img src="image/groupe4.jpeg" alt="Photo groupe 4" style="width:100%;display:block;object-fit:cover;height:220px;">
+              <figcaption> – analyse de la structure du robot.</figcaption>
+            </figure>
+          </div>
+          <div class="info-box tip">
+            <strong>💡 Conseil</strong>
+            Ces images peuvent être utilisées pour compléter la documentation technique et montrer l'avancement du projet.
+          </div>
+        </section>
+      </div>
 
       <!-- Sidebar -->
-      <!-- <aside class="sidebar">
+       <!--<aside class="sidebar">
         <nav class="sidebar-nav">
           <div class="sidebar-label">NOVA TECH</div>
           <a href="#quickstart" class="active">Présentation</a>
@@ -188,10 +221,10 @@
       </aside> -->
 
       <!-- Content -->
-      <!-- <div class="doc-content">
+         <div class="doc-content">
 
         <!-- Présentation -->
-        <!-- <section id="quickstart" class="doc-section fade-in">
+         <section id="quickstart" class="doc-section fade-in">
           <h2>Présentation et objectifs</h2>
           <p>Le projet consiste à concevoir un robot autonome capable de :</p>
           <ol>
@@ -204,10 +237,10 @@
             <strong>💡 Astuce</strong>
             Le robot est destiné à un contexte de compétition : toujours valider les essais sur une piste proche des conditions réelles.
           </div>
-        </section> -->
+        </section>
 
         <!-- Matériel -->
-        <!-- <section id="prerequis" class="doc-section fade-in">
+        <section id="prerequis" class="doc-section fade-in">
           <h2>Liste du matériel</h2>
           <p>Matériel requis selon le cahier de charge.</p>
           <table class="doc-table">
@@ -228,10 +261,10 @@
             </tbody>
           </table>
           <p>Technologie principale utilisée : <strong>Arduino</strong>.</p>
-        </section> -->
+        </section>
 
         <!-- Financement -->
-        <!-- <section id="financement" class="doc-section fade-in">
+        <section id="financement" class="doc-section fade-in">
           <h2>Financement</h2>
           <p>Le budget projet inclut les coûts obligatoires et les dépenses de fonctionnement.</p>
           <table class="doc-table">
@@ -242,10 +275,9 @@
               <tr><td>Transport</td><td>Variable</td><td>Déplacements équipe et logistique</td></tr>
             </tbody>
           </table>
-        </section> -->
-
+        </section>
         <!-- Capteurs -->
-        <!-- <section id="capteurs" class="doc-section fade-in">
+         <section id="capteurs" class="doc-section fade-in">
           <h2>Capteurs — Vue d'ensemble</h2>
           <p>Le robot utilise <strong>3 capteurs infrarouges</strong> pour détecter la ligne noire (gauche, centre, droite), plus un module dédié à l'évitement d'obstacles.</p>
 
@@ -264,10 +296,10 @@
 si capteur_droite détecte la ligne  → tourner à droite
 si capteur_centre détecte la ligne  → avancer
 si obstacle détecté                  → contourner l'obstacle</pre>
-        </section> -->
+        </section>
 
         <!-- Calibration et Ajustement -->
-        <!-- <section id="calibration" class="doc-section fade-in">
+       <section id="calibration" class="doc-section fade-in">
           <h2>Calibration et Ajustement des Seuils</h2>
           <p>Les capteurs IR retournent une valeur analogique entre 0 et 1023. Il est important de calibrer les seuils pour bien distinguer la ligne noire du fond blanc.</p>
           
@@ -300,10 +332,10 @@ si obstacle détecté                  → contourner l'obstacle</pre>
             <strong>⚠️ Important</strong>
             Si les capteurs donnent des valeurs instables, nettoyer les lentilles (poussière, traces de doigts) et vérifier la hauteur (5-8 mm du sol).
           </div>
-        </section> -->
+        </section>
 
         <!-- Contrôle Moteur -->
-        <!-- <section id="pid" class="doc-section fade-in">
+       <section id="pid" class="doc-section fade-in">
           <h2>Logique de Contrôle des Moteurs</h2>
           <p>Sur l'Arduino UNO avec 3 capteurs IR, le contrôle est simple : chaque configuration de capteurs correspond à une action moteur.</p>
 
@@ -361,14 +393,14 @@ si obstacle détecté                  → contourner l'obstacle</pre>
             </tbody>
           </table>
 
-          <div class="info-box tip">
+          <div class="info-box tip" justify-content:center>
             <strong>💡 Conseil</strong>
             Toujours tester sur au minimum 3 types de pistes : ligne droite, virage large, virage serré à 90°.
           </div>
-        </section> -->
+        </section> 
 
         <!-- Vitesse -->
-        <!-- <section id="vitesse" class="doc-section fade-in">
+        <section id="vitesse" class="doc-section fade-in">
           <h2>Stratégie Vitesse</h2>
           <p>La vitesse de base n'est pas fixe : elle s'adapte en fonction de la déviation de la ligne.</p>
 
@@ -387,10 +419,10 @@ si obstacle détecté                  → contourner l'obstacle</pre>
   <span class="kw">if</span> (absErr < <span class="nb">2500</span>) <span class="kw">return</span> <span class="nb">SLOW_SPEED</span>;     <span class="cm">// 150 - virage serré</span>
   <span class="kw">return</span> <span class="nb">MIN_SPEED</span>;                        <span class="cm">// 100 - urgence</span>
 }</pre>
-        </section> -->
+        </section> 
 
         <!-- Programmation Arduino -->
-        <!-- <section id="firmware" class="doc-section fade-in">
+       <section id="firmware" class="doc-section fade-in">
           <h2>Programmation Arduino</h2>
           <p>Le programme embarqué est développé en langage Arduino (C++ simplifié) pour l'Arduino UNO.</p>
 
@@ -432,10 +464,10 @@ si obstacle détecté                  → contourner l'obstacle</pre>
             <li>Cliquer "Vérifier" pour compiler, puis "Téléverser" pour charger dans le microcontrôleur.</li>
             <li>Ouvrir le Moniteur série (9600 baud) pour suivre l'exécution.</li>
           </ol>
-        </section> -->
+        </section> 
 
         <!-- Tests et optimisation -->
-        <!-- <section id="telemetrie" class="doc-section fade-in">
+        <section id="telemetrie" class="doc-section fade-in">
           <h2>Tests et Optimisation</h2>
           <p>Procédure systématique pour tester et affiner les performances du robot avant la compétition.</p>
 
@@ -459,10 +491,10 @@ si obstacle détecté                  → contourner l'obstacle</pre>
             <li>Observations qualitatives et ajustements effectués.</li>
           </ul>
           <p>Ces données permettent d'optimiser progressivement le robot et de détecter les problèmes intermittents.</p>
-        </section> -->
+        </section> 
 
         <!-- Maintenance -->
-        <!-- <section id="maintenance" class="doc-section fade-in">
+         <section id="maintenance" class="doc-section fade-in">
           <h2>Maintenance et Vérifications</h2>
           <p>Procédures pour garder le robot en état optimal avant la compétition.</p>
 
@@ -492,10 +524,10 @@ si obstacle détecté                  → contourner l'obstacle</pre>
             <strong>⚠️ Important — Alimentation</strong>
             Toujours couper l'interrupteur avant de débrancher la batterie. Ne pas court-circuiter les bornes. Charger les piles en dehors du robot pour éviter les dégâts.
           </div>
-        </section> -->
+        </section> 
 
         <!-- Troubleshooting -->
-        <!-- <section id="troubleshooting" class="doc-section fade-in">
+        <section id="troubleshooting" class="doc-section fade-in">
           <h2>Dépannage</h2>
           <p>Solutions rapides aux problèmes courants rencontrés avec l'Arduino UNO et le robot.</p>
 
@@ -511,9 +543,9 @@ si obstacle détecté                  → contourner l'obstacle</pre>
               <tr><td>Robot très lent malgré batterie correcte</td><td>Friction mécanique ou dégâts moteur</td><td>Vérifier les roues (pas d'obstruction), tester les moteurs séparément</td></tr>
             </tbody>
           </table>
-        </section> -->
+        </section>
 
-      </div> -->
+      </div>
     </div>
   </main>
 
@@ -521,7 +553,7 @@ si obstacle détecté                  → contourner l'obstacle</pre>
     <div class="container footer-inner">
       <div class="footer-copy">© 2026 Nova Tech Engineering</div>
       <div class="footer-links">
-        <a href="../index.html">Accueil</a>
+        <a href="index.html">Accueil</a>
         <a href="documentation.html">Documentation</a>
         <a href="equipe.html">Équipe</a>
         <a href="https://eventslink.diginets.site/vote-nominee.php?slug=olympiade-de-robotique-ucao-2026-69af11ed33d40&candidat=team-novatech" target="_blank">Soutenir</a>
